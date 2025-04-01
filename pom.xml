@@ -22,6 +22,8 @@
     <micronaut.runtime>netty</micronaut.runtime>
     <micronaut.test.resources.enabled>true</micronaut.test.resources.enabled>
     <exec.mainClass>ru.aquamarina.Application</exec.mainClass>
+
+    <telegram.version>8.0.0</telegram.version>
   </properties>
 
   <repositories>
@@ -37,11 +39,11 @@
       <artifactId>micronaut-http-server-netty</artifactId>
       <scope>compile</scope>
     </dependency>
-    <dependency>
-      <groupId>io.micronaut.chatbots</groupId>
-      <artifactId>micronaut-chatbots-telegram-http</artifactId>
-      <scope>compile</scope>
-    </dependency>
+<!--    <dependency>-->
+<!--      <groupId>io.micronaut.chatbots</groupId>-->
+<!--      <artifactId>micronaut-chatbots-telegram-http</artifactId>-->
+<!--      <scope>compile</scope>-->
+<!--    </dependency>-->
     <dependency>
       <groupId>io.micronaut.data</groupId>
       <artifactId>micronaut-data-jdbc</artifactId>
@@ -112,6 +114,26 @@
       <artifactId>junit-jupiter-engine</artifactId>
       <scope>test</scope>
     </dependency>
+      <dependency>
+        <groupId>org.telegram</groupId>
+        <artifactId>telegrambots</artifactId>
+        <version>6.0.1</version>
+      </dependency>
+<!--    <dependency>-->
+<!--      <groupId>org.telegram</groupId>-->
+<!--      <artifactId>telegrambots-longpolling</artifactId>-->
+<!--      <version>${telegram.version}</version>-->
+<!--    </dependency>-->
+<!--    <dependency>-->
+<!--      <groupId>org.telegram</groupId>-->
+<!--      <artifactId>telegrambots-client</artifactId>-->
+<!--      <version>${telegram.version}</version>-->
+<!--    </dependency>-->
+<!--    <dependency>-->
+<!--      <groupId>org.telegram</groupId>-->
+<!--      <artifactId>telegrambots-meta</artifactId>-->
+<!--      <version>${telegram.version}</version>-->
+<!--    </dependency>-->
   </dependencies>
   <build>
     <plugins>
