@@ -5,18 +5,23 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 //import org.telegram.telegrambots.longpolling.util.LongPollingSingleThreadUpdateConsumer;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
-import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import ru.aquamarina.fsm.FsmState;
+import ru.aquamarina.fsm.StateResolver;
 
-import java.util.List;
+import java.util.Optional;
 
 @Singleton
 public class Bot extends TelegramLongPollingBot {
 
     private final Logger log = LoggerFactory.getLogger(Bot.class);
+
+    private final StateResolver stateResolver;
+
+    public Bot(StateResolver stateResolver){
+        super();
+        this.stateResolver = stateResolver;
+    }
 
     @Override
     public String getBotUsername() {
@@ -30,29 +35,11 @@ public class Bot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
-        String chatId;
-        if (update.hasMessage() && update.getMessage().hasText()){
-            chatId = update.getMessage().getChatId().toString();
-        } else {
-            chatId = update.getCallbackQuery().getMessage().getChatId().toString();
+        FsmState state = stateResolver.resolve(update, this);
+        var st = Optional.ofNullable(state);
+        while (st.isPresent()) {
+            st = st.get().doWork(update);
         }
-        var button = InlineKeyboardButton.builder()
-                .text("О нас")
-                .callbackData("about")
-                .build();
-        var keyBoard = InlineKeyboardMarkup.builder()
-                .keyboardRow(List.of(button))
-                .build();
-        SendMessage message = SendMessage.builder()
-                .chatId(chatId)
-                .text("Привет. Чего желаете")
-                .replyMarkup(keyBoard)
-                .build();
-
-        try {
-            execute(message);
-        } catch (TelegramApiException e) {
-            log.error("some err", e);
-        }
+//        state.doWork(update);
     }
 }

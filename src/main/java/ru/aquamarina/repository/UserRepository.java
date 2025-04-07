@@ -3,11 +3,10 @@ package ru.aquamarina.repository;
 import io.micronaut.data.jdbc.annotation.JdbcRepository;
 import io.micronaut.data.model.query.builder.sql.Dialect;
 import io.micronaut.data.repository.PageableRepository;
-import ru.aquamarina.model.Product;
+import ru.aquamarina.model.User;
 
 import java.util.UUID;
 
 @JdbcRepository(dialect = Dialect.POSTGRES)
-public interface ProductRepository extends PageableRepository<Product, UUID> {
-    Product findByName(String name);
+public interface UserRepository extends PageableRepository<User, UUID> {
 }
