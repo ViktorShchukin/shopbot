@@ -6,7 +6,7 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
-import org.telegram.telegrambots.meta.bots.AbsSender;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.List;
@@ -16,16 +16,8 @@ public class Start implements FsmState {
 
     private final Logger log = LoggerFactory.getLogger(Start.class);
 
-//    private final Update update;
-    private final AbsSender sender;
-
-    public Start(Update update, AbsSender sender){
-//        this.update = update;
-        this.sender = sender;
-    }
-
     @Override
-    public Optional<FsmState> doWork(Update update) {
+    public Optional<FsmState> doWork(FsmContextHolder context, Update update) {
         String chatId;
         if (update.hasMessage()) {
             chatId = update.getMessage().getChatId().toString();
@@ -41,8 +33,9 @@ public class Start implements FsmState {
                 .text("Каталог")
                 .callbackData("catalog")
                 .build();
+        InlineKeyboardRow keyboardRow = new InlineKeyboardRow(List.of(button, button1));
         var keyBoard = InlineKeyboardMarkup.builder()
-                .keyboardRow(List.of(button, button1))
+                .keyboardRow(keyboardRow)
                 .build();
         SendMessage message = SendMessage.builder()
                 .chatId(chatId)
@@ -51,7 +44,7 @@ public class Start implements FsmState {
                 .build();
 
         try {
-            sender.execute(message);
+            context.getTelegramClient().execute(message);
         } catch (TelegramApiException e) {
             log.error("some err", e);
         }

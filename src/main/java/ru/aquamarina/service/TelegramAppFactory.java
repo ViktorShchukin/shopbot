@@ -1,23 +1,25 @@
 package ru.aquamarina.service;
 
 import io.micronaut.context.annotation.Factory;
+import io.micronaut.context.annotation.Property;
 import jakarta.inject.Singleton;
-import org.telegram.telegrambots.meta.TelegramBotsApi;
-import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
-//import org.telegram.telegrambots.longpolling.TelegramBotsLongPollingApplication;
+import org.telegram.telegrambots.client.okhttp.OkHttpTelegramClient;
+import org.telegram.telegrambots.longpolling.TelegramBotsLongPollingApplication;
+
 
 @Factory
 public class TelegramAppFactory {
 
+    @Property(name = "sb.chatbot.telegram.bot.token")
+    protected String botToken;
+
     @Singleton
-    TelegramBotsApi telApp() {
-        TelegramBotsApi api = null;
-        try {
-            api = new TelegramBotsApi(DefaultBotSession.class);
-        } catch (TelegramApiException e) {
-            System.out.println("как же бесть это все");
-        }
-        return api;
+    OkHttpTelegramClient getTelegramClient() {
+        return new OkHttpTelegramClient(botToken);
+    }
+
+    @Singleton
+    TelegramBotsLongPollingApplication telApp() {
+        return new TelegramBotsLongPollingApplication();
     }
 }

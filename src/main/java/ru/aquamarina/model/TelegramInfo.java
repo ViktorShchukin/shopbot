@@ -6,7 +6,7 @@ import io.micronaut.data.annotation.MappedEntity;
 import java.util.UUID;
 
 @MappedEntity
-public class UserTelegramInfo {
+public class TelegramInfo {
 
     @Id
     private Long telegram_id;

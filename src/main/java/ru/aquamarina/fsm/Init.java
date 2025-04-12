@@ -1,31 +1,23 @@
 package ru.aquamarina.fsm;
 
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.bots.AbsSender;
-import ru.aquamarina.model.UserTelegramInfo;
-import ru.aquamarina.repository.UserTelegramInfoRepository;
+import ru.aquamarina.model.TelegramInfo;
 
 import java.util.Optional;
 
 public class Init implements FsmState {
 
-    private final UserTelegramInfoRepository telegramInfoRepository;
-    private final AbsSender absSender;
 
-    public Init(UserTelegramInfoRepository telegramInfoRepository, AbsSender absSender) {
-        this.telegramInfoRepository = telegramInfoRepository;
-        this.absSender = absSender;
-    }
 
     @Override
-    public Optional<FsmState> doWork(Update update) {
+    public Optional<FsmState> doWork(FsmContextHolder context, Update update) {
         Long userId = update.getMessage().getFrom().getId();
-        UserTelegramInfo nTelegramUser = new UserTelegramInfo();
+        TelegramInfo nTelegramUser = new TelegramInfo();
         nTelegramUser.setTelegram_id(userId);
 //        nTelegramUser.setLast_state("init");
-        if (!telegramInfoRepository.existsById(userId)){
-            telegramInfoRepository.save(nTelegramUser);
+        if (!context.getTelegramInfoService().existsById(userId)){
+            context.getTelegramInfoService().save(nTelegramUser);
         }
-        return Optional.of(new Start(update, absSender));
+        return Optional.of(new Start());
     }
 }
