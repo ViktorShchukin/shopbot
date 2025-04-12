@@ -1,4 +1,4 @@
-package ru.aquamarina.service;
+package ru.aquamarina.api.bot.telegram;
 
 import io.micronaut.context.event.ApplicationEventListener;
 import io.micronaut.context.event.StartupEvent;
@@ -9,14 +9,14 @@ import org.telegram.telegrambots.longpolling.TelegramBotsLongPollingApplication;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 @Singleton
-public class StartUpEventListener implements ApplicationEventListener<StartupEvent> {
+public class OnStartupEventBotRegistarator implements ApplicationEventListener<StartupEvent> {
 
-    private final Logger log = LoggerFactory.getLogger(StartUpEventListener.class);
+    private final Logger log = LoggerFactory.getLogger(OnStartupEventBotRegistarator.class);
 
     private final TelegramBotsLongPollingApplication telegramApp;
     private final Bot bot;
 
-    public StartUpEventListener(TelegramBotsLongPollingApplication telegramApp, Bot bot) {
+    public OnStartupEventBotRegistarator(TelegramBotsLongPollingApplication telegramApp, Bot bot) {
         this.telegramApp = telegramApp;
         this.bot = bot;
     }
@@ -24,7 +24,7 @@ public class StartUpEventListener implements ApplicationEventListener<StartupEve
     @Override
     public void onApplicationEvent(StartupEvent event) {
         try {
-            telegramApp.registerBot(bot.botToken, bot);
+            telegramApp.registerBot(bot.getBotToken(), bot);
         } catch (TelegramApiException e) {
          log.error("Error registering bot", e);
         }

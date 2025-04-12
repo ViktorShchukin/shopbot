@@ -1,4 +1,4 @@
-package ru.aquamarina.fsm;
+package ru.aquamarina.fsm.state;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,6 +8,8 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import ru.aquamarina.fsm.FsmContextHolder;
+import ru.aquamarina.fsm.FsmState;
 
 import java.util.List;
 import java.util.Optional;

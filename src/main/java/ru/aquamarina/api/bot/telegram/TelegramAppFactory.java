@@ -1,4 +1,4 @@
-package ru.aquamarina.service;
+package ru.aquamarina.api.bot.telegram;
 
 import io.micronaut.context.annotation.Factory;
 import io.micronaut.context.annotation.Property;

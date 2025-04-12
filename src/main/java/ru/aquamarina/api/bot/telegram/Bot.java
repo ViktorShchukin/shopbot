@@ -1,4 +1,4 @@
-package ru.aquamarina.service;
+package ru.aquamarina.api.bot.telegram;
 
 import io.micronaut.context.annotation.Property;
 import jakarta.inject.Singleton;
@@ -36,5 +36,13 @@ public class Bot implements LongPollingSingleThreadUpdateConsumer {
     @Override
     public void consume(List<Update> updates) {
         updates.forEach(this::consume);
+    }
+
+    public String getBotToken() {
+        return botToken;
+    }
+
+    public void setBotToken(String botToken) {
+        this.botToken = botToken;
     }
 }

@@ -1,6 +1,8 @@
-package ru.aquamarina.fsm;
+package ru.aquamarina.fsm.state;
 
 import org.telegram.telegrambots.meta.api.objects.Update;
+import ru.aquamarina.fsm.FsmContextHolder;
+import ru.aquamarina.fsm.FsmState;
 import ru.aquamarina.model.TelegramInfo;
 
 import java.util.Optional;

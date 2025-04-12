@@ -1,18 +1,11 @@
-package ru.aquamarina.fsm;
+package ru.aquamarina.fsm.state;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
-import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-import ru.aquamarina.model.Product;
-import ru.aquamarina.repository.ProductRepository;
+import ru.aquamarina.fsm.FsmContextHolder;
+import ru.aquamarina.fsm.FsmState;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 public class Products implements FsmState {
