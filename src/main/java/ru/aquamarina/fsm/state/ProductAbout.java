@@ -3,6 +3,7 @@ package ru.aquamarina.fsm.state;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import ru.aquamarina.fsm.Form;
 import ru.aquamarina.fsm.FsmContextHolder;
 import ru.aquamarina.fsm.FsmState;
 
@@ -58,6 +59,12 @@ public class ProductAbout implements FsmState {
 //            log.error("some err", e);
 //        }
         return Optional.empty();
+    }
+
+    @Override
+    public Form getForm() {
+        // todo
+        return null;
     }
 
     String extractName(String query) {

@@ -14,6 +14,11 @@ public class TelegramAppFactory {
     protected String botToken;
 
     @Singleton
+    TelegramMapper getTelegramMapper(){
+        return TelegramMapper.getInstance();
+    }
+
+    @Singleton
     OkHttpTelegramClient getTelegramClient() {
         return new OkHttpTelegramClient(botToken);
     }

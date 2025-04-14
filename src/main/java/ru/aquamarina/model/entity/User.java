@@ -1,4 +1,4 @@
-package ru.aquamarina.model;
+package ru.aquamarina.model.entity;
 
 import io.micronaut.data.annotation.Id;
 import io.micronaut.data.annotation.MappedEntity;

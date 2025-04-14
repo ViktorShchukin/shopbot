@@ -4,16 +4,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-import java.util.List;
 import java.util.Optional;
 
-public class UnknownCommand implements FsmState{
+public class UnknownCommandState implements FsmState{
 
-    private final Logger log = LoggerFactory.getLogger(UnknownCommand.class);
+    private final Logger log = LoggerFactory.getLogger(UnknownCommandState.class);
 
     @Override
     public Optional<FsmState> doWork(FsmContextHolder context, Update update) {
@@ -35,5 +32,11 @@ public class UnknownCommand implements FsmState{
             log.error("some err", e);
         }
         return Optional.empty();
+    }
+
+    @Override
+    public Form getForm() {
+        // todo
+        return null;
     }
 }

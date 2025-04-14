@@ -1,9 +1,10 @@
 package ru.aquamarina.fsm.state;
 
 import org.telegram.telegrambots.meta.api.objects.Update;
+import ru.aquamarina.fsm.Form;
 import ru.aquamarina.fsm.FsmContextHolder;
 import ru.aquamarina.fsm.FsmState;
-import ru.aquamarina.model.TelegramInfo;
+import ru.aquamarina.model.entity.TelegramInfo;
 
 import java.util.Optional;
 
@@ -21,5 +22,11 @@ public class Init implements FsmState {
             context.getTelegramInfoService().save(nTelegramUser);
         }
         return Optional.of(new Start());
+    }
+
+    @Override
+    public Form getForm() {
+        // todo
+        return null;
     }
 }

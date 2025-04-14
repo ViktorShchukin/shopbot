@@ -7,4 +7,6 @@ import java.util.Optional;
 public interface FsmState {
 
     Optional<FsmState> doWork(FsmContextHolder context, Update update);
+
+    Form getForm();
 }

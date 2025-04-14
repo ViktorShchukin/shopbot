@@ -7,7 +7,7 @@ import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.aquamarina.model.Product;
+import ru.aquamarina.model.entity.Product;
 import ru.aquamarina.service.ProductService;
 
 import java.util.List;

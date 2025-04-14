@@ -17,7 +17,7 @@ public class Resolve implements FsmState {
             if (update.getMessage().getText().equals("/start")) {
                 return Optional.of(new Init());
             } else {
-                return Optional.of(new UnknownCommand());
+                return Optional.of(new UnknownCommandState());
             }
         } else if (update.hasCallbackQuery()) {
             switch (update.getCallbackQuery().getData()) {
@@ -34,11 +34,17 @@ public class Resolve implements FsmState {
                     return Optional.of(new ProductAbout());
                 }
                 default -> {
-                    return Optional.of(new UnknownCommand());
+                    return Optional.of(new UnknownCommandState());
                 }
             }
         } else {
-            return Optional.of(new UnknownCommand());
+            return Optional.of(new UnknownCommandState());
         }
+    }
+
+    @Override
+    public Form getForm() {
+        // todo
+        return null;
     }
 }

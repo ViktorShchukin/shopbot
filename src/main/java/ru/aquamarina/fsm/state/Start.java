@@ -8,6 +8,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import ru.aquamarina.fsm.Form;
 import ru.aquamarina.fsm.FsmContextHolder;
 import ru.aquamarina.fsm.FsmState;
 
@@ -51,5 +52,11 @@ public class Start implements FsmState {
             log.error("some err", e);
         }
         return Optional.empty();
+    }
+
+    @Override
+    public Form getForm() {
+        // todo
+        return null;
     }
 }
