@@ -1,7 +1,7 @@
 package ru.aquamarina.service;
 
 import jakarta.inject.Singleton;
-import ru.aquamarina.model.Product;
+import ru.aquamarina.model.entity.Product;
 import ru.aquamarina.repository.ProductRepository;
 
 import java.util.List;

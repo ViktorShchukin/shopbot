@@ -3,7 +3,7 @@ package ru.aquamarina.repository;
 import io.micronaut.data.jdbc.annotation.JdbcRepository;
 import io.micronaut.data.model.query.builder.sql.Dialect;
 import io.micronaut.data.repository.PageableRepository;
-import ru.aquamarina.model.Product;
+import ru.aquamarina.model.entity.Product;
 
 import java.util.UUID;
 
