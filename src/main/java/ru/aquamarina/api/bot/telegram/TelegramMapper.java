@@ -26,26 +26,14 @@ public interface TelegramMapper {
         if (update.hasCallbackQuery()) {
             command = update.getCallbackQuery().getData();
         }
-        switch (command) {
-            case String s when s.equals(Start.getCommandName())  -> {
-                return Result.ok(new Start(userId));
-            }
-            case String s when s.equals(About.getCommandName()) -> {
-                return Result.ok(new About(userId));
-            }
-            case String s when s.equals(Index.getCommandName()) -> {
-                return Result.ok(new Index(userId));
-            }
-            case String s when s.equals(Catalog.getCommandName()) -> {
-                return Result.ok(new Catalog(userId));
-            }
-            case String s when s.equals(About.getCommandName()) -> {
-                // todo think how to extract product name
-                return Result.ok(new About(userId));
-            }
-            default -> {
-                return Result.error(new UnknowCommand());
-            }
-        }
+        return switch (command) {
+            case Start.NAME  -> Result.ok(new Start(userId));
+            case About.NAME -> Result.ok(new About(userId));
+            case Index.NAME -> Result.ok(new Index(userId));
+            case Catalog.NAME -> Result.ok(new Catalog(userId));
+            // todo think how to extract product name
+            case ProductAbout.NAME -> Result.ok(new ProductAbout(userId));
+            case null, default -> Result.error(new UnknowCommand());
+        };
     }
 }

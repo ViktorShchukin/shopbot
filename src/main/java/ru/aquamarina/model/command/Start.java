@@ -6,14 +6,10 @@ import java.util.UUID;
 
 public record Start(UUID userId) implements Command {
 
-    static String NAME = "/start";
+    public static final String NAME = "/start";
 
     @Override
     public UUID getUserId() {
         return userId;
-    }
-
-    public static String getCommandName() {
-        return NAME;
     }
 }

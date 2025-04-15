@@ -4,14 +4,10 @@ import java.util.UUID;
 
 public record About(UUID userId) implements Command {
 
-    static String NAME = "about";
+    public final static String NAME = "about";
 
     @Override
     public UUID getUserId() {
         return userId;
-    }
-
-    public static String getCommandName() {
-        return NAME;
     }
 }
