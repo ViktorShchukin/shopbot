@@ -8,9 +8,7 @@ import ru.aquamarina.model.entity.User;
 import ru.aquamarina.util.Result;
 import ru.aquamarina.model.command.Index;
 import ru.aquamarina.model.error.Error;
-import ru.aquamarina.model.error.UnknowCommand;
-
-import java.util.UUID;
+import ru.aquamarina.model.error.UnknownCommand;
 
 @Mapper
 public interface TelegramMapper {
@@ -34,7 +32,7 @@ public interface TelegramMapper {
             case Catalog.NAME -> Result.ok(new Catalog(user));
             // todo think how to extract product name
             case ProductAbout.NAME -> Result.ok(new ProductAbout(user));
-            case null, default -> Result.error(new UnknowCommand());
+            case null, default -> Result.error(new UnknownCommand());
         };
     }
 }

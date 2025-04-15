@@ -2,12 +2,11 @@ package ru.aquamarina.fsm.state;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.telegram.telegrambots.meta.api.objects.Update;
-import ru.aquamarina.fsm.Form;
+import ru.aquamarina.fsm.form.Form;
 import ru.aquamarina.fsm.FsmContextHolder;
-import ru.aquamarina.fsm.FsmState;
-
-import java.util.Optional;
+import ru.aquamarina.model.command.Command;
+import ru.aquamarina.model.error.Error;
+import ru.aquamarina.util.Result;
 
 public class About implements FsmState {
 
@@ -21,8 +20,8 @@ public class About implements FsmState {
 //        this.sender = sender;
 //    }
 
-    @Override
-    public Optional<FsmState> doWork(FsmContextHolder context, Update update) {
+//    @Override
+//    public Optional<FsmState> doWork(FsmContextHolder context, Update update) {
 //        var chatId = update.getCallbackQuery().getFrom().getId().toString();
 //        var button = InlineKeyboardButton.builder()
 //                .text("Назад")
@@ -48,7 +47,13 @@ public class About implements FsmState {
 //        } catch (TelegramApiException e) {
 //            log.error("some err", e);
 //        }
-        return Optional.empty();
+//        return Optional.empty();
+//    }
+
+
+    @Override
+    public Result<FsmState, Error> doWork(FsmContextHolder context, Command command) {
+        return Result.ok(new Start());
     }
 
     @Override

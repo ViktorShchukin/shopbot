@@ -1,4 +1,4 @@
-package ru.aquamarina.fsm;
+package ru.aquamarina.fsm.form;
 
 public interface Form {
 
