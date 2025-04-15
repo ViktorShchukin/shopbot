@@ -1,13 +1,13 @@
 package ru.aquamarina.model.command;
 
-import java.util.UUID;
+import ru.aquamarina.model.entity.User;
 
-public record Index(UUID userId) implements Command {
+public record Index(User user) implements Command {
 
     public static final String NAME = "index";
 
     @Override
-    public UUID getUserId() {
-        return userId;
+    public User getUser() {
+        return user;
     }
 }

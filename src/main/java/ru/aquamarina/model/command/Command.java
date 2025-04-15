@@ -1,8 +1,8 @@
 package ru.aquamarina.model.command;
 
-import java.util.UUID;
+import ru.aquamarina.model.entity.User;
 
 public interface Command {
 
-    UUID getUserId();
+    User getUser();
 }

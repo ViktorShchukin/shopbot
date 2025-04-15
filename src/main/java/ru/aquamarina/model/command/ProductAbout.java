@@ -1,14 +1,14 @@
 package ru.aquamarina.model.command;
 
-import java.util.UUID;
+import ru.aquamarina.model.entity.User;
 
-public record ProductAbout(UUID userId) implements Command {
+public record ProductAbout(User user) implements Command {
 
     // todo think how to pass product name
     public static final String NAME = "productAbout";
 
     @Override
-    public UUID getUserId() {
-        return userId;
+    public User getUser() {
+        return user;
     }
 }

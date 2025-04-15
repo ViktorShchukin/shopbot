@@ -39,6 +39,7 @@ public class Bot implements LongPollingSingleThreadUpdateConsumer {
         telegramMapper
                 .map(update, user.getId());
                 .map(fsmRunner::execute)
+                .map(update, user);
                 .map(view::draw)
                 .onErr(view::drawErr);
         Result<Form, Err> result = fsmRunner.execute(command);
