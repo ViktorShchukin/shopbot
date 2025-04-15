@@ -11,7 +11,6 @@ public class TelegramInfo {
     @Id
     private Long telegram_id;
     private UUID user_id;
-    private String last_state;
 
     public Long getTelegram_id() {
         return telegram_id;
@@ -27,13 +26,5 @@ public class TelegramInfo {
 
     public void setUser_id(UUID user_id) {
         this.user_id = user_id;
-    }
-
-    public String getLast_state() {
-        return last_state;
-    }
-
-    public void setLast_state(String last_state) {
-        this.last_state = last_state;
     }
 }
