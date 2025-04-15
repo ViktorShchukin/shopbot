@@ -9,22 +9,22 @@ import java.util.UUID;
 public class TelegramInfo {
 
     @Id
-    private Long telegram_id;
-    private UUID user_id;
+    private Long telegramId;
+    private UUID userId;
 
-    public Long getTelegram_id() {
-        return telegram_id;
+    public Long getTelegramId() {
+        return telegramId;
     }
 
-    public void setTelegram_id(Long telegram_id) {
-        this.telegram_id = telegram_id;
+    public void setTelegramId(Long telegramId) {
+        this.telegramId = telegramId;
     }
 
-    public UUID getUser_id() {
-        return user_id;
+    public UUID getUserId() {
+        return userId;
     }
 
-    public void setUser_id(UUID user_id) {
-        this.user_id = user_id;
+    public void setUserId(UUID userId) {
+        this.userId = userId;
     }
 }

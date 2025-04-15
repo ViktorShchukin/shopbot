@@ -3,6 +3,7 @@ package ru.aquamarina.api.bot.telegram;
 
 import jakarta.inject.Singleton;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import ru.aquamarina.model.error.UserNotFound;
 import ru.aquamarina.util.Result;
 import ru.aquamarina.model.entity.User;
 import ru.aquamarina.model.error.Error;
@@ -18,11 +19,20 @@ public class TelegramUtils {
         this.telegramInfoService = telegramInfoService;
     }
 
+    /**
+     * @param update
+     * @return {@link NotSupportedUpdateType} {@link UserNotFound}
+     */
     public Result<User, Error> getUser(Update update) {
         return extractTelegramUserId(update)
-                .map(telegramInfoService::getUserByTelegramId);
+                // todo is it good idea just to create user. What if in future in will require more complicated initialization
+                .map(telegramInfoService::getOrCrateUserByTelegramId);
     }
 
+    /**
+     * @param update
+     * @return {@link NotSupportedUpdateType}
+     */
     private Result<Long, Error> extractTelegramUserId(Update update) {
         if (update.hasMessage()) {
             return Result.ok(update.getMessage().getFrom().getId());

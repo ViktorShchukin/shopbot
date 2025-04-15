@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory;
 import ru.aquamarina.fsm.form.Form;
 import ru.aquamarina.fsm.state.FsmState;
 import ru.aquamarina.fsm.state.Init;
-import ru.aquamarina.fsm.state.Start;
+import ru.aquamarina.fsm.state.Index;
 import ru.aquamarina.model.command.Command;
 import ru.aquamarina.model.entity.User;
 import ru.aquamarina.model.error.Error;
@@ -37,8 +37,9 @@ public class DefaultFsmRunner implements FsmRunner {
     private Result<FsmState, Error> restoreState(User user) {
         String caseName = user.getLastState();
         return switch (caseName) {
-            case Start.NAME -> Result.ok(new Start());
-            case null -> Result.ok(new Init());
+            case Index.NAME -> Result.ok(new Index());
+            // todo think about init state. Now just create user if there is not exist. but what if in future it requires more complicated initialization
+            case null -> Result.ok(new Index());
             default -> Result.error(new UnknownState());
         };
     }

@@ -10,7 +10,7 @@ import ru.aquamarina.util.Result;
 
 public class About implements FsmState {
 
-    private final Logger log = LoggerFactory.getLogger(Start.class);
+    private final Logger log = LoggerFactory.getLogger(Index.class);
 
 //    private final Update update;
 //    private final AbsSender sender;
@@ -53,7 +53,8 @@ public class About implements FsmState {
 
     @Override
     public Result<FsmState, Error> doWork(FsmContextHolder context, Command command) {
-        return Result.ok(new Start());
+        // todo end realization
+        return Result.ok(new Index());
     }
 
     @Override
