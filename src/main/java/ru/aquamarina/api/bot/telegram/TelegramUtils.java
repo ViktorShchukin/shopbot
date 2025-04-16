@@ -2,6 +2,8 @@ package ru.aquamarina.api.bot.telegram;
 
 
 import jakarta.inject.Singleton;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.aquamarina.model.error.UserNotFound;
 import ru.aquamarina.util.Result;
@@ -12,6 +14,8 @@ import ru.aquamarina.service.TelegramInfoService;
 
 @Singleton
 public class TelegramUtils {
+
+    private final Logger log = LoggerFactory.getLogger(TelegramUtils.class);
 
     public final TelegramInfoService telegramInfoService;
 

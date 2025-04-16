@@ -38,7 +38,14 @@ public interface TelegramMapper {
         };
     }
 
-    default Result<DrawContext, Error> mapToDrawContext(Update update) {
-        return Result.ok(new TelegramDrawContext());
+    default Result<TelegramDrawContext, Error> mapToDrawContext(Update update) {
+        String chatId = null;
+        if (update.hasMessage()) {
+            chatId = update.getMessage().getFrom().getId().toString();
+        }
+        if (update.hasCallbackQuery()) {
+            chatId = update.getCallbackQuery().getFrom().getId().toString();
+        }
+        return Result.ok(new TelegramDrawContext(chatId));
     }
 }

@@ -4,7 +4,7 @@ import ru.aquamarina.model.command.Command;
 
 import java.util.List;
 
-public interface Form {
+public sealed interface Form permits AboutForm, IndexForm {
 
     /**
      * @return commands that should be placed on the form.

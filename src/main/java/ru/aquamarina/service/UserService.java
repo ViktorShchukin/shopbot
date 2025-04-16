@@ -3,7 +3,10 @@ package ru.aquamarina.service;
 import io.micronaut.data.exceptions.DataAccessException;
 import jakarta.inject.Singleton;
 import jakarta.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ru.aquamarina.fsm.state.FsmState;
+import ru.aquamarina.fsm.state.Init;
 import ru.aquamarina.mapper.UserMapper;
 import ru.aquamarina.model.entity.User;
 import ru.aquamarina.model.error.Error;
@@ -16,6 +19,8 @@ import java.util.UUID;
 
 @Singleton
 public class UserService {
+
+    private final Logger log = LoggerFactory.getLogger(UserService.class);
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
@@ -32,9 +37,13 @@ public class UserService {
     }
 
     @Transactional
-    public User create(String login, String lastState) {
-        return userRepository.save(
-                userMapper.create(login, lastState));
+    public Result<User, Error> create(String login) {
+        try {
+            User user = userMapper.create(login, Init.NAME);
+            return Result.ok(userRepository.save(user));
+        } catch (Exception e) {
+            return Result.error(new IoError(e));
+        }
     }
 
     public Result<FsmState, Error> updateState(User user, FsmState state) {

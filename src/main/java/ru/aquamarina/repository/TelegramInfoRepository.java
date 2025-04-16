@@ -13,7 +13,5 @@ import java.util.UUID;
 @JdbcRepository(dialect = Dialect.POSTGRES)
 public interface TelegramInfoRepository extends PageableRepository<TelegramInfo, Long> {
 
-    @Query("select gen_random_uuid()")
-    //todo end this
     Optional<UUID> getUserIdByTelegramId(long id);
 }

@@ -2,15 +2,20 @@ package ru.aquamarina.model.entity;
 
 import io.micronaut.data.annotation.Id;
 import io.micronaut.data.annotation.MappedEntity;
+import io.micronaut.data.annotation.MappedProperty;
+import io.micronaut.serde.annotation.Serdeable;
 
 import java.util.UUID;
 
-@MappedEntity
+@MappedEntity(value = "app_user")
+@Serdeable
 public class User {
 
     @Id
     private UUID id;
     private String login;
+
+    @MappedProperty("last_state")
     private String lastState;
 
     public UUID getId() {
