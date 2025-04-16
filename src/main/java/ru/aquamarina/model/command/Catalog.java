@@ -1,17 +1,13 @@
 package ru.aquamarina.model.command;
 
-import java.util.UUID;
+import ru.aquamarina.model.entity.User;
 
-public record Catalog(UUID userId) implements Command {
+public record Catalog(User user) implements Command {
 
-    static String NAME = "catalog";
+    public static final String NAME = "catalog";
 
     @Override
-    public UUID getUserId() {
-        return userId;
-    }
-
-    public static String getCommandName() {
-        return NAME;
+    public User getUser() {
+        return user;
     }
 }

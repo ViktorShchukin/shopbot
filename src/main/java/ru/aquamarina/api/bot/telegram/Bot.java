@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.longpolling.util.LongPollingSingleThreadUpdateConsumer;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import ru.aquamarina.api.bot.DrawContext;
 import ru.aquamarina.api.bot.View;
 import ru.aquamarina.fsm.FsmContextHolder;
 import ru.aquamarina.fsm.FsmRunner;
@@ -36,13 +37,14 @@ public class Bot implements LongPollingSingleThreadUpdateConsumer {
     @Override
     public void consume(Update update) {
         User user = telegramUtils.getUser(update).ok().get();
+        DrawContext drawContext = telegramMapper.mapToDrawContext(update);
         telegramMapper
-                .map(update, user.getId());
+                .mapToCommand(update, user)
                 .map(fsmRunner::execute)
-                .map(view::draw)
-                .onErr(view::drawErr);
-        Result<Form, Err> result = fsmRunner.execute(command);
-        view.draw(result);
+                .map(form -> view.draw(drawContext, form))
+                .or(error -> view.drawError(drawContext, error));
+//        Result<Form, Err> result = fsmRunner.execute(command);
+//        view.draw(result);
     }
 
     @Override

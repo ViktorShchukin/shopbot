@@ -1,33 +1,31 @@
-package ru.aquamarina.fsm.state;
+package ru.aquamarina.api.bot.telegram;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.telegram.telegrambots.client.okhttp.OkHttpTelegramClient;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-import ru.aquamarina.fsm.Form;
-import ru.aquamarina.fsm.FsmContextHolder;
-import ru.aquamarina.fsm.FsmState;
+import ru.aquamarina.api.bot.DrawContext;
+import ru.aquamarina.api.bot.View;
+import ru.aquamarina.fsm.form.Form;
+import ru.aquamarina.model.error.Error;
+import ru.aquamarina.util.Result;
 
 import java.util.List;
-import java.util.Optional;
 
-public class Start implements FsmState {
+public class TelegramView implements View<TelegramDrawContext> {
 
-    private final Logger log = LoggerFactory.getLogger(Start.class);
+    private final OkHttpTelegramClient client;
+
+    public TelegramView(OkHttpTelegramClient client) {
+        this.client = client;
+    }
 
     @Override
-    public Optional<FsmState> doWork(FsmContextHolder context, Update update) {
-        String chatId;
-        if (update.hasMessage()) {
-            chatId = update.getMessage().getChatId().toString();
-        } else {
-            chatId = update.getCallbackQuery().getMessage().getChatId().toString();
-        }
-//        var chatId = ;
+    public void draw(TelegramDrawContext drawContext, Form form) {
+        String chatId = drawContext.getChatId();
+
         var button = InlineKeyboardButton.builder()
                 .text("О нас")
                 .callbackData("about")
@@ -51,12 +49,9 @@ public class Start implements FsmState {
         } catch (TelegramApiException e) {
             log.error("some err", e);
         }
-        return Optional.empty();
     }
 
     @Override
-    public Form getForm() {
-        // todo
-        return null;
+    public void drawError(TelegramDrawContext drawContext, Error error) {
     }
 }

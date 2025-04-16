@@ -1,19 +1,13 @@
 package ru.aquamarina.model.command;
 
-import org.checkerframework.checker.units.qual.N;
+import ru.aquamarina.model.entity.User;
 
-import java.util.UUID;
+public record Start(User user) implements Command {
 
-public record Start(UUID userId) implements Command {
-
-    static String NAME = "/start";
+    public static final String NAME = "/start";
 
     @Override
-    public UUID getUserId() {
-        return userId;
-    }
-
-    public static String getCommandName() {
-        return NAME;
+    public User getUser() {
+        return user;
     }
 }

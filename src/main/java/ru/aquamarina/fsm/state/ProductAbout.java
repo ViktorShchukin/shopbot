@@ -3,71 +3,70 @@ package ru.aquamarina.fsm.state;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import ru.aquamarina.fsm.Form;
+import ru.aquamarina.fsm.form.Form;
 import ru.aquamarina.fsm.FsmContextHolder;
-import ru.aquamarina.fsm.FsmState;
 
 import java.util.Optional;
 
-public class ProductAbout implements FsmState {
-
-    private final Logger log = LoggerFactory.getLogger(ProductAbout.class);
-
-//    private final ProductRepository productRepository;
-//    private final AbsSender sender;
+//public class ProductAbout implements FsmState {
 //
-//    public ProductAbout(ProductRepository productRepository, AbsSender sender) {
-//        this.productRepository = productRepository;
-//        this.sender = sender;
+//    private final Logger log = LoggerFactory.getLogger(ProductAbout.class);
+//
+////    private final ProductRepository productRepository;
+////    private final AbsSender sender;
+////
+////    public ProductAbout(ProductRepository productRepository, AbsSender sender) {
+////        this.productRepository = productRepository;
+////        this.sender = sender;
+////    }
+//
+//    @Override
+//    public Optional<FsmState> doWork(FsmContextHolder context, Update update) {
+////        var chatId = update.getCallbackQuery().getMessage().getChatId().toString();
+////        String name = extractName(update.getCallbackQuery().getData());
+////        Product product = productRepository.findByName(name);
+////        var button = InlineKeyboardButton.builder()
+////                .text("Инструкция")
+////                // todo
+////                .callbackData("todo")
+////                .build();
+////        var button1 = InlineKeyboardButton.builder()
+////                .text("Добавить в корзину")
+////                // todo
+////                .callbackData("todo")
+////                .build();
+////        var button2 = InlineKeyboardButton.builder()
+////                .text("Назад")
+////                .callbackData("catalog")
+////                .build();
+////        AnswerCallbackQuery close = AnswerCallbackQuery.builder()
+////                .callbackQueryId(update.getCallbackQuery().getId())
+////                .build();
+////        var keyBoard = InlineKeyboardMarkup.builder()
+////                .keyboardRow(List.of(button, button1, button2))
+////                .build();
+////        SendMessage message = SendMessage.builder()
+////                .chatId(chatId)
+////                .text(product.getName() + "\nОписание: " + product.getDescription() + "\nЦена: " + product.getCost().toString())
+////                .replyMarkup(keyBoard)
+////                .build();
+////
+////        try {
+////            sender.execute(close);
+////            sender.execute(message);
+////        } catch (TelegramApiException e) {
+////            log.error("some err", e);
+////        }
+//        return Optional.empty();
 //    }
-
-    @Override
-    public Optional<FsmState> doWork(FsmContextHolder context, Update update) {
-//        var chatId = update.getCallbackQuery().getMessage().getChatId().toString();
-//        String name = extractName(update.getCallbackQuery().getData());
-//        Product product = productRepository.findByName(name);
-//        var button = InlineKeyboardButton.builder()
-//                .text("Инструкция")
-//                // todo
-//                .callbackData("todo")
-//                .build();
-//        var button1 = InlineKeyboardButton.builder()
-//                .text("Добавить в корзину")
-//                // todo
-//                .callbackData("todo")
-//                .build();
-//        var button2 = InlineKeyboardButton.builder()
-//                .text("Назад")
-//                .callbackData("catalog")
-//                .build();
-//        AnswerCallbackQuery close = AnswerCallbackQuery.builder()
-//                .callbackQueryId(update.getCallbackQuery().getId())
-//                .build();
-//        var keyBoard = InlineKeyboardMarkup.builder()
-//                .keyboardRow(List.of(button, button1, button2))
-//                .build();
-//        SendMessage message = SendMessage.builder()
-//                .chatId(chatId)
-//                .text(product.getName() + "\nОписание: " + product.getDescription() + "\nЦена: " + product.getCost().toString())
-//                .replyMarkup(keyBoard)
-//                .build();
 //
-//        try {
-//            sender.execute(close);
-//            sender.execute(message);
-//        } catch (TelegramApiException e) {
-//            log.error("some err", e);
-//        }
-        return Optional.empty();
-    }
-
-    @Override
-    public Form getForm() {
-        // todo
-        return null;
-    }
-
-    String extractName(String query) {
-        return query.split("/")[1];
-    }
-}
+//    @Override
+//    public Form getForm() {
+//        // todo
+//        return null;
+//    }
+//
+//    String extractName(String query) {
+//        return query.split("/")[1];
+//    }
+//}

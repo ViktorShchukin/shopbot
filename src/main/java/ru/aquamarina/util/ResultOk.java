@@ -21,6 +21,11 @@ public record ResultOk<R,E>(R result) implements Result<R,E> {
     }
 
     @Override
+    public <U> Result<U, E> mapValue(Function<? super R, U> mapper) {
+        return Result.ok(mapper.apply(result));
+    }
+
+    @Override
     public <G> Result<R,G> or(Function<? super E, Result<R, G>> mapper) {
         return Result.ok(result);
     }
