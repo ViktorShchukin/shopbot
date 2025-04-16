@@ -18,6 +18,12 @@ public record ResultError<R, E>(E err) implements Result<R, E> {
     @Override
     public <U> Result<U, E> map(Function<? super R, Result<U, E>> mapper) {
         return Result.error(err);
+
+    }
+
+    @Override
+    public <U> Result<U, E> mapValue(Function<? super R, U> mapper) {
+        return Result.error(err);
     }
 
     @Override

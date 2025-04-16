@@ -1,10 +1,15 @@
 package ru.aquamarina.service;
 
+import io.micronaut.data.exceptions.DataAccessException;
 import jakarta.inject.Singleton;
 import jakarta.transaction.Transactional;
+import ru.aquamarina.fsm.state.FsmState;
 import ru.aquamarina.mapper.UserMapper;
 import ru.aquamarina.model.entity.User;
+import ru.aquamarina.model.error.Error;
+import ru.aquamarina.model.error.IoError;
 import ru.aquamarina.repository.UserRepository;
+import ru.aquamarina.util.Result;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -30,5 +35,16 @@ public class UserService {
     public User create(String login, String lastState) {
         return userRepository.save(
                 userMapper.create(login, lastState));
+    }
+
+    public Result<FsmState, Error> updateState(User user, FsmState state) {
+        try{
+            User updated = userMapper.update(user, null, state);
+            userRepository.save(updated);
+            // todo think about is it normal to return state instead of user.
+            return Result.ok(state);
+        } catch (DataAccessException e) {
+            return Result.error(new IoError(e));
+        }
     }
 }

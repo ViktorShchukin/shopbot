@@ -3,6 +3,7 @@ package ru.aquamarina.util;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 public sealed interface Result<R,E> permits ResultOk, ResultError {
 
@@ -21,6 +22,9 @@ public sealed interface Result<R,E> permits ResultOk, ResultError {
     Optional<E> error();
 
     <U> Result<U, E> map(Function<? super R, Result<U, E>> mapper);
+
+    // todo think about it
+    <U> Result<U, E> mapValue(Function<? super R, U> mapper);
 
     <G> Result<R,G> or(Function<? super E, Result<R, G>> mapper);
 

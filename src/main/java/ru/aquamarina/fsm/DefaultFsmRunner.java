@@ -31,7 +31,8 @@ public class DefaultFsmRunner implements FsmRunner {
     public Result<Form, Error> execute(Command command) {
         return restoreState(command.getUser())
                 .map(state -> state.doWork(fsmContextHolder, command))
-                .map(state -> Result.ok(state.getForm()));
+                .map(state -> userService.updateState(command.getUser(), state))
+                .mapValue(FsmState::getForm);
     }
 
     private Result<FsmState, Error> restoreState(User user) {
