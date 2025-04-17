@@ -10,6 +10,8 @@ import ru.aquamarina.util.Result;
 
 public class About implements FsmState {
 
+    public static final String NAME = "About";
+
     private final Logger log = LoggerFactory.getLogger(Index.class);
 
 //    private final Update update;
@@ -61,5 +63,10 @@ public class About implements FsmState {
     public Form getForm() {
         // todo
         return null;
+    }
+
+    @Override
+    public String toString() {
+        return NAME;
     }
 }

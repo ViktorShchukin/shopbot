@@ -2,6 +2,7 @@ package ru.aquamarina.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 import org.mapstruct.factory.Mappers;
 import ru.aquamarina.config.AppMapperConfig;
 import ru.aquamarina.fsm.state.FsmState;
@@ -18,5 +19,9 @@ public interface UserMapper {
     User create(String login, String lastState);
 
     @Mapping(target = "id", ignore = true)
-    User update(User user, String login, FsmState state);
+    User update(@MappingTarget User user, String login, FsmState lastState);
+
+    default String mapState(FsmState state) {
+        return state.toString();
+    }
 }

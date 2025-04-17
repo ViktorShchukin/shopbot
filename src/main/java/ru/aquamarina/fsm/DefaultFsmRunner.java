@@ -4,6 +4,7 @@ import jakarta.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.aquamarina.fsm.form.Form;
+import ru.aquamarina.fsm.state.About;
 import ru.aquamarina.fsm.state.FsmState;
 import ru.aquamarina.fsm.state.Init;
 import ru.aquamarina.fsm.state.Index;
@@ -40,7 +41,8 @@ public class DefaultFsmRunner implements FsmRunner {
         return switch (caseName) {
             case Index.NAME -> Result.ok(new Index());
             // todo think about init state. Now just create user if there is not exist. but what if in future it requires more complicated initialization
-            case null -> Result.ok(new Index());
+            case Init.NAME -> Result.ok(new Init());
+            case About.NAME -> Result.ok(new Init());
             default -> Result.error(new UnknownState());
         };
     }

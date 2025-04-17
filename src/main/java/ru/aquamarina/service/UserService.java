@@ -49,7 +49,7 @@ public class UserService {
     public Result<FsmState, Error> updateState(User user, FsmState state) {
         try{
             User updated = userMapper.update(user, null, state);
-            userRepository.save(updated);
+            userRepository.update(updated);
             // todo think about is it normal to return state instead of user.
             return Result.ok(state);
         } catch (DataAccessException e) {

@@ -37,8 +37,10 @@ public class Bot implements LongPollingSingleThreadUpdateConsumer {
 
     @Override
     public void consume(Update update) {
+//        throw new RuntimeException("=======================================");
         User user;
         // todo redo this code with normal chaining
+        // todo try catch block
         switch (telegramUtils.getUser(update)) {
             case ResultOk<User, Error> ok -> {user = ok.result();log.info("=== got user ===");}
             case ResultError err -> {log.error("=== get user err {}===", err);return;}
