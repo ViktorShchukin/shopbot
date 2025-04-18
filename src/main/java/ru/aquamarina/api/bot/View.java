@@ -1,11 +1,22 @@
 package ru.aquamarina.api.bot;
 
+import ru.aquamarina.fsm.form.AboutForm;
 import ru.aquamarina.fsm.form.Form;
+import ru.aquamarina.fsm.form.IndexForm;
 import ru.aquamarina.model.error.Error;
 
-public interface View<DrCon extends DrawContext> {
+public interface View {
 
-    void draw(DrCon drawContext, Form form);
+    default <T extends Form> void draw(T form) {
+        switch (form) {
+            case AboutForm f -> drawAboutForm(f);
+            case IndexForm f -> drawIndexForm(f);
+        }
+    }
 
-    void drawError(DrCon drawContext, Error error);
+    void drawAboutForm(AboutForm form);
+
+    void drawIndexForm(IndexForm form);
+
+    void draw(Error error);
 }

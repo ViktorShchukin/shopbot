@@ -2,6 +2,7 @@ package ru.aquamarina.fsm.state;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.aquamarina.fsm.form.AboutForm;
 import ru.aquamarina.fsm.form.Form;
 import ru.aquamarina.fsm.FsmContextHolder;
 import ru.aquamarina.model.command.Command;
@@ -62,7 +63,7 @@ public class About implements FsmState {
     @Override
     public Form getForm() {
         // todo
-        return null;
+        return new AboutForm();
     }
 
     @Override

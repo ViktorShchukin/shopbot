@@ -15,11 +15,6 @@ public class TelegramAppFactory {
     protected String botToken;
 
     @Singleton
-    TelegramMapper getTelegramMapper(){
-        return TelegramMapper.getInstance();
-    }
-
-    @Singleton
     OkHttpTelegramClient getTelegramClient() {
         return new OkHttpTelegramClient(botToken);
     }
@@ -27,10 +22,5 @@ public class TelegramAppFactory {
     @Singleton
     TelegramBotsLongPollingApplication telApp() {
         return new TelegramBotsLongPollingApplication();
-    }
-
-    @Singleton
-    View<TelegramDrawContext> getTelegramView(OkHttpTelegramClient client){
-        return new TelegramView(client);
     }
 }

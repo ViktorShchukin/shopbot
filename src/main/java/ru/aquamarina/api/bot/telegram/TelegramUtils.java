@@ -4,6 +4,7 @@ package ru.aquamarina.api.bot.telegram;
 import jakarta.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.telegram.telegrambots.client.okhttp.OkHttpTelegramClient;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.aquamarina.model.error.UserNotFound;
 import ru.aquamarina.util.Result;
@@ -17,10 +18,12 @@ public class TelegramUtils {
 
     private final Logger log = LoggerFactory.getLogger(TelegramUtils.class);
 
-    public final TelegramInfoService telegramInfoService;
+    private final TelegramInfoService telegramInfoService;
+    private final OkHttpTelegramClient client;
 
-    public TelegramUtils(TelegramInfoService telegramInfoService) {
+    public TelegramUtils(TelegramInfoService telegramInfoService, OkHttpTelegramClient client) {
         this.telegramInfoService = telegramInfoService;
+        this.client = client;
     }
 
     /**
@@ -34,10 +37,11 @@ public class TelegramUtils {
     }
 
     /**
+     * telegram userId can be used as chat id to send message
      * @param update
      * @return {@link NotSupportedUpdateType}
      */
-    private Result<Long, Error> extractTelegramUserId(Update update) {
+    public static Result<Long, Error> extractTelegramUserId(Update update) {
         if (update.hasMessage()) {
             return Result.ok(update.getMessage().getFrom().getId());
         }

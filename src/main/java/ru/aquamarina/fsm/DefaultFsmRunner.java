@@ -42,7 +42,7 @@ public class DefaultFsmRunner implements FsmRunner {
             case Index.NAME -> Result.ok(new Index());
             // todo think about init state. Now just create user if there is not exist. but what if in future it requires more complicated initialization
             case Init.NAME -> Result.ok(new Init());
-            case About.NAME -> Result.ok(new Init());
+            case About.NAME -> Result.ok(new About());
             default -> Result.error(new UnknownState());
         };
     }

@@ -3,7 +3,6 @@ package ru.aquamarina.api.bot.telegram;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import ru.aquamarina.api.bot.DrawContext;
 import ru.aquamarina.config.AppMapperConfig;
 import ru.aquamarina.model.command.*;
 import ru.aquamarina.model.entity.User;
@@ -36,16 +35,5 @@ public interface TelegramMapper {
             case ProductAbout.NAME -> Result.ok(new ProductAbout(user));
             case null, default -> Result.error(new UnknownCommand());
         };
-    }
-
-    default Result<TelegramDrawContext, Error> mapToDrawContext(Update update) {
-        String chatId = null;
-        if (update.hasMessage()) {
-            chatId = update.getMessage().getFrom().getId().toString();
-        }
-        if (update.hasCallbackQuery()) {
-            chatId = update.getCallbackQuery().getFrom().getId().toString();
-        }
-        return Result.ok(new TelegramDrawContext(chatId));
     }
 }
