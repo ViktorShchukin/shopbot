@@ -4,6 +4,7 @@ Thumbs.db
 build/
 target/
 out/
+*/out/
 .micronaut/
 .idea
 *.iml
@@ -13,3 +14,6 @@ out/
 .settings
 .classpath
 .factorypath
+
+### Elm ###
+*/elm-stuff
