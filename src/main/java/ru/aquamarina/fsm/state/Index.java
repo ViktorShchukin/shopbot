@@ -25,4 +25,9 @@ public class Index implements FsmState {
     public Form getForm() {
         return new IndexForm();
     }
+
+    @Override
+    public String toString() {
+        return NAME;
+    }
 }

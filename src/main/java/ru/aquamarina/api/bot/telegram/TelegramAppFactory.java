@@ -5,6 +5,7 @@ import io.micronaut.context.annotation.Property;
 import jakarta.inject.Singleton;
 import org.telegram.telegrambots.client.okhttp.OkHttpTelegramClient;
 import org.telegram.telegrambots.longpolling.TelegramBotsLongPollingApplication;
+import ru.aquamarina.api.bot.View;
 
 
 @Factory
@@ -12,11 +13,6 @@ public class TelegramAppFactory {
 
     @Property(name = "sb.chatbot.telegram.bot.token")
     protected String botToken;
-
-    @Singleton
-    TelegramMapper getTelegramMapper(){
-        return TelegramMapper.getInstance();
-    }
 
     @Singleton
     OkHttpTelegramClient getTelegramClient() {

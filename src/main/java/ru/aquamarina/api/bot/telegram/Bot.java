@@ -4,13 +4,15 @@ import io.micronaut.context.annotation.Property;
 import jakarta.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.telegram.telegrambots.client.okhttp.OkHttpTelegramClient;
 import org.telegram.telegrambots.longpolling.util.LongPollingSingleThreadUpdateConsumer;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import ru.aquamarina.api.bot.DrawContext;
 import ru.aquamarina.api.bot.View;
-import ru.aquamarina.fsm.FsmContextHolder;
 import ru.aquamarina.fsm.FsmRunner;
-import ru.aquamarina.model.entity.User;
+import ru.aquamarina.fsm.form.Form;
+import ru.aquamarina.model.error.Error;
+import ru.aquamarina.util.ResultError;
+import ru.aquamarina.util.ResultOk;
 
 import java.util.List;
 
@@ -20,36 +22,46 @@ public class Bot implements LongPollingSingleThreadUpdateConsumer {
     private final Logger log = LoggerFactory.getLogger(Bot.class);
     @Property(name = "sb.chatbot.telegram.bot.token")
     protected String botToken;
-    private final FsmContextHolder fsmContextHolder;
     private final TelegramMapper telegramMapper;
     private final FsmRunner fsmRunner;
-    private final View view;
     private final TelegramUtils telegramUtils;
+    private final OkHttpTelegramClient client;
 
-    public Bot(FsmContextHolder fsmContextHolder, TelegramMapper telegramMapper, FsmRunner fsmRunner, View view, TelegramUtils telegramUtils){
-        this.fsmContextHolder = fsmContextHolder;
+    public Bot(TelegramMapper telegramMapper, FsmRunner fsmRunner, TelegramUtils telegramUtils, OkHttpTelegramClient client) {
         this.telegramMapper = telegramMapper;
         this.fsmRunner = fsmRunner;
-        this.view = view;
         this.telegramUtils = telegramUtils;
+        this.client = client;
     }
 
     @Override
     public void consume(Update update) {
-        User user = telegramUtils.getUser(update).ok().get();
-        DrawContext drawContext = telegramMapper.mapToDrawContext(update);
-        telegramMapper
-                .mapToCommand(update, user)
-                .map(fsmRunner::execute)
-                .map(form -> view.draw(drawContext, form))
-                .or(error -> view.drawError(drawContext, error));
-//        Result<Form, Err> result = fsmRunner.execute(command);
-//        view.draw(result);
+        try {
+            evaluateUpdate(update);
+        } catch (Exception e) {
+            log.error("Error during telegram update process", e);
+        } catch (Throwable e) {
+            log.error("Fatal error during telegram update process", e);
+            throw e;
+        }
     }
 
     @Override
     public void consume(List<Update> updates) {
         updates.forEach(this::consume);
+    }
+
+    private void evaluateUpdate(Update update) {
+        View view = new TelegramView(client, update);
+
+        var res = telegramUtils.getUser(update)
+                .map(user -> telegramMapper.mapToCommand(update, user))
+                .map(fsmRunner::execute);
+
+        switch (res) {
+            case ResultOk<Form, Error> ok -> view.draw(ok.unwrap());
+            case ResultError<Form, Error> err -> view.draw(err.err());
+        }
     }
 
     public String getBotToken() {

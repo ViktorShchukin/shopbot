@@ -34,4 +34,9 @@ public class Init implements FsmState {
         // todo
         return null;
     }
+
+    @Override
+    public String toString() {
+        return NAME;
+    }
 }

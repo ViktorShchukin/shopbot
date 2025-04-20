@@ -17,6 +17,9 @@ public sealed interface Result<R,E> permits ResultOk, ResultError {
         return new ResultError(error);
     }
 
+    // todo think about it
+//    <R> static Result<R, E> of(Supplier<R> result, Supplier<E> thatConstrucntsTrowable);
+
     Optional<R> ok();
 
     Optional<E> error();

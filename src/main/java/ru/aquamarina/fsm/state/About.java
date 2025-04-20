@@ -2,6 +2,7 @@ package ru.aquamarina.fsm.state;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.aquamarina.fsm.form.AboutForm;
 import ru.aquamarina.fsm.form.Form;
 import ru.aquamarina.fsm.FsmContextHolder;
 import ru.aquamarina.model.command.Command;
@@ -9,6 +10,8 @@ import ru.aquamarina.model.error.Error;
 import ru.aquamarina.util.Result;
 
 public class About implements FsmState {
+
+    public static final String NAME = "About";
 
     private final Logger log = LoggerFactory.getLogger(Index.class);
 
@@ -60,6 +63,11 @@ public class About implements FsmState {
     @Override
     public Form getForm() {
         // todo
-        return null;
+        return new AboutForm();
+    }
+
+    @Override
+    public String toString() {
+        return NAME;
     }
 }

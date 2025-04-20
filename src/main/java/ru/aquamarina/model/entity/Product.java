@@ -5,7 +5,7 @@ import io.micronaut.data.annotation.MappedEntity;
 
 import java.util.UUID;
 
-@MappedEntity
+@MappedEntity(value = "product")
 public class Product {
 
     @Id

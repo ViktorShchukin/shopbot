@@ -6,6 +6,7 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ReportingPolicy;
 
 @MapperConfig(
+        componentModel = "jsr330",
         unmappedTargetPolicy = ReportingPolicy.ERROR,
         collectionMappingStrategy = CollectionMappingStrategy.ADDER_PREFERRED,
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE
