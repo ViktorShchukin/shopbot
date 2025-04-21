@@ -59,7 +59,7 @@ public class Bot implements LongPollingSingleThreadUpdateConsumer {
                 .map(fsmRunner::execute);
 
         switch (res) {
-            case ResultOk<Form, Error> ok -> view.draw(ok.unwrap());
+            case ResultOk<Form, Error> ok -> ok.unwrap().draw(view);
             case ResultError<Form, Error> err -> view.draw(err.err());
         }
     }

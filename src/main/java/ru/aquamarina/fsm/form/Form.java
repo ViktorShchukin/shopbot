@@ -12,7 +12,5 @@ public sealed interface Form permits AboutForm, IndexForm {
      */
     List<String> getCommands();
 
-    default void draw(View view) {
-        view.draw(this);
-    }
+    void draw(View view);
 }
