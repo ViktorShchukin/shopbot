@@ -1,16 +1,14 @@
 package ru.aquamarina.api.rest;
 
-import io.micronaut.configuration.jdbc.hikari.DatasourceConfiguration;
-import io.micronaut.context.ApplicationContext;
 import io.micronaut.http.HttpResponse;
-import io.micronaut.http.annotation.Controller;
-import io.micronaut.http.annotation.Get;
+import io.micronaut.http.annotation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.aquamarina.model.entity.Product;
+import ru.aquamarina.api.rest.dto.ProductDto;
 import ru.aquamarina.service.ProductService;
 
 import java.util.List;
+import java.util.UUID;
 
 @Controller("/product")
 public class ProductController {
@@ -18,20 +16,39 @@ public class ProductController {
     private final Logger log = LoggerFactory.getLogger(ProductController.class);
 
     private final ProductService productService;
-    private final DatasourceConfiguration datasourceConfiguration;
-    private final ApplicationContext applicationContext;
+    private final ProductMapper productMapper;
 
-    public ProductController(ProductService productService, DatasourceConfiguration datasourceConfiguration, ApplicationContext applicationContext) {
+    public ProductController(ProductService productService,
+                             ProductMapper productMapper) {
         this.productService = productService;
-        this.datasourceConfiguration = datasourceConfiguration;
-        this.applicationContext = applicationContext;
+        this.productMapper = productMapper;
     }
 
     @Get
-    public HttpResponse<List<Product>> getAll(){
-        var some = datasourceConfiguration.getDataSource();
-//        var some1 = applicationContext;
-        var res = productService.getAll();
+    public HttpResponse<List<ProductDto>> getAll() {
+        var res = productMapper.mapTo(productService.getAll());
         return HttpResponse.ok(res);
+    }
+
+    @Get("/{id}")
+    public HttpResponse<ProductDto> getById(@PathVariable UUID id) {
+        var res = productService.getById();
+        return HttpResponse.ok(res)
+    }
+
+    @Post
+    public HttpResponse<ProductDto> addProduct(@RequestBean ProductDto dto) {
+
+    }
+
+    @Put("/{id}")
+    public HttpResponse<ProductDto> updateProduct(@PathVariable UUID id,
+                                                  @RequestBean ProductDto dto) {
+
+    }
+
+    @Delete("/{id}")
+    public HttpResponse<?> deleteProduct(@PathVariable UUID id) {
+
     }
 }

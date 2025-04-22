@@ -1,15 +1,13 @@
-package ru.aquamarina.model.entity;
+package ru.aquamarina.api.rest.dto;
 
 import io.micronaut.data.annotation.Id;
-import io.micronaut.data.annotation.MappedEntity;
 import io.micronaut.serde.annotation.Serdeable;
 
 import java.util.UUID;
 
-@MappedEntity(value = "product")
-public class Product {
+@Serdeable
+public class ProductDto {
 
-    @Id
     private UUID id;
 
     private String name;
