@@ -9,11 +9,7 @@ import ru.aquamarina.fsm.state.FsmState;
 import ru.aquamarina.model.entity.User;
 
 @Mapper(config = AppMapperConfig.class)
-public interface UserMapper {
-
-    public static UserMapper getInstance() {
-        return Mappers.getMapper(UserMapper.class);
-    }
+public interface UserUtil {
 
     @Mapping(target = "id", expression = "java(java.util.UUID.randomUUID())")
     User create(String login, String lastState);

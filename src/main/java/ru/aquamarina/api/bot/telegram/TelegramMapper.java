@@ -32,7 +32,7 @@ public interface TelegramMapper {
             case Index.NAME -> Result.ok(new Index(user));
             case Catalog.NAME -> Result.ok(new Catalog(user));
             // todo think how to extract product name
-            case ProductAbout.NAME -> Result.ok(new ProductAbout(user));
+            case String str when str.contains(ProductAbout.NAME) -> Result.ok(new ProductAbout(user, str.split("\\?")[1]));
             case null, default -> Result.error(new UnknownCommand());
         };
     }

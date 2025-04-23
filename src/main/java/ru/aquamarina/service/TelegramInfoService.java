@@ -6,7 +6,7 @@ import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.aquamarina.mapper.TelegramInfoMapper;
+import ru.aquamarina.mapper.TelegramInfoUtil;
 import ru.aquamarina.model.error.IoError;
 import ru.aquamarina.util.Result;
 import ru.aquamarina.model.entity.TelegramInfo;
@@ -27,12 +27,12 @@ public class TelegramInfoService {
 
     private final TelegramInfoRepository telegramInfoRepository;
     private final UserService userService;
-    private final TelegramInfoMapper telegramInfoMapper;
+    private final TelegramInfoUtil telegramInfoUtil;
 
-    public TelegramInfoService(TelegramInfoRepository userTelegramInfoRepository, UserService userService, TelegramInfoMapper telegramInfoMapper) {
+    public TelegramInfoService(TelegramInfoRepository userTelegramInfoRepository, UserService userService, TelegramInfoUtil telegramInfoUtil) {
         this.telegramInfoRepository = userTelegramInfoRepository;
         this.userService = userService;
-        this.telegramInfoMapper = telegramInfoMapper;
+        this.telegramInfoUtil = telegramInfoUtil;
     }
 
     @Transactional
@@ -49,7 +49,7 @@ public class TelegramInfoService {
     public Result<TelegramInfo, Error> create(@NotNull long telegramId, @NotNull UUID userId) {
         // todo get rid of try-catch block
         try {
-            TelegramInfo newO = telegramInfoMapper.create(telegramId, userId);
+            TelegramInfo newO = telegramInfoUtil.create(telegramId, userId);
             return Result.ok(telegramInfoRepository.save(newO));
         } catch (Exception e) {
             return Result.error(new IoError(e));

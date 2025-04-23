@@ -10,5 +10,5 @@ public interface FsmState {
 
     Result<FsmState, Error> doWork(FsmContextHolder context, Command command);
 
-    Form getForm();
+    Form getForm(FsmContextHolder context);
 }
