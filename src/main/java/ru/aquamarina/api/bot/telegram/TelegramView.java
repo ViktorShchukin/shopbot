@@ -198,6 +198,46 @@ public record TelegramView(OkHttpTelegramClient client, Update update) implement
     }
 
     @Override
+    public void drawAddProductToBasketForm(AddProductToBasketForm form) {
+        String chatId;
+        switch (TelegramUtils.extractTelegramUserId(update)) {
+            case ResultOk<Long, Error> ok -> chatId = ok.unwrap().toString();
+            case ResultError<Long, Error> err -> {
+                draw(err.err());
+                return;
+            }
+        }
+        Product product = form.product();
+        InlineKeyboardRow keyboardRow = new InlineKeyboardRow();
+        form.getCommands().forEach(command -> {
+            keyboardRow.add(getButton(command, command));
+        });
+
+        String messageText = product.getName() + "\n" + product.getCost() + "\n" + product.getDescription();
+
+        var keyBoard = InlineKeyboardMarkup.builder()
+                .keyboardRow(keyboardRow)
+                .build();
+        Integer messageId = update.getCallbackQuery().getMessage().getMessageId();
+        AnswerCallbackQuery close = AnswerCallbackQuery.builder()
+                .callbackQueryId(update.getCallbackQuery().getId())
+                .build();
+        EditMessageText message = EditMessageText.builder()
+                .chatId(chatId)
+                .messageId(messageId)
+                .text(messageText)
+                .build();
+        EditMessageReplyMarkup replyMarkup = EditMessageReplyMarkup.builder()
+                .chatId(chatId)
+                .messageId(messageId)
+                .replyMarkup(keyBoard)
+                .build();
+        closeQueryAndRewriteMessage(close, message, replyMarkup);
+
+        closeQueryAndRewriteMessage(close, message, replyMarkup);
+    }
+
+    @Override
     public void draw(Error error) {
         // todo implement this
         log.error("=== error inside the app: {}", error.toString());
@@ -233,12 +273,12 @@ public record TelegramView(OkHttpTelegramClient client, Update update) implement
     private void closeQueryAndRewriteMessage(AnswerCallbackQuery answerCallbackQuery,
                                              EditMessageText messageText,
                                              EditMessageReplyMarkup messageReplyMarkup) {
-        try {
-            log.trace("Try to close telegram query and rewrite message");
-            client.execute(answerCallbackQuery);
+//        try {
+//            log.trace("Try to close telegram query and rewrite message");
+//            client.execute(answerCallbackQuery);
             rewriteMessage(messageText, messageReplyMarkup);
-        } catch (TelegramApiException e) {
-            log.error("Telegram error during closing query: ", e);
-        }
+//        } catch (TelegramApiException e) {
+//            log.error("Telegram error during closing query: ", e);
+//        }
     }
 }

@@ -44,6 +44,9 @@ public class DefaultFsmRunner implements FsmRunner {
             case String str when str.contains(ProductAbout.NAME) -> fsmContextHolder.getProductService()
                     .getByName(str.split("\\?")[1])
                     .map(product -> Result.ok(new ProductAbout(product)));
+            case String str when str.contains(AddProductToBasketState.NAME) -> fsmContextHolder.getProductService()
+                    .getByName(str.split("\\?")[1])
+                    .map(product -> Result.ok(new ProductAbout(product)));
             default -> Result.error(new UnknownState());
         };
     }

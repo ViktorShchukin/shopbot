@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import ru.aquamarina.fsm.form.Form;
 import ru.aquamarina.fsm.FsmContextHolder;
 import ru.aquamarina.fsm.form.ProductAboutForm;
+import ru.aquamarina.model.command.AddProductToBasket;
 import ru.aquamarina.model.command.Catalog;
 import ru.aquamarina.model.command.Command;
 import ru.aquamarina.model.command.Start;
@@ -29,6 +30,9 @@ public class ProductAbout implements FsmState {
         return switch (command) {
             case Catalog ctg -> Result.ok(new ru.aquamarina.fsm.state.Catalog());
             case Start start-> Result.ok(new ru.aquamarina.fsm.state.Index());
+            case AddProductToBasket aptb -> context.getProductService()
+                    .getByName(aptb.productName())
+                    .map(product -> Result.ok(new AddProductToBasketState(product)));
 //            case ru.aquamarina.model.command.Index ndx -> Result.ok(new ru.aquamarina.fsm.state.Index());
 //            case ru.aquamarina.model.command.ProductAbout pbt -> Result.ok(new )
             default -> Result.error(new NotSupportedCommand());
