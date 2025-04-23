@@ -15,10 +15,15 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.aquamarina.api.bot.View;
 import ru.aquamarina.fsm.form.*;
+import ru.aquamarina.model.command.About;
+import ru.aquamarina.model.command.ProductAbout;
 import ru.aquamarina.model.entity.Product;
 import ru.aquamarina.model.error.Error;
 import ru.aquamarina.util.ResultError;
 import ru.aquamarina.util.ResultOk;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public record TelegramView(OkHttpTelegramClient client, Update update) implements View {
 
@@ -120,15 +125,18 @@ public record TelegramView(OkHttpTelegramClient client, Update update) implement
                 return;
             }
         }
-        InlineKeyboardRow keyboardRow = new InlineKeyboardRow();
+        List<InlineKeyboardRow> keyboardRowList = new ArrayList<>();
         form.getCommands().forEach(command -> {
-            keyboardRow.add(getButton(command, command));
+            InlineKeyboardRow keyboardRow = new InlineKeyboardRow();
+            String buttonText = command.contains(ProductAbout.NAME) ? command.split("\\?")[1] : command;
+            keyboardRow.add(getButton(buttonText, command));
+            keyboardRowList.add(keyboardRow);
         });
 
         String messageText = "Каталог";
 
         var keyBoard = InlineKeyboardMarkup.builder()
-                .keyboardRow(keyboardRow)
+                .keyboard(keyboardRowList)
                 .build();
         Integer messageId = update.getCallbackQuery().getMessage().getMessageId();
         AnswerCallbackQuery close = AnswerCallbackQuery.builder()
