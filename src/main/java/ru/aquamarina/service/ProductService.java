@@ -2,9 +2,13 @@ package ru.aquamarina.service;
 
 import jakarta.inject.Singleton;
 import ru.aquamarina.model.entity.Product;
+import ru.aquamarina.model.error.Error;
+import ru.aquamarina.model.error.ProductNotFound;
 import ru.aquamarina.repository.ProductRepository;
+import ru.aquamarina.util.Result;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Singleton
@@ -34,4 +38,13 @@ public class ProductService {
         productRepository.deleteById(id);
     }
 
+    public Optional<Product> getById(UUID id) {
+        return productRepository.findById(id);
+    }
+
+    public Result<Product, Error> getByName(String name) {
+        return productRepository.findByName(name)
+                .map(Result::<Product, Error>ok)
+                .orElseGet(() -> Result.error(new ProductNotFound()));
+    }
 }

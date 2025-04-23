@@ -32,23 +32,25 @@ public class ProductController {
 
     @Get("/{id}")
     public HttpResponse<ProductDto> getById(@PathVariable UUID id) {
-        var res = productService.getById();
-        return HttpResponse.ok(res)
+        return productService.getById(id)
+                .map(productMapper::mapTo)
+                .map(HttpResponse::ok)
+                .orElseGet(HttpResponse::notFound);
     }
 
-    @Post
-    public HttpResponse<ProductDto> addProduct(@RequestBean ProductDto dto) {
+//    @Post
+//    public HttpResponse<ProductDto> addProduct(@RequestBean ProductDto dto) {
+//
+//    }
 
-    }
+//    @Put("/{id}")
+//    public HttpResponse<ProductDto> updateProduct(@PathVariable UUID id,
+//                                                  @RequestBean ProductDto dto) {
+//
+//    }
 
-    @Put("/{id}")
-    public HttpResponse<ProductDto> updateProduct(@PathVariable UUID id,
-                                                  @RequestBean ProductDto dto) {
-
-    }
-
-    @Delete("/{id}")
-    public HttpResponse<?> deleteProduct(@PathVariable UUID id) {
-
-    }
+//    @Delete("/{id}")
+//    public HttpResponse<?> deleteProduct(@PathVariable UUID id) {
+//
+//    }
 }

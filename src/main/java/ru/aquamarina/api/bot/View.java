@@ -10,4 +10,8 @@ public interface View {
     void drawIndexForm(IndexForm form);
 
     void draw(Error error);
+
+    void drawCatalogForm(CatalogForm form);
+
+    void drawProductAboutForm(ProductAboutForm form);
 }

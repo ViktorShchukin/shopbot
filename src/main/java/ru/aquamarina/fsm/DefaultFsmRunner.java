@@ -4,10 +4,7 @@ import jakarta.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.aquamarina.fsm.form.Form;
-import ru.aquamarina.fsm.state.About;
-import ru.aquamarina.fsm.state.FsmState;
-import ru.aquamarina.fsm.state.Init;
-import ru.aquamarina.fsm.state.Index;
+import ru.aquamarina.fsm.state.*;
 import ru.aquamarina.model.command.Command;
 import ru.aquamarina.model.entity.User;
 import ru.aquamarina.model.error.Error;
@@ -33,7 +30,7 @@ public class DefaultFsmRunner implements FsmRunner {
         return restoreState(command.getUser())
                 .map(state -> state.doWork(fsmContextHolder, command))
                 .map(state -> userService.updateState(command.getUser(), state))
-                .mapValue(FsmState::getForm);
+                .mapValue(state -> state.getForm(fsmContextHolder));
     }
 
     private Result<FsmState, Error> restoreState(User user) {
@@ -43,6 +40,10 @@ public class DefaultFsmRunner implements FsmRunner {
             // todo think about init state. Now just create user if there is not exist. but what if in future it requires more complicated initialization
             case Init.NAME -> Result.ok(new Init());
             case About.NAME -> Result.ok(new About());
+            case Catalog.NAME -> Result.ok(new Catalog());
+            case String str when str.contains(ProductAbout.NAME) -> fsmContextHolder.getProductService()
+                    .getByName(str.split("\\?")[1])
+                    .map(product -> Result.ok(new ProductAbout(product)));
             default -> Result.error(new UnknownState());
         };
     }

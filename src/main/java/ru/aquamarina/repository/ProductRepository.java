@@ -5,9 +5,10 @@ import io.micronaut.data.model.query.builder.sql.Dialect;
 import io.micronaut.data.repository.PageableRepository;
 import ru.aquamarina.model.entity.Product;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @JdbcRepository(dialect = Dialect.POSTGRES)
 public interface ProductRepository extends PageableRepository<Product, UUID> {
-    Product findByName(String name);
+    Optional<Product> findByName(String name);
 }
