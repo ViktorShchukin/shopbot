@@ -38,19 +38,25 @@ public class ProductController {
                 .orElseGet(HttpResponse::notFound);
     }
 
-//    @Post
-//    public HttpResponse<ProductDto> addProduct(@RequestBean ProductDto dto) {
-//
-//    }
+    @Post
+    public HttpResponse<ProductDto> addProduct(@RequestBean ProductDto dto) {
+        var res = productService.create(dto.getName(), dto.getCost(), dto.getDescription());
+        return HttpResponse.ok(productMapper.mapTo(res));
+    }
 
-//    @Put("/{id}")
-//    public HttpResponse<ProductDto> updateProduct(@PathVariable UUID id,
-//                                                  @RequestBean ProductDto dto) {
-//
-//    }
+    @Put("/{id}")
+    public HttpResponse<ProductDto> updateProduct(@PathVariable UUID id,
+                                                  @RequestBean ProductDto dto) {
+        return productService.getById(id)
+                .map(product -> productService.update(product, dto.getName(), dto.getCost(), dto.getDescription()))
+                .map(productMapper::mapTo)
+                .map(HttpResponse::ok)
+                .orElseGet(HttpResponse::notFound);
+    }
 
-//    @Delete("/{id}")
-//    public HttpResponse<?> deleteProduct(@PathVariable UUID id) {
-//
-//    }
+    @Delete("/{id}")
+    public HttpResponse<?> deleteProduct(@PathVariable UUID id) {
+        productService.delete(id);
+        return HttpResponse.noContent();
+    }
 }

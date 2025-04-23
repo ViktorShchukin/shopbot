@@ -5334,6 +5334,10 @@ var $elm$core$Task$perform = F2(
 				A2($elm$core$Task$map, toMessage, task)));
 	});
 var $elm$browser$Browser$element = _Browser_element;
+var $author$project$Main$Product = F4(
+	function (id, name, cost, description) {
+		return {cost: cost, description: description, id: id, name: name};
+	});
 var $author$project$Main$GotProducts = function (a) {
 	return {$: 'GotProducts', a: a};
 };
@@ -6125,10 +6129,6 @@ var $elm$http$Http$get = function (r) {
 		{body: $elm$http$Http$emptyBody, expect: r.expect, headers: _List_Nil, method: 'GET', timeout: $elm$core$Maybe$Nothing, tracker: $elm$core$Maybe$Nothing, url: r.url});
 };
 var $elm$json$Json$Decode$list = _Json_decodeList;
-var $author$project$Main$Product = F4(
-	function (id, name, cost, description) {
-		return {cost: cost, description: description, id: id, name: name};
-	});
 var $elm$json$Json$Decode$field = _Json_decodeField;
 var $elm$json$Json$Decode$int = _Json_decodeInt;
 var $elm$json$Json$Decode$map4 = _Json_map4;
@@ -6148,9 +6148,14 @@ var $author$project$Main$getAllProduct = $elm$http$Http$get(
 			$elm$json$Json$Decode$list($author$project$Main$productDecoder)),
 		url: '/product'
 	});
+var $elm$core$Debug$log = _Debug_log;
 var $author$project$Main$init = function (_v0) {
+	var _v1 = $elm$core$Debug$log('i am working');
 	return _Utils_Tuple2(
-		{products: _List_Nil},
+		{
+			productToAdd: A4($author$project$Main$Product, '', '', 0, ''),
+			products: _List_Nil
+		},
 		$author$project$Main$getAllProduct);
 };
 var $elm$core$Platform$Sub$batch = _Platform_batch;
@@ -6160,24 +6165,219 @@ var $author$project$Main$subscriptions = function (_v0) {
 };
 var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
+var $author$project$Main$myTag = 'Main.elm';
+var $author$project$Main$logHttpErr = function (err) {
+	switch (err.$) {
+		case 'BadUrl':
+			var str = err.a;
+			var _v1 = $elm$core$Debug$log('ERROR ' + ($author$project$Main$myTag + (' HTTP BadUrl: ' + str)));
+			return $elm$http$Http$BadUrl(str);
+		case 'Timeout':
+			var _v2 = $elm$core$Debug$log('ERROR ' + ($author$project$Main$myTag + ' HTTP Timeout'));
+			return $elm$http$Http$Timeout;
+		case 'NetworkError':
+			var _v3 = $elm$core$Debug$log('ERROR ' + ($author$project$Main$myTag + ' HTTP NetworkErr'));
+			return $elm$http$Http$NetworkError;
+		case 'BadStatus':
+			var _int = err.a;
+			var _v4 = $elm$core$Debug$log(
+				'ERROR ' + ($author$project$Main$myTag + (' HTTP BadStatus: ' + $elm$core$String$fromInt(_int))));
+			return $elm$http$Http$BadStatus(_int);
+		default:
+			var str = err.a;
+			var _v5 = $elm$core$Debug$log('ERROR ' + ($author$project$Main$myTag + (' HTTP BadBody: ' + str)));
+			return $elm$http$Http$BadBody(str);
+	}
+};
+var $author$project$Main$processGotProduct = F2(
+	function (model, res) {
+		if (res.$ === 'Ok') {
+			var prod = res.a;
+			return _Utils_update(
+				model,
+				{products: prod});
+		} else {
+			var err = res.a;
+			var _v1 = $author$project$Main$logHttpErr(err);
+			return model;
+		}
+	});
+var $author$project$Main$updateProductCost = F2(
+	function (product, cost) {
+		return _Utils_update(
+			product,
+			{cost: cost});
+	});
+var $author$project$Main$updateProductDescription = F2(
+	function (product, description) {
+		return _Utils_update(
+			product,
+			{description: description});
+	});
+var $author$project$Main$updateProductName = F2(
+	function (product, name) {
+		return _Utils_update(
+			product,
+			{name: name});
+	});
 var $author$project$Main$update = F2(
 	function (msg, model) {
 		switch (msg.$) {
 			case 'GotProducts':
 				var res = msg.a;
-				return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
-			case 'GotProduct':
-				var res = msg.a;
-				return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
+				return _Utils_Tuple2(
+					A2($author$project$Main$processGotProduct, model, res),
+					$elm$core$Platform$Cmd$none);
 			case 'AddProduct':
 				return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
 			case 'DeleteProduct':
+				var product = msg.a;
 				return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
+			case 'UpdateProduct':
+				var product = msg.a;
+				return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
+			case 'GotProductNameToAdd':
+				var str = msg.a;
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{
+							productToAdd: A2($author$project$Main$updateProductName, model.productToAdd, str)
+						}),
+					$elm$core$Platform$Cmd$none);
+			case 'GotProductCostToAdd':
+				var str = msg.a;
+				var _v1 = $elm$core$String$toInt(str);
+				if (_v1.$ === 'Just') {
+					var cost = _v1.a;
+					return _Utils_Tuple2(
+						_Utils_update(
+							model,
+							{
+								productToAdd: A2($author$project$Main$updateProductCost, model.productToAdd, cost)
+							}),
+						$elm$core$Platform$Cmd$none);
+				} else {
+					return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
+				}
 			default:
-				return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
+				var str = msg.a;
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{
+							productToAdd: A2($author$project$Main$updateProductDescription, model.productToAdd, str)
+						}),
+					$elm$core$Platform$Cmd$none);
 		}
 	});
 var $elm$html$Html$div = _VirtualDom_node('div');
+var $author$project$Main$AddProduct = {$: 'AddProduct'};
+var $author$project$Main$GotProductCostToAdd = function (a) {
+	return {$: 'GotProductCostToAdd', a: a};
+};
+var $author$project$Main$GotProductDescriptionToAdd = function (a) {
+	return {$: 'GotProductDescriptionToAdd', a: a};
+};
+var $author$project$Main$GotProductNameToAdd = function (a) {
+	return {$: 'GotProductNameToAdd', a: a};
+};
+var $elm$html$Html$button = _VirtualDom_node('button');
+var $elm$html$Html$input = _VirtualDom_node('input');
+var $elm$virtual_dom$VirtualDom$Normal = function (a) {
+	return {$: 'Normal', a: a};
+};
+var $elm$virtual_dom$VirtualDom$on = _VirtualDom_on;
+var $elm$html$Html$Events$on = F2(
+	function (event, decoder) {
+		return A2(
+			$elm$virtual_dom$VirtualDom$on,
+			event,
+			$elm$virtual_dom$VirtualDom$Normal(decoder));
+	});
+var $elm$html$Html$Events$onClick = function (msg) {
+	return A2(
+		$elm$html$Html$Events$on,
+		'click',
+		$elm$json$Json$Decode$succeed(msg));
+};
+var $elm$html$Html$Events$alwaysStop = function (x) {
+	return _Utils_Tuple2(x, true);
+};
+var $elm$virtual_dom$VirtualDom$MayStopPropagation = function (a) {
+	return {$: 'MayStopPropagation', a: a};
+};
+var $elm$html$Html$Events$stopPropagationOn = F2(
+	function (event, decoder) {
+		return A2(
+			$elm$virtual_dom$VirtualDom$on,
+			event,
+			$elm$virtual_dom$VirtualDom$MayStopPropagation(decoder));
+	});
+var $elm$json$Json$Decode$at = F2(
+	function (fields, decoder) {
+		return A3($elm$core$List$foldr, $elm$json$Json$Decode$field, decoder, fields);
+	});
+var $elm$html$Html$Events$targetValue = A2(
+	$elm$json$Json$Decode$at,
+	_List_fromArray(
+		['target', 'value']),
+	$elm$json$Json$Decode$string);
+var $elm$html$Html$Events$onInput = function (tagger) {
+	return A2(
+		$elm$html$Html$Events$stopPropagationOn,
+		'input',
+		A2(
+			$elm$json$Json$Decode$map,
+			$elm$html$Html$Events$alwaysStop,
+			A2($elm$json$Json$Decode$map, tagger, $elm$html$Html$Events$targetValue)));
+};
+var $elm$json$Json$Encode$string = _Json_wrap;
+var $elm$html$Html$Attributes$stringProperty = F2(
+	function (key, string) {
+		return A2(
+			_VirtualDom_property,
+			key,
+			$elm$json$Json$Encode$string(string));
+	});
+var $elm$html$Html$Attributes$placeholder = $elm$html$Html$Attributes$stringProperty('placeholder');
+var $author$project$Main$drawAddProductForm = A2(
+	$elm$html$Html$div,
+	_List_Nil,
+	_List_fromArray(
+		[
+			A2(
+			$elm$html$Html$input,
+			_List_fromArray(
+				[
+					$elm$html$Html$Events$onInput($author$project$Main$GotProductNameToAdd),
+					$elm$html$Html$Attributes$placeholder('name')
+				]),
+			_List_Nil),
+			A2(
+			$elm$html$Html$input,
+			_List_fromArray(
+				[
+					$elm$html$Html$Events$onInput($author$project$Main$GotProductCostToAdd),
+					$elm$html$Html$Attributes$placeholder('cost')
+				]),
+			_List_Nil),
+			A2(
+			$elm$html$Html$input,
+			_List_fromArray(
+				[
+					$elm$html$Html$Events$onInput($author$project$Main$GotProductDescriptionToAdd),
+					$elm$html$Html$Attributes$placeholder('description')
+				]),
+			_List_Nil),
+			A2(
+			$elm$html$Html$button,
+			_List_fromArray(
+				[
+					$elm$html$Html$Events$onClick($author$project$Main$AddProduct)
+				]),
+			_List_Nil)
+		]));
 var $elm$html$Html$td = _VirtualDom_node('td');
 var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
@@ -6266,7 +6466,8 @@ var $author$project$Main$view = function (model) {
 		_List_Nil,
 		_List_fromArray(
 			[
-				$author$project$Main$drawProductTable(model.products)
+				$author$project$Main$drawProductTable(model.products),
+				$author$project$Main$drawAddProductForm
 			]));
 };
 var $author$project$Main$main = $elm$browser$Browser$element(
