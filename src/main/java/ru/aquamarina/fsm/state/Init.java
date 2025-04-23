@@ -31,8 +31,8 @@ public class Init implements FsmState {
 
     @Override
     public Form getForm() {
-        // todo
-        return null;
+        // throw an Exception to avoid null return
+        throw new UnsupportedOperationException();
     }
 
     @Override
