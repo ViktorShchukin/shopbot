@@ -3,7 +3,10 @@ package ru.aquamarina.api.bot.telegram;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.client.okhttp.OkHttpTelegramClient;
+import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.message.Message;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
@@ -11,9 +14,8 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.aquamarina.api.bot.View;
-import ru.aquamarina.fsm.form.AboutForm;
-import ru.aquamarina.fsm.form.Form;
-import ru.aquamarina.fsm.form.IndexForm;
+import ru.aquamarina.fsm.form.*;
+import ru.aquamarina.model.entity.Product;
 import ru.aquamarina.model.error.Error;
 import ru.aquamarina.util.ResultError;
 import ru.aquamarina.util.ResultOk;
@@ -27,7 +29,10 @@ public record TelegramView(OkHttpTelegramClient client, Update update) implement
         String chatId;
         switch (TelegramUtils.extractTelegramUserId(update)) {
             case ResultOk<Long, Error> ok -> chatId = ok.unwrap().toString();
-            case ResultError<Long, Error> err -> {draw(err.err());return;}
+            case ResultError<Long, Error> err -> {
+                draw(err.err());
+                return;
+            }
         }
         InlineKeyboardRow keyboardRow = new InlineKeyboardRow();
         form.getCommands().forEach(command -> {
@@ -39,13 +44,23 @@ public record TelegramView(OkHttpTelegramClient client, Update update) implement
         var keyBoard = InlineKeyboardMarkup.builder()
                 .keyboardRow(keyboardRow)
                 .build();
-        SendMessage message = SendMessage.builder()
+        Integer messageId = update.getCallbackQuery().getMessage().getMessageId();
+        AnswerCallbackQuery close = AnswerCallbackQuery.builder()
+                .callbackQueryId(update.getCallbackQuery().getId())
+                .build();
+        EditMessageText message = EditMessageText.builder()
                 .chatId(chatId)
+                .messageId(messageId)
                 .text(messageText)
+                .build();
+        EditMessageReplyMarkup replyMarkup = EditMessageReplyMarkup.builder()
+                .chatId(chatId)
+                .messageId(messageId)
                 .replyMarkup(keyBoard)
                 .build();
+        closeQueryAndRewriteMessage(close, message, replyMarkup);
 
-        sendMessage(message);
+        closeQueryAndRewriteMessage(close, message, replyMarkup);
     }
 
     @Override
@@ -53,7 +68,10 @@ public record TelegramView(OkHttpTelegramClient client, Update update) implement
         String chatId;
         switch (TelegramUtils.extractTelegramUserId(update)) {
             case ResultOk<Long, Error> ok -> chatId = ok.unwrap().toString();
-            case ResultError<Long, Error> err -> {draw(err.err());return;}
+            case ResultError<Long, Error> err -> {
+                draw(err.err());
+                return;
+            }
         }
         InlineKeyboardRow keyboardRow = new InlineKeyboardRow();
         form.getCommands().forEach(command -> {
@@ -65,13 +83,31 @@ public record TelegramView(OkHttpTelegramClient client, Update update) implement
         var keyBoard = InlineKeyboardMarkup.builder()
                 .keyboardRow(keyboardRow)
                 .build();
-        SendMessage message = SendMessage.builder()
+        if (update.hasMessage() && update.getMessage().getText().equals("/start")) {
+            SendMessage message = SendMessage.builder()
+                    .chatId(chatId)
+                    .text(messageText)
+                    .replyMarkup(keyBoard)
+                    .build();
+            sendMessage(message);
+            return;
+        }
+
+        Integer messageId = update.getCallbackQuery().getMessage().getMessageId();
+        AnswerCallbackQuery close = AnswerCallbackQuery.builder()
+                .callbackQueryId(update.getCallbackQuery().getId())
+                .build();
+        EditMessageText message = EditMessageText.builder()
                 .chatId(chatId)
+                .messageId(messageId)
                 .text(messageText)
+                .build();
+        EditMessageReplyMarkup replyMarkup = EditMessageReplyMarkup.builder()
+                .chatId(chatId)
+                .messageId(messageId)
                 .replyMarkup(keyBoard)
                 .build();
-
-        sendMessage(message);
+        closeQueryAndRewriteMessage(close, message, replyMarkup);
     }
 
     @Override
@@ -93,7 +129,29 @@ public record TelegramView(OkHttpTelegramClient client, Update update) implement
             Message res = client.execute(message);
             log.trace("=== send message: {} ===", res);
         } catch (TelegramApiException e) {
-            log.error("some err", e);
+            log.error("Telegram error during sending message: ", e);
+        }
+    }
+
+    private void rewriteMessage(EditMessageText messageText, EditMessageReplyMarkup messageReplyMarkup) {
+        try {
+            log.trace("Try to rewrite telegram message");
+            client.execute(messageText);
+            client.execute(messageReplyMarkup);
+        } catch (TelegramApiException e) {
+            log.error("Telegram error during rewriting message: ", e);
+        }
+    }
+
+    private void closeQueryAndRewriteMessage(AnswerCallbackQuery answerCallbackQuery,
+                                             EditMessageText messageText,
+                                             EditMessageReplyMarkup messageReplyMarkup) {
+        try {
+            log.trace("Try to close telegram query and rewrite message");
+            client.execute(answerCallbackQuery);
+            rewriteMessage(messageText, messageReplyMarkup);
+        } catch (TelegramApiException e) {
+            log.error("Telegram error during closing query: ", e);
         }
     }
 }
