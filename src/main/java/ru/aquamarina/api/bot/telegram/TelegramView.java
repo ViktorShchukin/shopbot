@@ -15,10 +15,15 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.aquamarina.api.bot.View;
 import ru.aquamarina.fsm.form.*;
+import ru.aquamarina.model.command.About;
+import ru.aquamarina.model.command.ProductAbout;
 import ru.aquamarina.model.entity.Product;
 import ru.aquamarina.model.error.Error;
 import ru.aquamarina.util.ResultError;
 import ru.aquamarina.util.ResultOk;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public record TelegramView(OkHttpTelegramClient client, Update update) implements View {
 
@@ -120,12 +125,55 @@ public record TelegramView(OkHttpTelegramClient client, Update update) implement
                 return;
             }
         }
+        List<InlineKeyboardRow> keyboardRowList = new ArrayList<>();
+        form.getCommands().forEach(command -> {
+            InlineKeyboardRow keyboardRow = new InlineKeyboardRow();
+            String buttonText = command.contains(ProductAbout.NAME) ? command.split("\\?")[1] : command;
+            keyboardRow.add(getButton(buttonText, command));
+            keyboardRowList.add(keyboardRow);
+        });
+
+        String messageText = "Каталог";
+
+        var keyBoard = InlineKeyboardMarkup.builder()
+                .keyboard(keyboardRowList)
+                .build();
+        Integer messageId = update.getCallbackQuery().getMessage().getMessageId();
+        AnswerCallbackQuery close = AnswerCallbackQuery.builder()
+                .callbackQueryId(update.getCallbackQuery().getId())
+                .build();
+        EditMessageText message = EditMessageText.builder()
+                .chatId(chatId)
+                .messageId(messageId)
+                .text(messageText)
+                .build();
+        EditMessageReplyMarkup replyMarkup = EditMessageReplyMarkup.builder()
+                .chatId(chatId)
+                .messageId(messageId)
+                .replyMarkup(keyBoard)
+                .build();
+        closeQueryAndRewriteMessage(close, message, replyMarkup);
+
+        closeQueryAndRewriteMessage(close, message, replyMarkup);
+    }
+
+    @Override
+    public void drawProductAboutForm(ProductAboutForm form) {
+        String chatId;
+        switch (TelegramUtils.extractTelegramUserId(update)) {
+            case ResultOk<Long, Error> ok -> chatId = ok.unwrap().toString();
+            case ResultError<Long, Error> err -> {
+                draw(err.err());
+                return;
+            }
+        }
+        Product product = form.product();
         InlineKeyboardRow keyboardRow = new InlineKeyboardRow();
         form.getCommands().forEach(command -> {
             keyboardRow.add(getButton(command, command));
         });
 
-        String messageText = "Каталог";
+        String messageText = product.getName() + "\n" + product.getCost() + "\n" + product.getDescription();
 
         var keyBoard = InlineKeyboardMarkup.builder()
                 .keyboardRow(keyboardRow)
@@ -150,7 +198,7 @@ public record TelegramView(OkHttpTelegramClient client, Update update) implement
     }
 
     @Override
-    public void drawProductAboutForm(ProductAboutForm form) {
+    public void drawAddProductToBasketForm(AddProductToBasketForm form) {
         String chatId;
         switch (TelegramUtils.extractTelegramUserId(update)) {
             case ResultOk<Long, Error> ok -> chatId = ok.unwrap().toString();
@@ -225,12 +273,12 @@ public record TelegramView(OkHttpTelegramClient client, Update update) implement
     private void closeQueryAndRewriteMessage(AnswerCallbackQuery answerCallbackQuery,
                                              EditMessageText messageText,
                                              EditMessageReplyMarkup messageReplyMarkup) {
-        try {
-            log.trace("Try to close telegram query and rewrite message");
-            client.execute(answerCallbackQuery);
+//        try {
+//            log.trace("Try to close telegram query and rewrite message");
+//            client.execute(answerCallbackQuery);
             rewriteMessage(messageText, messageReplyMarkup);
-        } catch (TelegramApiException e) {
-            log.error("Telegram error during closing query: ", e);
-        }
+//        } catch (TelegramApiException e) {
+//            log.error("Telegram error during closing query: ", e);
+//        }
     }
 }

@@ -6,8 +6,11 @@ import ru.aquamarina.model.command.ProductAbout;
 import ru.aquamarina.model.entity.Product;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public final class CatalogForm implements Form {
 
@@ -22,9 +25,8 @@ public final class CatalogForm implements Form {
         List<String> commands = products.stream()
                 .map(Product::getName)
                 .map(name -> ProductAbout.NAME + "?" + name)
-                .collect(Collectors.toCollection(ArrayList::new));
-        commands.add(Index.NAME);
-        return commands;
+                .toList();
+        return Stream.of(commands, Collections.singleton(Index.NAME)).flatMap(Collection::stream).toList();
     }
 
     @Override
