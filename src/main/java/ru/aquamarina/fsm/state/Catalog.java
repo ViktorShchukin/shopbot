@@ -28,7 +28,7 @@ public class Catalog implements FsmState {
             case Index ndx -> Result.ok(new ru.aquamarina.fsm.state.Index());
             case ProductAbout pbt -> context.getProductService()
                     .getByName(pbt.productName())
-                    .map(product -> Result.ok(new ru.aquamarina.fsm.state.ProductAbout(product)));
+                    .map(product -> Result.ok(new ru.aquamarina.fsm.state.ProductAbout(product, 0)));
             case Start start-> Result.ok(new ru.aquamarina.fsm.state.Index());
             default -> Result.error(new NotSupportedCommand());
         };

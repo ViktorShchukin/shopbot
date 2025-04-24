@@ -1,18 +1,24 @@
 package ru.aquamarina.fsm.form;
 
 import ru.aquamarina.api.bot.View;
-import ru.aquamarina.model.command.AddProductToBasket;
-import ru.aquamarina.model.command.Catalog;
-import ru.aquamarina.model.command.Index;
+import ru.aquamarina.model.command.*;
 import ru.aquamarina.model.entity.Product;
 
 import java.util.List;
 
-public record ProductAboutForm(Product product) implements Form {
+public record ProductAboutForm(Product product, long quantity) implements Form {
 
     @Override
     public List<String> getCommands() {
-        return List.of(Catalog.NAME, AddProductToBasket.NAME + "?" + product.getName());
+        return List.of(
+                QuantityMinus.NAME,
+                QuantityPlus.NAME,
+                AddToBasket.NAME,
+                Basket.NAME,
+                Index.NAME,
+                Catalog.NAME,
+                Instruction.NAME
+                );
     }
 
     @Override
