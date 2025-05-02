@@ -12,6 +12,8 @@ state Folder
 state ProductAbout
 state Basket
 state ForWholesaler
+state Order
+state PayAndDelivery
     
 entrypoint --> Init : /start
 Init --> Index
@@ -19,13 +21,14 @@ Init --> Index
 Index --> About : about
 Index --> Catalog : catalog
 Index --> ForWholesaler : forWholesaler
+Index --> PayAndDelivery : payAndDelivery
 
 ForWholesaler --> Index : index
-
 About --> Index : index
+PayAndDelivery --> Index : index
 
 Catalog --> Index : index
-Catalog --> ProductAbout : productAbout?{productName)
+Catalog --> ProductAbout : productAbout?{productName}
 Catalog --> Folder : folder?{folderName}
 Catalog --> Catalog : nextPage
 Catalog --> Catalog : previousPage
@@ -50,6 +53,9 @@ Instruction --> ProductAbout : productAbout
 '' we haven't discussed ordering yet, so i think that it is 
 '' silly idea to do predictions about it. It may look really 
 '' different at the mom's point. I prefer to postpone it 
-'Basket --> Order
+Basket --> Index : index
+Basket --> Order : doOrder
+
+Order --> Index : index
 ```
 
