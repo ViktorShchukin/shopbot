@@ -41,12 +41,12 @@ public class DefaultFsmRunner implements FsmRunner {
             case Init.NAME -> Result.ok(new Init());
             case About.NAME -> Result.ok(new About());
             case Catalog.NAME -> Result.ok(new Catalog());
-            case String str when str.contains(ProductAbout.NAME) -> fsmContextHolder.getProductService()
-                    .getByName(str.split("\\?")[1])
-                    .map(product -> Result.ok(new ProductAbout(product)));
-            case String str when str.contains(AddProductToBasketState.NAME) -> fsmContextHolder.getProductService()
-                    .getByName(str.split("\\?")[1])
-                    .map(product -> Result.ok(new ProductAbout(product)));
+            case String str when str.contains(ProductAbout.NAME) -> {
+                long quantity = Long.parseLong(str.split("\\?")[2]);
+                yield fsmContextHolder.getProductService()
+                        .getByName(str.split("\\?")[1])
+                        .map(product -> Result.ok(new ProductAbout(product, quantity)));
+            }
             default -> Result.error(new UnknownState());
         };
     }

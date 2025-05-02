@@ -2,9 +2,10 @@ package ru.aquamarina.model.command;
 
 import ru.aquamarina.model.entity.User;
 
-public record AddProductToBasket(User user, String productName) implements Command {
+public record Basket(User user) implements Command {
 
-    public static final String NAME = "addProductToBasket";
+    public static final String NAME = "basket";
+
     @Override
     public User getUser() {
         return user;

@@ -64,8 +64,6 @@ public record TelegramView(OkHttpTelegramClient client, Update update) implement
                 .replyMarkup(keyBoard)
                 .build();
         closeQueryAndRewriteMessage(close, message, replyMarkup);
-
-        closeQueryAndRewriteMessage(close, message, replyMarkup);
     }
 
     @Override
@@ -153,8 +151,6 @@ public record TelegramView(OkHttpTelegramClient client, Update update) implement
                 .replyMarkup(keyBoard)
                 .build();
         closeQueryAndRewriteMessage(close, message, replyMarkup);
-
-        closeQueryAndRewriteMessage(close, message, replyMarkup);
     }
 
     @Override
@@ -168,15 +164,20 @@ public record TelegramView(OkHttpTelegramClient client, Update update) implement
             }
         }
         Product product = form.product();
-        InlineKeyboardRow keyboardRow = new InlineKeyboardRow();
+        List<InlineKeyboardRow> keyboardRowList = new ArrayList<>();
         form.getCommands().forEach(command -> {
-            keyboardRow.add(getButton(command, command));
+            InlineKeyboardRow keyboardRow = new InlineKeyboardRow();
+            String buttonText = command.contains(ProductAbout.NAME) ? command.split("\\?")[1] : command;
+            keyboardRow.add(getButton(buttonText, command));
+            keyboardRowList.add(keyboardRow);
         });
+        var button = getButton(String.valueOf(form.quantity()), "not supported");
+        keyboardRowList.add(new InlineKeyboardRow(List.of(button)));
 
         String messageText = product.getName() + "\n" + product.getCost() + "\n" + product.getDescription();
 
         var keyBoard = InlineKeyboardMarkup.builder()
-                .keyboardRow(keyboardRow)
+                .keyboard(keyboardRowList)
                 .build();
         Integer messageId = update.getCallbackQuery().getMessage().getMessageId();
         AnswerCallbackQuery close = AnswerCallbackQuery.builder()
@@ -192,48 +193,6 @@ public record TelegramView(OkHttpTelegramClient client, Update update) implement
                 .messageId(messageId)
                 .replyMarkup(keyBoard)
                 .build();
-        closeQueryAndRewriteMessage(close, message, replyMarkup);
-
-        closeQueryAndRewriteMessage(close, message, replyMarkup);
-    }
-
-    @Override
-    public void drawAddProductToBasketForm(AddProductToBasketForm form) {
-        String chatId;
-        switch (TelegramUtils.extractTelegramUserId(update)) {
-            case ResultOk<Long, Error> ok -> chatId = ok.unwrap().toString();
-            case ResultError<Long, Error> err -> {
-                draw(err.err());
-                return;
-            }
-        }
-        Product product = form.product();
-        InlineKeyboardRow keyboardRow = new InlineKeyboardRow();
-        form.getCommands().forEach(command -> {
-            keyboardRow.add(getButton(command, command));
-        });
-
-        String messageText = product.getName() + "\n" + product.getCost() + "\n" + product.getDescription();
-
-        var keyBoard = InlineKeyboardMarkup.builder()
-                .keyboardRow(keyboardRow)
-                .build();
-        Integer messageId = update.getCallbackQuery().getMessage().getMessageId();
-        AnswerCallbackQuery close = AnswerCallbackQuery.builder()
-                .callbackQueryId(update.getCallbackQuery().getId())
-                .build();
-        EditMessageText message = EditMessageText.builder()
-                .chatId(chatId)
-                .messageId(messageId)
-                .text(messageText)
-                .build();
-        EditMessageReplyMarkup replyMarkup = EditMessageReplyMarkup.builder()
-                .chatId(chatId)
-                .messageId(messageId)
-                .replyMarkup(keyBoard)
-                .build();
-        closeQueryAndRewriteMessage(close, message, replyMarkup);
-
         closeQueryAndRewriteMessage(close, message, replyMarkup);
     }
 
