@@ -28,7 +28,10 @@ public class ProductAbout implements FsmState {
     @Override
     public Result<FsmState, Error> doWork(FsmContextHolder context, Command command) {
         return switch (command) {
-            case QuantityMinus qm -> Result.ok(new ProductAbout(product, productQuantity - 1));
+            case QuantityMinus qm -> {
+                long resQuantity = productQuantity == 0 ? 0 : productQuantity - 1 ;
+                yield Result.ok(new ProductAbout(product, resQuantity));
+            }
             case QuantityPlus qp -> Result.ok(new ProductAbout(product, productQuantity + 1));
             case AddToBasket atb -> {
                 context.getBasketservice().addToBasket(atb.getUser(), product, productQuantity);

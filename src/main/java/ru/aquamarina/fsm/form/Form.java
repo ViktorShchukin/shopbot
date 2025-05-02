@@ -4,7 +4,7 @@ import ru.aquamarina.api.bot.View;
 
 import java.util.List;
 
-public sealed interface Form permits AboutForm, CatalogForm, IndexForm, ProductAboutForm {
+public sealed interface Form permits AboutForm, CatalogForm, IndexForm, OrderForm, ProductAboutForm {
 
     /**
      * @return commands that should be placed on the form.
