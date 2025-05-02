@@ -14,4 +14,6 @@ public interface View {
     void drawCatalogForm(CatalogForm form);
 
     void drawProductAboutForm(ProductAboutForm form);
+
+    void drawOrderForm(OrderForm form);
 }

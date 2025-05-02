@@ -4,16 +4,17 @@ hide empty description
 
 state entrypoint <<start>>
 
-state Init
-state Index
 state About
-state Catalog
-state Folder
-state ProductAbout
 state Basket
-state ForWholesaler
+state Catalog
+state Index
+state Init
 state Order
+state ProductAbout
+state Folder
+state ForWholesaler
 state PayAndDelivery
+state Instruction
     
 entrypoint --> Init : /start
 Init --> Index
@@ -50,9 +51,6 @@ ProductAbout --> Instruction : instruction
 
 Instruction --> ProductAbout : productAbout
 
-'' we haven't discussed ordering yet, so i think that it is 
-'' silly idea to do predictions about it. It may look really 
-'' different at the mom's point. I prefer to postpone it 
 Basket --> Index : index
 Basket --> Order : doOrder
 
