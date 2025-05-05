@@ -15,8 +15,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.aquamarina.api.bot.View;
 import ru.aquamarina.fsm.form.*;
-import ru.aquamarina.model.command.About;
-import ru.aquamarina.model.command.ProductAbout;
+import ru.aquamarina.model.command.ProductAboutCmd;
 import ru.aquamarina.model.entity.Product;
 import ru.aquamarina.model.error.Error;
 import ru.aquamarina.util.ResultError;
@@ -126,7 +125,7 @@ public record TelegramView(OkHttpTelegramClient client, Update update) implement
         List<InlineKeyboardRow> keyboardRowList = new ArrayList<>();
         form.getCommands().forEach(command -> {
             InlineKeyboardRow keyboardRow = new InlineKeyboardRow();
-            String buttonText = command.contains(ProductAbout.NAME) ? command.split("\\?")[1] : command;
+            String buttonText = command.contains(ProductAboutCmd.NAME) ? command.split("\\?")[1] : command;
             keyboardRow.add(getButton(buttonText, command));
             keyboardRowList.add(keyboardRow);
         });
@@ -167,11 +166,11 @@ public record TelegramView(OkHttpTelegramClient client, Update update) implement
         List<InlineKeyboardRow> keyboardRowList = new ArrayList<>();
         form.getCommands().forEach(command -> {
             InlineKeyboardRow keyboardRow = new InlineKeyboardRow();
-            String buttonText = command.contains(ProductAbout.NAME) ? command.split("\\?")[1] : command;
+            String buttonText = command.contains(ProductAboutCmd.NAME) ? command.split("\\?")[1] : command;
             keyboardRow.add(getButton(buttonText, command));
             keyboardRowList.add(keyboardRow);
         });
-        var button = getButton(String.valueOf(form.quantity()), "not supported");
+        var button = getButton("В корзине: " + form.quantity(), "not-supported");
         keyboardRowList.add(new InlineKeyboardRow(List.of(button)));
 
         String messageText = product.getName() + "\n" + product.getCost() + "\n" + product.getDescription();
