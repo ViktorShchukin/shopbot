@@ -15,8 +15,8 @@ public class OrderState implements FsmState {
     @Override
     public Result<FsmState, Error> doWork(FsmContextHolder context, Command command) {
         return switch (command) {
-            case Start start -> Result.ok(new ru.aquamarina.fsm.state.Index());
-            case ru.aquamarina.model.command.Index ndx -> Result.ok(new ru.aquamarina.fsm.state.Index());
+            case StartCmd start -> Result.ok(new IndexState());
+            case IndexCmd ndx -> Result.ok(new IndexState());
             default -> Result.error(new NotSupportedCommand());
         };
     }

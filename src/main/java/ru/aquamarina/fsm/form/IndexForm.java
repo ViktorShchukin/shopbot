@@ -1,8 +1,8 @@
 package ru.aquamarina.fsm.form;
 
 import ru.aquamarina.api.bot.View;
-import ru.aquamarina.model.command.About;
-import ru.aquamarina.model.command.Catalog;
+import ru.aquamarina.model.command.AboutCmd;
+import ru.aquamarina.model.command.CatalogCmd;
 
 import java.util.List;
 
@@ -10,7 +10,7 @@ public final class IndexForm implements Form {
 
     @Override
     public List<String> getCommands() {
-        return List.of(About.NAME, Catalog.NAME);
+        return List.of(AboutCmd.NAME, CatalogCmd.NAME);
     }
 
     @Override

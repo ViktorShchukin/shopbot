@@ -7,7 +7,7 @@ import ru.aquamarina.config.AppMapperConfig;
 import ru.aquamarina.model.command.*;
 import ru.aquamarina.model.entity.User;
 import ru.aquamarina.util.Result;
-import ru.aquamarina.model.command.Index;
+import ru.aquamarina.model.command.IndexCmd;
 import ru.aquamarina.model.error.Error;
 import ru.aquamarina.model.error.UnknownCommand;
 
@@ -27,15 +27,15 @@ public interface TelegramMapper {
             command = update.getCallbackQuery().getData();
         }
         return switch (command) {
-            case Start.NAME -> Result.ok(new Start(user));
-            case About.NAME -> Result.ok(new About(user));
-            case Index.NAME -> Result.ok(new Index(user));
-            case Catalog.NAME -> Result.ok(new Catalog(user));
-            case String str when str.contains(ProductAbout.NAME) -> Result.ok(new ProductAbout(user, str.split("\\?")[1]));
-            case QuantityMinus.NAME -> Result.ok(new QuantityMinus(user));
-            case QuantityPlus.NAME -> Result.ok(new QuantityPlus(user));
-            case AddToBasket.NAME -> Result.ok(new AddToBasket(user));
-            case Basket.NAME -> Result.ok(new Basket(user));
+            case StartCmd.NAME -> Result.ok(new StartCmd(user));
+            case AboutCmd.NAME -> Result.ok(new AboutCmd(user));
+            case IndexCmd.NAME -> Result.ok(new IndexCmd(user));
+            case CatalogCmd.NAME -> Result.ok(new CatalogCmd(user));
+            case String str when str.contains(ProductAboutCmd.NAME) -> Result.ok(new ProductAboutCmd(user, str.split("\\?")[1]));
+            case QuantityMinusCmd.NAME -> Result.ok(new QuantityMinusCmd(user));
+            case QuantityPlusCmd.NAME -> Result.ok(new QuantityPlusCmd(user));
+            case AddToBasketCmd.NAME -> Result.ok(new AddToBasketCmd(user));
+            case BasketCmd.NAME -> Result.ok(new BasketCmd(user));
             case null, default -> Result.error(new UnknownCommand());
         };
     }

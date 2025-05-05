@@ -36,16 +36,16 @@ public class DefaultFsmRunner implements FsmRunner {
     private Result<FsmState, Error> restoreState(User user) {
         String caseName = user.getLastState();
         return switch (caseName) {
-            case Index.NAME -> Result.ok(new Index());
+            case IndexState.NAME -> Result.ok(new IndexState());
             // todo think about init state. Now just create user if there is not exist. but what if in future it requires more complicated initialization
-            case Init.NAME -> Result.ok(new Init());
-            case About.NAME -> Result.ok(new About());
-            case Catalog.NAME -> Result.ok(new Catalog());
-            case String str when str.contains(ProductAbout.NAME) -> {
+            case InitState.NAME -> Result.ok(new InitState());
+            case AboutState.NAME -> Result.ok(new AboutState());
+            case CatalogState.NAME -> Result.ok(new CatalogState());
+            case String str when str.contains(ProductAboutState.NAME) -> {
                 long quantity = Long.parseLong(str.split("\\?")[2]);
                 yield fsmContextHolder.getProductService()
                         .getByName(str.split("\\?")[1])
-                        .map(product -> Result.ok(new ProductAbout(product, quantity)));
+                        .map(product -> Result.ok(new ProductAboutState(product, quantity)));
             }
             default -> Result.error(new UnknownState());
         };

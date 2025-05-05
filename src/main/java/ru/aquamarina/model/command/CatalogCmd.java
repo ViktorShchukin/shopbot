@@ -2,9 +2,9 @@ package ru.aquamarina.model.command;
 
 import ru.aquamarina.model.entity.User;
 
-public record QuantityPlus(User user) implements Command {
+public record CatalogCmd(User user) implements Command {
 
-    public static final String NAME = "quantityPlus";
+    public static final String NAME = "catalog";
 
     @Override
     public User getUser() {

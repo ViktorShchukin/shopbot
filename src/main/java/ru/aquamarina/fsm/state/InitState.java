@@ -6,13 +6,13 @@ import ru.aquamarina.model.command.Command;
 import ru.aquamarina.model.error.Error;
 import ru.aquamarina.util.Result;
 
-public class Init implements FsmState {
+public class InitState implements FsmState {
 
     public static final String NAME = "Init";
 
     @Override
     public Result<FsmState, Error> doWork(FsmContextHolder context, Command command) {
-        return Result.ok(new Index());
+        return Result.ok(new IndexState());
     }
 
     /**

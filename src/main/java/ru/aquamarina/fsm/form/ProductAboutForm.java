@@ -11,13 +11,13 @@ public record ProductAboutForm(Product product, long quantity) implements Form {
     @Override
     public List<String> getCommands() {
         return List.of(
-                QuantityMinus.NAME,
-                QuantityPlus.NAME,
-                AddToBasket.NAME,
-                Basket.NAME,
-                Index.NAME,
-                Catalog.NAME,
-                Instruction.NAME
+                QuantityMinusCmd.NAME,
+                QuantityPlusCmd.NAME,
+                AddToBasketCmd.NAME,
+                BasketCmd.NAME,
+                IndexCmd.NAME,
+                CatalogCmd.NAME,
+                InstructionCmd.NAME
                 );
     }
 

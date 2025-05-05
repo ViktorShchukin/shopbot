@@ -6,7 +6,7 @@ import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.aquamarina.fsm.state.FsmState;
-import ru.aquamarina.fsm.state.Init;
+import ru.aquamarina.fsm.state.InitState;
 import ru.aquamarina.mapper.UserUtil;
 import ru.aquamarina.model.entity.User;
 import ru.aquamarina.model.error.Error;
@@ -39,7 +39,7 @@ public class UserService {
     @Transactional
     public Result<User, Error> create(String login) {
         try {
-            User user = userUtil.create(login, Init.NAME);
+            User user = userUtil.create(login, InitState.NAME);
             return Result.ok(userRepository.save(user));
         } catch (Exception e) {
             return Result.error(new IoError(e));
