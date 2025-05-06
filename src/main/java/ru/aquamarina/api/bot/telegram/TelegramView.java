@@ -173,7 +173,7 @@ public record TelegramView(OkHttpTelegramClient client, Update update) implement
         var button = getButton("В корзине: " + form.quantity(), "not-supported");
         keyboardRowList.add(new InlineKeyboardRow(List.of(button)));
 
-        String messageText = product.getName() + "\n" + product.getCost() + "\n" + product.getDescription();
+        String messageText = product.getName() + "\n" + (double) product.getCost()/100 + "\n" + product.getDescription();
 
         var keyBoard = InlineKeyboardMarkup.builder()
                 .keyboard(keyboardRowList)
@@ -216,7 +216,7 @@ public record TelegramView(OkHttpTelegramClient client, Update update) implement
         String products = form.rows().stream()
                 .map(basketRow -> basketRow.getProductId().toString() + "  " + basketRow.getQuantity().toString() + "\n")
                 .reduce("", String::concat);
-        String messageText = products + "Сумма: " + form.totalCost().toString() + "\nСпасибо за заказ.\nМы свяжемся с вами позже." ;
+        String messageText = products + "Сумма: " + (double) form.totalCost()/100 + "\nСпасибо за заказ.\nМы свяжемся с вами позже." ;
 
         var keyBoard = InlineKeyboardMarkup.builder()
                 .keyboard(keyboardRowList)
@@ -259,7 +259,7 @@ public record TelegramView(OkHttpTelegramClient client, Update update) implement
         String products = form.rows().stream()
                 .map(basketRow -> basketRow.getProductId().toString() + "  " + basketRow.getQuantity().toString() + "\n")
                 .reduce("", String::concat);
-        String messageText = "Корзина" + "\n" + products + "Сумма: " + form.totalCost().toString();
+        String messageText = "Корзина" + "\n" + products + "Сумма: " + (double) form.totalCost()/100;
 
         var keyBoard = InlineKeyboardMarkup.builder()
                 .keyboard(keyboardRowList)

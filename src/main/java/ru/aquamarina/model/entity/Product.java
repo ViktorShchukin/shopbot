@@ -14,7 +14,7 @@ public class Product {
 
     private String name;
 
-    // cost should be in copeika(копейка)
+    // cost should be in kopeck(копейка)
     private Long cost;
 
     private String description;
