@@ -2,10 +2,11 @@ package ru.aquamarina.fsm.form;
 
 import ru.aquamarina.api.bot.View;
 import ru.aquamarina.model.command.IndexCmd;
+import ru.aquamarina.model.entity.OrderRow;
 
 import java.util.List;
 
-public final class OrderForm implements Form {
+public record OrderForm(List<OrderRow> rows, Long totalCost) implements Form {
     @Override
     public List<String> getCommands() {
         return List.of(IndexCmd.NAME);

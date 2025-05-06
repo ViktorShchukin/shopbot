@@ -196,6 +196,92 @@ public record TelegramView(OkHttpTelegramClient client, Update update) implement
     }
 
     @Override
+    public void drawOrderForm(OrderForm form) {
+        String chatId;
+        switch (TelegramUtils.extractTelegramUserId(update)) {
+            case ResultOk<Long, Error> ok -> chatId = ok.unwrap().toString();
+            case ResultError<Long, Error> err -> {
+                draw(err.err());
+                return;
+            }
+        }
+        List<InlineKeyboardRow> keyboardRowList = new ArrayList<>();
+        form.getCommands().forEach(command -> {
+            InlineKeyboardRow keyboardRow = new InlineKeyboardRow();
+            String buttonText = command.contains(ProductAboutCmd.NAME) ? command.split("\\?")[1] : command;
+            keyboardRow.add(getButton(buttonText, command));
+            keyboardRowList.add(keyboardRow);
+        });
+
+        String products = form.rows().stream()
+                .map(basketRow -> basketRow.getProductId().toString() + "  " + basketRow.getQuantity().toString() + "\n")
+                .reduce("", String::concat);
+        String messageText = products + "Сумма: " + form.totalCost().toString() + "\nСпасибо за заказ.\nМы свяжемся с вами позже." ;
+
+        var keyBoard = InlineKeyboardMarkup.builder()
+                .keyboard(keyboardRowList)
+                .build();
+        Integer messageId = update.getCallbackQuery().getMessage().getMessageId();
+        AnswerCallbackQuery close = AnswerCallbackQuery.builder()
+                .callbackQueryId(update.getCallbackQuery().getId())
+                .build();
+        EditMessageText message = EditMessageText.builder()
+                .chatId(chatId)
+                .messageId(messageId)
+                .text(messageText)
+                .build();
+        EditMessageReplyMarkup replyMarkup = EditMessageReplyMarkup.builder()
+                .chatId(chatId)
+                .messageId(messageId)
+                .replyMarkup(keyBoard)
+                .build();
+        closeQueryAndRewriteMessage(close, message, replyMarkup);
+    }
+
+    @Override
+    public void drawBasketForm(BasketForm form) {
+        String chatId;
+        switch (TelegramUtils.extractTelegramUserId(update)) {
+            case ResultOk<Long, Error> ok -> chatId = ok.unwrap().toString();
+            case ResultError<Long, Error> err -> {
+                draw(err.err());
+                return;
+            }
+        }
+        List<InlineKeyboardRow> keyboardRowList = new ArrayList<>();
+        form.getCommands().forEach(command -> {
+            InlineKeyboardRow keyboardRow = new InlineKeyboardRow();
+            String buttonText = command.contains(ProductAboutCmd.NAME) ? command.split("\\?")[1] : command;
+            keyboardRow.add(getButton(buttonText, command));
+            keyboardRowList.add(keyboardRow);
+        });
+
+        String products = form.rows().stream()
+                .map(basketRow -> basketRow.getProductId().toString() + "  " + basketRow.getQuantity().toString() + "\n")
+                .reduce("", String::concat);
+        String messageText = "Корзина" + "\n" + products + "Сумма: " + form.totalCost().toString();
+
+        var keyBoard = InlineKeyboardMarkup.builder()
+                .keyboard(keyboardRowList)
+                .build();
+        Integer messageId = update.getCallbackQuery().getMessage().getMessageId();
+        AnswerCallbackQuery close = AnswerCallbackQuery.builder()
+                .callbackQueryId(update.getCallbackQuery().getId())
+                .build();
+        EditMessageText message = EditMessageText.builder()
+                .chatId(chatId)
+                .messageId(messageId)
+                .text(messageText)
+                .build();
+        EditMessageReplyMarkup replyMarkup = EditMessageReplyMarkup.builder()
+                .chatId(chatId)
+                .messageId(messageId)
+                .replyMarkup(keyBoard)
+                .build();
+        closeQueryAndRewriteMessage(close, message, replyMarkup);
+    }
+
+    @Override
     public void draw(Error error) {
         // todo implement this
         log.error("=== error inside the app: {}", error.toString());

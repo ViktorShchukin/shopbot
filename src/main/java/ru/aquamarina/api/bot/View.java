@@ -16,4 +16,6 @@ public interface View {
     void drawProductAboutForm(ProductAboutForm form);
 
     void drawOrderForm(OrderForm form);
+
+    void drawBasketForm(BasketForm form);
 }

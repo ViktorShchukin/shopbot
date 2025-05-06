@@ -4,6 +4,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.aquamarina.config.AppMapperConfig;
+import ru.aquamarina.fsm.state.OrderState;
 import ru.aquamarina.model.command.*;
 import ru.aquamarina.model.entity.User;
 import ru.aquamarina.util.Result;
@@ -36,6 +37,7 @@ public interface TelegramMapper {
             case QuantityPlusCmd.NAME -> Result.ok(new QuantityPlusCmd(user));
             case AddToBasketCmd.NAME -> Result.ok(new AddToBasketCmd(user));
             case BasketCmd.NAME -> Result.ok(new BasketCmd(user));
+            case DoOrderCmd.NAME -> Result.ok(new DoOrderCmd(user));
             case null, default -> Result.error(new UnknownCommand());
         };
     }
