@@ -18,6 +18,9 @@ public interface BasketRepository extends PageableRepository<Basket, UUID> {
     @Query("insert into basket_and_product (basket_id, product_id, quantity) values (:basketId, :productId, :productQuantity)")
     Integer addToBasket(UUID basketId, UUID productId, long productQuantity);
 
-    @Query("select * from basket_and_product bap where bap.basket_id = :basketId")
-    List<BasketRow> getByBasketId(UUID basketId);
+    @Query("select bap.basket_id, bap.product_id, bap.quantity from basket_and_product bap where bap.basket_id = :basketId")
+    List<BasketRow> getBasketRowByBasketId(UUID basketId);
+
+    @Query("delete from basket_and_product where basket_id = :basketId")
+    void deleteAllFromBasket(UUID basketId);
 }

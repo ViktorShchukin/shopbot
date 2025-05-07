@@ -4,22 +4,21 @@ import io.micronaut.core.annotation.Introspected;
 
 import java.util.UUID;
 
-// todo it may ge record. read about micronaut data and record compatibility
 @Introspected
-public class BasketRow {
+public class OrderRow {
 
-    private final UUID basketId;
+    private final UUID orderId;
     private final UUID productId;
     private final Long quantity;
 
-    public BasketRow(UUID basketId, UUID productId, Long quantity) {
-        this.basketId = basketId;
+    public OrderRow(UUID orderId, UUID productId, Long quantity) {
+        this.orderId = orderId;
         this.productId = productId;
         this.quantity = quantity;
     }
 
-    public UUID getBasketId() {
-        return basketId;
+    public UUID getOrderId() {
+        return orderId;
     }
 
     public UUID getProductId() {

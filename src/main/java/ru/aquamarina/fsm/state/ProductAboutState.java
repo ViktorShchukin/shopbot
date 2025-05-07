@@ -34,13 +34,13 @@ public class ProductAboutState implements FsmState {
             }
             case QuantityPlusCmd qp -> Result.ok(new ProductAboutState(product, productQuantity + 1));
             case AddToBasketCmd atb -> {
-                context.getBasketservice().addToBasket(atb.getUser(), product, productQuantity);
+                context.getBasketService().addToBasket(atb.getUser(), product, productQuantity);
                 yield Result.ok(new ProductAboutState(product, 0));
             }
-//            case Basket bsk -> Result.ok(new BasketState)
+            case BasketCmd bsk -> Result.ok(new BasketState(command.getUser()));
+            case IndexCmd ndx -> Result.ok(new IndexState());
             case CatalogCmd ctg -> Result.ok(new CatalogState());
             case StartCmd start -> Result.ok(new IndexState());
-            case IndexCmd ndx -> Result.ok(new IndexState());
             default -> Result.error(new NotSupportedCommand());
         };
     }

@@ -173,7 +173,93 @@ public record TelegramView(OkHttpTelegramClient client, Update update) implement
         var button = getButton("В корзине: " + form.quantity(), "not-supported");
         keyboardRowList.add(new InlineKeyboardRow(List.of(button)));
 
-        String messageText = product.getName() + "\n" + product.getCost() + "\n" + product.getDescription();
+        String messageText = product.getName() + "\n" + (double) product.getCost()/100 + "\n" + product.getDescription();
+
+        var keyBoard = InlineKeyboardMarkup.builder()
+                .keyboard(keyboardRowList)
+                .build();
+        Integer messageId = update.getCallbackQuery().getMessage().getMessageId();
+        AnswerCallbackQuery close = AnswerCallbackQuery.builder()
+                .callbackQueryId(update.getCallbackQuery().getId())
+                .build();
+        EditMessageText message = EditMessageText.builder()
+                .chatId(chatId)
+                .messageId(messageId)
+                .text(messageText)
+                .build();
+        EditMessageReplyMarkup replyMarkup = EditMessageReplyMarkup.builder()
+                .chatId(chatId)
+                .messageId(messageId)
+                .replyMarkup(keyBoard)
+                .build();
+        closeQueryAndRewriteMessage(close, message, replyMarkup);
+    }
+
+    @Override
+    public void drawOrderForm(OrderForm form) {
+        String chatId;
+        switch (TelegramUtils.extractTelegramUserId(update)) {
+            case ResultOk<Long, Error> ok -> chatId = ok.unwrap().toString();
+            case ResultError<Long, Error> err -> {
+                draw(err.err());
+                return;
+            }
+        }
+        List<InlineKeyboardRow> keyboardRowList = new ArrayList<>();
+        form.getCommands().forEach(command -> {
+            InlineKeyboardRow keyboardRow = new InlineKeyboardRow();
+            String buttonText = command.contains(ProductAboutCmd.NAME) ? command.split("\\?")[1] : command;
+            keyboardRow.add(getButton(buttonText, command));
+            keyboardRowList.add(keyboardRow);
+        });
+
+        String products = form.rows().stream()
+                .map(basketRow -> basketRow.getProductId().toString() + "  " + basketRow.getQuantity().toString() + "\n")
+                .reduce("", String::concat);
+        String messageText = products + "Сумма: " + (double) form.totalCost()/100 + "\nСпасибо за заказ.\nМы свяжемся с вами позже." ;
+
+        var keyBoard = InlineKeyboardMarkup.builder()
+                .keyboard(keyboardRowList)
+                .build();
+        Integer messageId = update.getCallbackQuery().getMessage().getMessageId();
+        AnswerCallbackQuery close = AnswerCallbackQuery.builder()
+                .callbackQueryId(update.getCallbackQuery().getId())
+                .build();
+        EditMessageText message = EditMessageText.builder()
+                .chatId(chatId)
+                .messageId(messageId)
+                .text(messageText)
+                .build();
+        EditMessageReplyMarkup replyMarkup = EditMessageReplyMarkup.builder()
+                .chatId(chatId)
+                .messageId(messageId)
+                .replyMarkup(keyBoard)
+                .build();
+        closeQueryAndRewriteMessage(close, message, replyMarkup);
+    }
+
+    @Override
+    public void drawBasketForm(BasketForm form) {
+        String chatId;
+        switch (TelegramUtils.extractTelegramUserId(update)) {
+            case ResultOk<Long, Error> ok -> chatId = ok.unwrap().toString();
+            case ResultError<Long, Error> err -> {
+                draw(err.err());
+                return;
+            }
+        }
+        List<InlineKeyboardRow> keyboardRowList = new ArrayList<>();
+        form.getCommands().forEach(command -> {
+            InlineKeyboardRow keyboardRow = new InlineKeyboardRow();
+            String buttonText = command.contains(ProductAboutCmd.NAME) ? command.split("\\?")[1] : command;
+            keyboardRow.add(getButton(buttonText, command));
+            keyboardRowList.add(keyboardRow);
+        });
+
+        String products = form.rows().stream()
+                .map(basketRow -> basketRow.getProductId().toString() + "  " + basketRow.getQuantity().toString() + "\n")
+                .reduce("", String::concat);
+        String messageText = "Корзина" + "\n" + products + "Сумма: " + (double) form.totalCost()/100;
 
         var keyBoard = InlineKeyboardMarkup.builder()
                 .keyboard(keyboardRowList)
