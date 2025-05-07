@@ -39,7 +39,7 @@ public class ProductAboutState implements FsmState {
             }
             case BasketCmd bsk -> Result.ok(new BasketState(command.getUser()));
             case IndexCmd ndx -> Result.ok(new IndexState());
-            case CatalogCmd ctg -> Result.ok(new CatalogState());
+            case CatalogCmd ctg -> Result.ok(new CatalogState(product.getPath()));
             case StartCmd start -> Result.ok(new IndexState());
             default -> Result.error(new NotSupportedCommand());
         };

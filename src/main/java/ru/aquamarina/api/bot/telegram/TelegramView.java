@@ -15,6 +15,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.aquamarina.api.bot.View;
 import ru.aquamarina.fsm.form.*;
+import ru.aquamarina.model.command.FolderCmd;
 import ru.aquamarina.model.command.ProductAboutCmd;
 import ru.aquamarina.model.entity.Product;
 import ru.aquamarina.model.error.Error;
@@ -125,7 +126,14 @@ public record TelegramView(OkHttpTelegramClient client, Update update) implement
         List<InlineKeyboardRow> keyboardRowList = new ArrayList<>();
         form.getCommands().forEach(command -> {
             InlineKeyboardRow keyboardRow = new InlineKeyboardRow();
-            String buttonText = command.contains(ProductAboutCmd.NAME) ? command.split("\\?")[1] : command;
+            String buttonText = switch (command){
+                case String str when str.contains(ProductAboutCmd.NAME) -> command.split("\\?")[1];
+                case String str when  str.contains(FolderCmd.NAME) -> {
+                    String[] split = command.split("\\?")[1].split("/");
+                    yield split[split.length -1];
+                }
+                default -> command;
+            };
             keyboardRow.add(getButton(buttonText, command));
             keyboardRowList.add(keyboardRow);
         });

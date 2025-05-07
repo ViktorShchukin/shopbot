@@ -23,7 +23,7 @@ public class IndexState implements FsmState {
     public Result<FsmState, Error> doWork(FsmContextHolder context, Command command) {
         return switch (command) {
             case AboutCmd ndx -> Result.ok(new AboutState());
-            case CatalogCmd ctg -> Result.ok(new CatalogState());
+            case CatalogCmd ctg -> Result.ok(new CatalogState("/"));
             case StartCmd start-> Result.ok(new IndexState());
             default -> Result.error(new NotSupportedCommand());
         };

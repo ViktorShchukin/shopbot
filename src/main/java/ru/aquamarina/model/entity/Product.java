@@ -19,6 +19,8 @@ public class Product {
 
     private String description;
 
+    private String path;
+
     public UUID getId() {
         return id;
     }
@@ -49,5 +51,13 @@ public class Product {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
     }
 }
