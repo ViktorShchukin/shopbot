@@ -27,14 +27,17 @@ public class OrderState implements FsmState {
     @Override
     public Result<FsmState, Error> doWork(FsmContextHolder context, Command command) {
         return switch (command) {
-            case StartCmd start -> Result.ok(new IndexState());
-            case IndexCmd ndx -> Result.ok(new IndexState());
+            case IndexCmd ndx -> Result.ok(new IndexState(user));
+            case StartCmd start -> Result.ok(new IndexState(user));
             default -> Result.error(new NotSupportedCommand());
         };
     }
 
     @Override
     public Form getForm(FsmContextHolder context) {
+        List<Command> commands = List.of(
+                new IndexCmd(user)
+        );
         List<OrderRow> rows = context.getOrderService().getOrderRow(user);
         Long totalCost = rows.stream()
                 .flatMap(orderRow -> {
@@ -47,7 +50,7 @@ public class OrderState implements FsmState {
                             .stream();
                 })
                 .reduce(0L, Long::sum);
-        return new OrderForm(rows, totalCost);
+        return new OrderForm(commands, rows, totalCost);
     }
 
     @Override

@@ -36,16 +36,20 @@ public class BasketState implements FsmState {
             case DoOrderCmd ord -> context.getBasketService()
                     .getByUserId(command.getUser().getId())
                     .map(basket -> context.getOrderService().create(basket))
-                    .map(order -> Result.<FsmState, Error>ok(new OrderState(command.getUser())))
+                    .map(order -> Result.<FsmState, Error>ok(new OrderState(user)))
                     .orElseGet(() -> Result.error(new CanNotDoOrder()));
-            case IndexCmd index -> Result.ok(new IndexState());
-            case StartCmd start -> Result.ok(new IndexState());
+            case IndexCmd index -> Result.ok(new IndexState(user));
+            case StartCmd start -> Result.ok(new IndexState(user));
             default -> Result.error(new NotSupportedCommand());
         };
     }
 
     @Override
     public Form getForm(FsmContextHolder context) {
+        List<Command> commands = List.of(
+                new DoOrderCmd(user),
+                new IndexCmd(user)
+        );
         List<BasketRow> rows = context.getBasketService().getBasketRow(user);
         Long totalCost = rows.stream()
                 .flatMap(basket -> {
@@ -58,7 +62,7 @@ public class BasketState implements FsmState {
                             .stream();
                 })
                 .reduce(0L, Long::sum);
-        return new BasketForm(rows, totalCost);
+        return new BasketForm(commands, rows, totalCost);
     }
 
     @Override

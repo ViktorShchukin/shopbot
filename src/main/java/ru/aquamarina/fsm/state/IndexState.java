@@ -5,13 +5,13 @@ import org.slf4j.LoggerFactory;
 import ru.aquamarina.fsm.form.Form;
 import ru.aquamarina.fsm.FsmContextHolder;
 import ru.aquamarina.fsm.form.IndexForm;
-import ru.aquamarina.model.command.AboutCmd;
-import ru.aquamarina.model.command.CatalogCmd;
-import ru.aquamarina.model.command.Command;
-import ru.aquamarina.model.command.StartCmd;
+import ru.aquamarina.model.command.*;
+import ru.aquamarina.model.entity.User;
 import ru.aquamarina.model.error.Error;
 import ru.aquamarina.model.error.NotSupportedCommand;
 import ru.aquamarina.util.Result;
+
+import java.util.List;
 
 public class IndexState implements FsmState {
 
@@ -19,19 +19,29 @@ public class IndexState implements FsmState {
 
     private final Logger log = LoggerFactory.getLogger(IndexState.class);
 
+    private final User user;
+
+    public IndexState(User user) {
+        this.user = user;
+    }
+
     @Override
     public Result<FsmState, Error> doWork(FsmContextHolder context, Command command) {
         return switch (command) {
-            case AboutCmd ndx -> Result.ok(new AboutState());
-            case CatalogCmd ctg -> Result.ok(new CatalogState("/"));
-            case StartCmd start-> Result.ok(new IndexState());
+            case AboutCmd ndx -> Result.ok(new AboutState(user));
+            case CatalogCmd ctg -> Result.ok(new CatalogState(user, "/"));
+            case StartCmd start-> Result.ok(new IndexState(user));
             default -> Result.error(new NotSupportedCommand());
         };
     }
 
     @Override
     public Form getForm(FsmContextHolder context) {
-        return new IndexForm();
+        List<Command> commands = List.of(
+                new AboutCmd(user),
+                new CatalogCmd(user)
+        );
+        return new IndexForm(commands);
     }
 
     @Override

@@ -8,19 +8,25 @@ import ru.aquamarina.fsm.form.ProductAboutForm;
 import ru.aquamarina.model.command.*;
 import ru.aquamarina.model.command.CatalogCmd;
 import ru.aquamarina.model.entity.Product;
+import ru.aquamarina.model.entity.User;
 import ru.aquamarina.model.error.Error;
 import ru.aquamarina.model.error.NotSupportedCommand;
 import ru.aquamarina.util.Result;
+
+import java.util.List;
 
 public class ProductAboutState implements FsmState {
 
     public static final String NAME = "ProductAbout";
 
     private final Logger log = LoggerFactory.getLogger(ProductAboutState.class);
+
+    private final User user;
     private final Product product;
     private final long productQuantity;
 
-    public ProductAboutState(Product product, long productQuantity) {
+    public ProductAboutState(User user, Product product, long productQuantity) {
+        this.user = user;
         this.product = product;
         this.productQuantity = productQuantity;
     }
@@ -29,25 +35,33 @@ public class ProductAboutState implements FsmState {
     public Result<FsmState, Error> doWork(FsmContextHolder context, Command command) {
         return switch (command) {
             case QuantityMinusCmd qm -> {
-                long resQuantity = productQuantity == 0 ? 0 : productQuantity - 1 ;
-                yield Result.ok(new ProductAboutState(product, resQuantity));
+                long resQuantity = productQuantity == 0 ? 0 : productQuantity - 1;
+                yield Result.ok(new ProductAboutState(user, product, resQuantity));
             }
-            case QuantityPlusCmd qp -> Result.ok(new ProductAboutState(product, productQuantity + 1));
+            case QuantityPlusCmd qp -> Result.ok(new ProductAboutState(user, product, productQuantity + 1));
             case AddToBasketCmd atb -> {
                 context.getBasketService().addToBasket(atb.getUser(), product, productQuantity);
-                yield Result.ok(new ProductAboutState(product, 0));
+                yield Result.ok(new ProductAboutState(user, product, 0));
             }
             case BasketCmd bsk -> Result.ok(new BasketState(command.getUser()));
-            case IndexCmd ndx -> Result.ok(new IndexState());
-            case CatalogCmd ctg -> Result.ok(new CatalogState(product.getPath()));
-            case StartCmd start -> Result.ok(new IndexState());
+            case IndexCmd ndx -> Result.ok(new IndexState(user));
+            case CatalogCmd ctg -> Result.ok(new CatalogState(user, product.getPath()));
+            case StartCmd start -> Result.ok(new IndexState(user));
             default -> Result.error(new NotSupportedCommand());
         };
     }
 
     @Override
     public Form getForm(FsmContextHolder context) {
-        return new ProductAboutForm(product, productQuantity);
+        List<Command> commands = List.of(
+                new QuantityMinusCmd(user),
+                new QuantityPlusCmd(user),
+                new AddToBasketCmd(user),
+                new BasketCmd(user),
+                new IndexCmd(user),
+                new CatalogCmd(user)
+        );
+        return new ProductAboutForm(commands, product, productQuantity);
     }
 
     @Override

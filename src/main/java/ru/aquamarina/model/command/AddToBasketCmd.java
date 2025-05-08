@@ -9,4 +9,9 @@ public record AddToBasketCmd(User user) implements Command {
     public User getUser() {
         return user;
     }
+
+    @Override
+    public String toString() {
+        return NAME;
+    }
 }

@@ -15,8 +15,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.aquamarina.api.bot.View;
 import ru.aquamarina.fsm.form.*;
-import ru.aquamarina.model.command.FolderCmd;
-import ru.aquamarina.model.command.ProductAboutCmd;
+import ru.aquamarina.model.command.*;
 import ru.aquamarina.model.entity.Product;
 import ru.aquamarina.model.error.Error;
 import ru.aquamarina.util.ResultError;
@@ -41,7 +40,7 @@ public record TelegramView(OkHttpTelegramClient client, Update update) implement
         }
         InlineKeyboardRow keyboardRow = new InlineKeyboardRow();
         form.getCommands().forEach(command -> {
-            keyboardRow.add(getButton(command, command));
+            keyboardRow.add(getButton(command));
         });
 
         String messageText = "Я есть магазин";
@@ -78,7 +77,7 @@ public record TelegramView(OkHttpTelegramClient client, Update update) implement
         }
         InlineKeyboardRow keyboardRow = new InlineKeyboardRow();
         form.getCommands().forEach(command -> {
-            keyboardRow.add(getButton(command, command));
+            keyboardRow.add(getButton(command));
         });
 
         String messageText = "Привет. Чего желаете";
@@ -126,15 +125,7 @@ public record TelegramView(OkHttpTelegramClient client, Update update) implement
         List<InlineKeyboardRow> keyboardRowList = new ArrayList<>();
         form.getCommands().forEach(command -> {
             InlineKeyboardRow keyboardRow = new InlineKeyboardRow();
-            String buttonText = switch (command){
-                case String str when str.contains(ProductAboutCmd.NAME) -> command.split("\\?")[1];
-                case String str when  str.contains(FolderCmd.NAME) -> {
-                    String[] split = command.split("\\?")[1].split("/");
-                    yield split[split.length -1];
-                }
-                default -> command;
-            };
-            keyboardRow.add(getButton(buttonText, command));
+            keyboardRow.add(getButton(command));
             keyboardRowList.add(keyboardRow);
         });
 
@@ -174,14 +165,13 @@ public record TelegramView(OkHttpTelegramClient client, Update update) implement
         List<InlineKeyboardRow> keyboardRowList = new ArrayList<>();
         form.getCommands().forEach(command -> {
             InlineKeyboardRow keyboardRow = new InlineKeyboardRow();
-            String buttonText = command.contains(ProductAboutCmd.NAME) ? command.split("\\?")[1] : command;
-            keyboardRow.add(getButton(buttonText, command));
+            keyboardRow.add(getButton(command));
             keyboardRowList.add(keyboardRow);
         });
         var button = getButton("В корзине: " + form.quantity(), "not-supported");
         keyboardRowList.add(new InlineKeyboardRow(List.of(button)));
 
-        String messageText = product.getName() + "\n" + (double) product.getCost()/100 + "\n" + product.getDescription();
+        String messageText = product.getName() + "\n" + (double) product.getCost() / 100 + "\n" + product.getDescription();
 
         var keyBoard = InlineKeyboardMarkup.builder()
                 .keyboard(keyboardRowList)
@@ -216,15 +206,14 @@ public record TelegramView(OkHttpTelegramClient client, Update update) implement
         List<InlineKeyboardRow> keyboardRowList = new ArrayList<>();
         form.getCommands().forEach(command -> {
             InlineKeyboardRow keyboardRow = new InlineKeyboardRow();
-            String buttonText = command.contains(ProductAboutCmd.NAME) ? command.split("\\?")[1] : command;
-            keyboardRow.add(getButton(buttonText, command));
+            keyboardRow.add(getButton(command));
             keyboardRowList.add(keyboardRow);
         });
 
         String products = form.rows().stream()
                 .map(basketRow -> basketRow.getProductId().toString() + "  " + basketRow.getQuantity().toString() + "\n")
                 .reduce("", String::concat);
-        String messageText = products + "Сумма: " + (double) form.totalCost()/100 + "\nСпасибо за заказ.\nМы свяжемся с вами позже." ;
+        String messageText = products + "Сумма: " + (double) form.totalCost() / 100 + "\nСпасибо за заказ.\nМы свяжемся с вами позже.";
 
         var keyBoard = InlineKeyboardMarkup.builder()
                 .keyboard(keyboardRowList)
@@ -259,15 +248,14 @@ public record TelegramView(OkHttpTelegramClient client, Update update) implement
         List<InlineKeyboardRow> keyboardRowList = new ArrayList<>();
         form.getCommands().forEach(command -> {
             InlineKeyboardRow keyboardRow = new InlineKeyboardRow();
-            String buttonText = command.contains(ProductAboutCmd.NAME) ? command.split("\\?")[1] : command;
-            keyboardRow.add(getButton(buttonText, command));
+            keyboardRow.add(getButton(command));
             keyboardRowList.add(keyboardRow);
         });
 
         String products = form.rows().stream()
                 .map(basketRow -> basketRow.getProductId().toString() + "  " + basketRow.getQuantity().toString() + "\n")
                 .reduce("", String::concat);
-        String messageText = "Корзина" + "\n" + products + "Сумма: " + (double) form.totalCost()/100;
+        String messageText = "Корзина" + "\n" + products + "Сумма: " + (double) form.totalCost() / 100;
 
         var keyBoard = InlineKeyboardMarkup.builder()
                 .keyboard(keyboardRowList)
@@ -302,6 +290,31 @@ public record TelegramView(OkHttpTelegramClient client, Update update) implement
                 .build();
     }
 
+    private InlineKeyboardButton getButton(Command command) {
+        String text = switch (command) {
+            case AboutCmd cmd -> "О нас";
+            case AddToBasketCmd cmd -> "Добавить в корзину";
+            case BasketCmd cmd -> "Посмотреть корзину";
+            case CatalogCmd cmd -> "Меню каталога";
+            case DoOrderCmd cmd -> "Сделать заказ";
+            case FolderCmd cmd -> {
+                // todo create PathUtils
+                String[] split = cmd.path().split("/");
+                yield split[split.length - 1];
+            }
+            case IndexCmd cmd -> "На главную";
+            case InstructionCmd cmd -> "Инструкция";
+            case ProductAboutCmd cmd -> cmd.productName();
+            case QuantityMinusCmd cmd -> "-";
+            case QuantityPlusCmd cmd -> "+";
+            case StartCmd cmd -> "Restart session. This command should not appear in user interface.";
+        };
+        return InlineKeyboardButton.builder()
+                .text(text)
+                .callbackData(command.toString())
+                .build();
+    }
+
     private void sendMessage(SendMessage message) {
         try {
             log.trace("=== try to send message ===");
@@ -328,7 +341,7 @@ public record TelegramView(OkHttpTelegramClient client, Update update) implement
 //        try {
 //            log.trace("Try to close telegram query and rewrite message");
 //            client.execute(answerCallbackQuery);
-            rewriteMessage(messageText, messageReplyMarkup);
+        rewriteMessage(messageText, messageReplyMarkup);
 //        } catch (TelegramApiException e) {
 //            log.error("Telegram error during closing query: ", e);
 //        }

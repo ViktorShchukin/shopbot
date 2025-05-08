@@ -32,7 +32,7 @@ Catalog --> ProductAbout : productAbout?{productName}
 Catalog --> Catalog : nextPage
 Catalog --> Catalog : previousPage
 '' get into the specific folder 
-Catalog --> Catalog : folder?{folderName}
+Catalog --> Catalog : folder?{folderPath}
 '' go to the root of the catalog
 Catalog --> Catalog : catalog
 

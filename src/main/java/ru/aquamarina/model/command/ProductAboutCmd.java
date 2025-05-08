@@ -11,4 +11,10 @@ public record ProductAboutCmd(User user, String productName) implements Command 
     public User getUser() {
         return user;
     }
+
+    // todo think about using something else. It is not clear that you should override this method. And you can miss it.
+    @Override
+    public String toString() {
+        return new StringBuilder(NAME).append("?").append(productName).toString();
+    }
 }

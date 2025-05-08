@@ -1,15 +1,17 @@
 package ru.aquamarina.fsm.form;
 
 import ru.aquamarina.api.bot.View;
+import ru.aquamarina.model.command.Command;
 import ru.aquamarina.model.command.IndexCmd;
 
+import java.util.Collection;
 import java.util.List;
 
-public final class AboutForm implements Form {
+public record AboutForm(List<Command> commands) implements Form {
 
     @Override
-    public List<String> getCommands() {
-        return List.of(IndexCmd.NAME);
+    public Collection<Command> getCommands() {
+        return commands;
     }
 
     @Override
