@@ -8,11 +8,7 @@ import ru.aquamarina.model.entity.OrderRow;
 import java.util.Collection;
 import java.util.List;
 
-public record OrderForm(List<Command> commands, List<OrderRow> rows, Long totalCost) implements Form {
-    @Override
-    public Collection<Command> getCommands() {
-        return commands;
-    }
+public record OrderForm(List<OrderRow> rows, Long totalCost) implements Form {
 
     @Override
     public void draw(View view) {

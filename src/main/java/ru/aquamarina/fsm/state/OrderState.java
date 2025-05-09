@@ -35,9 +35,6 @@ public class OrderState implements FsmState {
 
     @Override
     public Form getForm(FsmContextHolder context) {
-        List<Command> commands = List.of(
-                new IndexCmd(user)
-        );
         List<OrderRow> rows = context.getOrderService().getOrderRow(user);
         Long totalCost = rows.stream()
                 .flatMap(orderRow -> {
@@ -50,7 +47,7 @@ public class OrderState implements FsmState {
                             .stream();
                 })
                 .reduce(0L, Long::sum);
-        return new OrderForm(commands, rows, totalCost);
+        return new OrderForm(rows, totalCost);
     }
 
     @Override

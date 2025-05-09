@@ -37,11 +37,7 @@ public class IndexState implements FsmState {
 
     @Override
     public Form getForm(FsmContextHolder context) {
-        List<Command> commands = List.of(
-                new AboutCmd(user),
-                new CatalogCmd(user)
-        );
-        return new IndexForm(commands);
+        return new IndexForm();
     }
 
     @Override

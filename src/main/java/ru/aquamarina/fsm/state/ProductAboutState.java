@@ -53,15 +53,7 @@ public class ProductAboutState implements FsmState {
 
     @Override
     public Form getForm(FsmContextHolder context) {
-        List<Command> commands = List.of(
-                new QuantityMinusCmd(user),
-                new QuantityPlusCmd(user),
-                new AddToBasketCmd(user),
-                new BasketCmd(user),
-                new IndexCmd(user),
-                new CatalogCmd(user)
-        );
-        return new ProductAboutForm(commands, product, productQuantity);
+        return new ProductAboutForm(product, productQuantity);
     }
 
     @Override

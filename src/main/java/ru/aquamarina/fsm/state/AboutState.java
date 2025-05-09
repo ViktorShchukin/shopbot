@@ -38,8 +38,7 @@ public class AboutState implements FsmState {
 
     @Override
     public Form getForm(FsmContextHolder context) {
-        List<Command> commands = List.of(new IndexCmd(user));
-        return new AboutForm(commands);
+        return new AboutForm();
     }
 
     @Override

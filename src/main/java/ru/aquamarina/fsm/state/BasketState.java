@@ -46,10 +46,6 @@ public class BasketState implements FsmState {
 
     @Override
     public Form getForm(FsmContextHolder context) {
-        List<Command> commands = List.of(
-                new DoOrderCmd(user),
-                new IndexCmd(user)
-        );
         List<BasketRow> rows = context.getBasketService().getBasketRow(user);
         Long totalCost = rows.stream()
                 .flatMap(basket -> {
@@ -62,7 +58,7 @@ public class BasketState implements FsmState {
                             .stream();
                 })
                 .reduce(0L, Long::sum);
-        return new BasketForm(commands, rows, totalCost);
+        return new BasketForm(rows, totalCost);
     }
 
     @Override

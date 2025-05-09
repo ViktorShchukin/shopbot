@@ -11,9 +11,11 @@ import ru.aquamarina.model.entity.Product;
 import ru.aquamarina.model.entity.User;
 import ru.aquamarina.model.error.Error;
 import ru.aquamarina.model.error.NotSupportedCommand;
+import ru.aquamarina.util.PathUtil;
 import ru.aquamarina.util.Result;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -50,23 +52,16 @@ public class CatalogState implements FsmState {
     @Override
     public Form getForm(FsmContextHolder context) {
         List<Product> products = context.getProductService().getByPathLike(path);
-        List<Command> productInFolder = products.stream()
+        List<Product> productInFolder = products.stream()
                 .filter(product -> product.getPath().equals(path))
-                .map(product -> new ProductAboutCmd(user, product.getName()))
-                .collect(Collectors.toList());
-        Set<Command> folderInFolder = products.stream()
+                .toList();
+        Set<Folder> folderInFolder = products.stream()
                 .map(Product::getPath)
                 .filter(pth -> !pth.equals(path))
-                // todo should trim folder to by current path
-//                .map(this::mapToFolder)
-                .map(pth -> new FolderCmd(user, pth))
+                .map(PathUtil::getFolderName)
+                .map(this::mapToFolder)
                 .collect(Collectors.toSet());
-        List<Command> commands = List.of(
-                new IndexCmd(user),
-                new CatalogCmd(user)
-        );
-        List<Command> finalCommands = Stream.of(productInFolder, folderInFolder, commands).flatMap(Collection::stream).toList();
-        return new CatalogForm(finalCommands);
+        return new CatalogForm(productInFolder, List.copyOf(folderInFolder));
     }
 
     @Override

@@ -7,12 +7,7 @@ import ru.aquamarina.model.command.IndexCmd;
 import java.util.Collection;
 import java.util.List;
 
-public record AboutForm(List<Command> commands) implements Form {
-
-    @Override
-    public Collection<Command> getCommands() {
-        return commands;
-    }
+public record AboutForm() implements Form {
 
     @Override
     public void draw(View view) {

@@ -10,12 +10,7 @@ import ru.aquamarina.model.entity.Product;
 import java.util.Collection;
 import java.util.List;
 
-public record BasketForm(List<Command> commands, List<BasketRow> rows, Long totalCost) implements Form {
-
-    @Override
-    public Collection<Command> getCommands() {
-        return commands;
-    }
+public record BasketForm(List<BasketRow> rows, Long totalCost) implements Form {
 
     @Override
     public void draw(View view) {
