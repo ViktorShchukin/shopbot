@@ -5,22 +5,28 @@ import org.slf4j.LoggerFactory;
 import ru.aquamarina.fsm.form.CatalogForm;
 import ru.aquamarina.fsm.form.Form;
 import ru.aquamarina.fsm.FsmContextHolder;
-import ru.aquamarina.model.command.Command;
-import ru.aquamarina.model.command.IndexCmd;
-import ru.aquamarina.model.command.ProductAboutCmd;
-import ru.aquamarina.model.command.StartCmd;
+import ru.aquamarina.model.command.*;
+import ru.aquamarina.model.entity.Folder;
 import ru.aquamarina.model.entity.Product;
 import ru.aquamarina.model.error.Error;
 import ru.aquamarina.model.error.NotSupportedCommand;
 import ru.aquamarina.util.Result;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class CatalogState implements FsmState {
 
     public static final String NAME = "Catalog";
 
     private final Logger log = LoggerFactory.getLogger(CatalogState.class);
+
+    private final String path;
+
+    public CatalogState(String path) {
+        this.path = path;
+    }
 
     @Override
     public Result<FsmState, Error> doWork(FsmContextHolder context, Command command) {
@@ -29,19 +35,35 @@ public class CatalogState implements FsmState {
             case ProductAboutCmd pbt -> context.getProductService()
                     .getByName(pbt.productName())
                     .map(product -> Result.ok(new ProductAboutState(product, 0)));
-            case StartCmd start-> Result.ok(new IndexState());
+            case FolderCmd fld -> Result.ok(new CatalogState(fld.path()));
+            case CatalogCmd ctg -> Result.ok(new CatalogState("/"));
+            case StartCmd start -> Result.ok(new IndexState());
             default -> Result.error(new NotSupportedCommand());
         };
     }
 
     @Override
     public Form getForm(FsmContextHolder context) {
-        List<Product> products = context.getProductService().getAll();
-        return new CatalogForm(products);
+        List<Product> products = context.getProductService().getByPathLike(path);
+        List<Product> productInFolder = products.stream()
+                .filter(product -> product.getPath().equals(path))
+                .toList();
+        Set<Folder> folderInFolder = products.stream()
+                .map(Product::getPath)
+                .filter(pth -> !pth.equals(path))
+                .map(this::mapToFolder)
+                .collect(Collectors.toSet());
+        return new CatalogForm(productInFolder, folderInFolder);
     }
 
     @Override
     public String toString() {
         return NAME;
+    }
+
+    private Folder mapToFolder(String folderPath) {
+        // todo maybe crate special util class???
+        var name = folderPath.substring(path.length()).split("/")[0];
+        return new Folder(name, folderPath);
     }
 }

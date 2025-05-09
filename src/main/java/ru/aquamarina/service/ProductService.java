@@ -50,4 +50,9 @@ public class ProductService {
                 .map(Result::<Product, Error>ok)
                 .orElseGet(() -> Result.error(new ProductNotFound()));
     }
+
+    public List<Product> getByPathLike(String path) {
+        String pattern = "%s%%".formatted(path);
+        return productRepository.findByPathLike(pattern);
+    }
 }
