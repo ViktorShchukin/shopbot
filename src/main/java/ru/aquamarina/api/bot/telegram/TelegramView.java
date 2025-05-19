@@ -19,6 +19,7 @@ import ru.aquamarina.model.command.*;
 import ru.aquamarina.model.entity.Folder;
 import ru.aquamarina.model.entity.Product;
 import ru.aquamarina.model.error.Error;
+import ru.aquamarina.service.ProductService;
 import ru.aquamarina.util.PathUtil;
 import ru.aquamarina.util.ResultError;
 import ru.aquamarina.util.ResultOk;
@@ -30,7 +31,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public record TelegramView(OkHttpTelegramClient client, Update update) implements View {
+public record TelegramView(OkHttpTelegramClient client, Update update, ProductService productService) implements View {
 
     private static final Logger log = LoggerFactory.getLogger(TelegramView.class);
 
@@ -237,8 +238,9 @@ public record TelegramView(OkHttpTelegramClient client, Update update) implement
         );
         keyboardRowList.add(keyboardRow);
 
+        // todo get rid of Optional.get() call without check
         String products = form.rows().stream()
-                .map(basketRow -> basketRow.getProductId().toString() + "  " + basketRow.getQuantity().toString() + "\n")
+                .map(basketRow -> productService.getById(basketRow.getProductId()).get().getName() + "  " + basketRow.getQuantity().toString() + "\n")
                 .reduce("", String::concat);
         String messageText = products + "Сумма: " + (double) form.totalCost() / 100 + "\nСпасибо за заказ.\nМы свяжемся с вами позже.";
 
@@ -279,8 +281,9 @@ public record TelegramView(OkHttpTelegramClient client, Update update) implement
         );
         keyboardRowList.add(keyboardRow);
 
+        // todo get rid of Optional.get() call without check
         String products = form.rows().stream()
-                .map(basketRow -> basketRow.getProductId().toString() + "  " + basketRow.getQuantity().toString() + "\n")
+                .map(basketRow -> productService.getById(basketRow.getProductId()).get().getName() + "  " + basketRow.getQuantity().toString() + "\n")
                 .reduce("", String::concat);
         String messageText = "Корзина" + "\n" + products + "Сумма: " + (double) form.totalCost() / 100;
 
