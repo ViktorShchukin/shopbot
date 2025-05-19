@@ -36,18 +36,18 @@ public class DefaultFsmRunner implements FsmRunner {
     private Result<FsmState, Error> restoreState(User user) {
         String caseName = user.getLastState();
         return switch (caseName) {
-            case AboutState.NAME -> Result.ok(new AboutState());
+            case AboutState.NAME -> Result.ok(new AboutState(user));
             case BasketState.NAME -> Result.ok(new BasketState(user));
             // todo i did it so because it is easier than store path for catalog. and has no effect. bu in perfect should persist path
-            case CatalogState.NAME -> Result.ok(new CatalogState("/"));
-            case IndexState.NAME -> Result.ok(new IndexState());
-            case InitState.NAME -> Result.ok(new InitState());
+            case CatalogState.NAME -> Result.ok(new CatalogState(user, "/"));
+            case IndexState.NAME -> Result.ok(new IndexState(user));
+            case InitState.NAME -> Result.ok(new InitState(user));
             case OrderState.NAME -> Result.ok(new OrderState(user));
             case String str when str.contains(ProductAboutState.NAME) -> {
                 long quantity = Long.parseLong(str.split("\\?")[2]);
                 yield fsmContextHolder.getProductService()
                         .getByName(str.split("\\?")[1])
-                        .map(product -> Result.ok(new ProductAboutState(product, quantity)));
+                        .map(product -> Result.ok(new ProductAboutState(user, product, quantity)));
             }
             default -> Result.error(new UnknownState());
         };

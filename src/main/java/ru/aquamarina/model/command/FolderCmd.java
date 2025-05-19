@@ -10,4 +10,9 @@ public record FolderCmd(User user, String path) implements Command {
     public User getUser() {
         return user;
     }
+
+    @Override
+    public String toString() {
+        return new StringBuilder(NAME).append("?").append(path).toString();
+    }
 }

@@ -36,10 +36,10 @@ public class BasketState implements FsmState {
             case DoOrderCmd ord -> context.getBasketService()
                     .getByUserId(command.getUser().getId())
                     .map(basket -> context.getOrderService().create(basket))
-                    .map(order -> Result.<FsmState, Error>ok(new OrderState(command.getUser())))
+                    .map(order -> Result.<FsmState, Error>ok(new OrderState(user)))
                     .orElseGet(() -> Result.error(new CanNotDoOrder()));
-            case IndexCmd index -> Result.ok(new IndexState());
-            case StartCmd start -> Result.ok(new IndexState());
+            case IndexCmd index -> Result.ok(new IndexState(user));
+            case StartCmd start -> Result.ok(new IndexState(user));
             default -> Result.error(new NotSupportedCommand());
         };
     }

@@ -10,4 +10,9 @@ public record InstructionCmd(User user) implements Command {
     public User getUser() {
         return null;
     }
+
+    @Override
+    public String toString() {
+        return NAME;
+    }
 }

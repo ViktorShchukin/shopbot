@@ -10,4 +10,9 @@ public record QuantityMinusCmd(User user) implements Command {
     public User getUser() {
         return user;
     }
+
+    @Override
+    public String toString() {
+        return NAME;
+    }
 }

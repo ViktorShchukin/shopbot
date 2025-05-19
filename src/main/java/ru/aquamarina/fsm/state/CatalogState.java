@@ -8,13 +8,18 @@ import ru.aquamarina.fsm.FsmContextHolder;
 import ru.aquamarina.model.command.*;
 import ru.aquamarina.model.entity.Folder;
 import ru.aquamarina.model.entity.Product;
+import ru.aquamarina.model.entity.User;
 import ru.aquamarina.model.error.Error;
 import ru.aquamarina.model.error.NotSupportedCommand;
+import ru.aquamarina.util.PathUtil;
 import ru.aquamarina.util.Result;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class CatalogState implements FsmState {
 
@@ -22,22 +27,24 @@ public class CatalogState implements FsmState {
 
     private final Logger log = LoggerFactory.getLogger(CatalogState.class);
 
+    private final User user;
     private final String path;
 
-    public CatalogState(String path) {
+    public CatalogState(User user, String path) {
+        this.user = user;
         this.path = path;
     }
 
     @Override
     public Result<FsmState, Error> doWork(FsmContextHolder context, Command command) {
         return switch (command) {
-            case IndexCmd ndx -> Result.ok(new IndexState());
+            case IndexCmd ndx -> Result.ok(new IndexState(user));
             case ProductAboutCmd pbt -> context.getProductService()
                     .getByName(pbt.productName())
-                    .map(product -> Result.ok(new ProductAboutState(product, 0)));
-            case FolderCmd fld -> Result.ok(new CatalogState(fld.path()));
-            case CatalogCmd ctg -> Result.ok(new CatalogState("/"));
-            case StartCmd start -> Result.ok(new IndexState());
+                    .map(product -> Result.ok(new ProductAboutState(user, product, 0)));
+            case FolderCmd fld -> Result.ok(new CatalogState(user, fld.path()));
+            case CatalogCmd ctg -> Result.ok(new CatalogState(user, "/"));
+            case StartCmd start -> Result.ok(new IndexState(user));
             default -> Result.error(new NotSupportedCommand());
         };
     }
@@ -51,9 +58,10 @@ public class CatalogState implements FsmState {
         Set<Folder> folderInFolder = products.stream()
                 .map(Product::getPath)
                 .filter(pth -> !pth.equals(path))
+                .map(PathUtil::getFolderName)
                 .map(this::mapToFolder)
                 .collect(Collectors.toSet());
-        return new CatalogForm(productInFolder, folderInFolder);
+        return new CatalogForm(productInFolder, List.copyOf(folderInFolder));
     }
 
     @Override

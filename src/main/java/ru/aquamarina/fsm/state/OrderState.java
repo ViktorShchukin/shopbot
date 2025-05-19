@@ -27,8 +27,8 @@ public class OrderState implements FsmState {
     @Override
     public Result<FsmState, Error> doWork(FsmContextHolder context, Command command) {
         return switch (command) {
-            case StartCmd start -> Result.ok(new IndexState());
-            case IndexCmd ndx -> Result.ok(new IndexState());
+            case IndexCmd ndx -> Result.ok(new IndexState(user));
+            case StartCmd start -> Result.ok(new IndexState(user));
             default -> Result.error(new NotSupportedCommand());
         };
     }
