@@ -36,9 +36,14 @@ public class ProductAboutState implements FsmState {
         return switch (command) {
             case QuantityMinusCmd qm -> {
                 long resQuantity = productQuantity == 0 ? 0 : productQuantity - 1;
+                context.getBasketService().addToBasket(user, product, resQuantity);
                 yield Result.ok(new ProductAboutState(user, product, resQuantity));
             }
-            case QuantityPlusCmd qp -> Result.ok(new ProductAboutState(user, product, productQuantity + 1));
+            case QuantityPlusCmd qp -> {
+                long resQuantity = productQuantity + 1;
+                context.getBasketService().addToBasket(user, product, resQuantity);
+                yield Result.ok(new ProductAboutState(user, product, resQuantity));
+            }
             case AddToBasketCmd atb -> {
                 context.getBasketService().addToBasket(atb.getUser(), product, productQuantity);
                 yield Result.ok(new ProductAboutState(user, product, 0));

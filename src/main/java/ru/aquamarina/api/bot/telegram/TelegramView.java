@@ -188,7 +188,7 @@ public record TelegramView(OkHttpTelegramClient client, Update update, ProductSe
                 getButton(new QuantityPlusCmd(null))
         ));
         keyboardRowList.add(new InlineKeyboardRow(
-                getButton(new AddToBasketCmd(null)),
+//                getButton(new AddToBasketCmd(null)),
                 getButton(new CatalogCmd(null))
         ));
         keyboardRowList.add(new InlineKeyboardRow(
