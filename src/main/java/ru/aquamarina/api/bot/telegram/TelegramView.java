@@ -86,10 +86,15 @@ public record TelegramView(OkHttpTelegramClient client, Update update, ProductSe
                 getButton(new CatalogCmd(null))
         );
 
+        InlineKeyboardRow keyboardRow1 = new InlineKeyboardRow(
+                getButton(new ForWholesalerCmd(null)),
+                getButton(new PayAndDeliveryCmd(null))
+        );
+
         String messageText = "Привет. Чего желаете";
 
         var keyBoard = InlineKeyboardMarkup.builder()
-                .keyboardRow(keyboardRow)
+                .keyboard(List.of(keyboardRow, keyboardRow1))
                 .build();
         if (update.hasMessage() && update.getMessage().getText().equals("/start")) {
             SendMessage message = SendMessage.builder()
@@ -308,6 +313,78 @@ public record TelegramView(OkHttpTelegramClient client, Update update, ProductSe
     }
 
     @Override
+    public void drawForWholesalerForm(ForWholesalerForm forWholesalerForm) {
+        String chatId;
+        switch (TelegramUtils.extractTelegramUserId(update)) {
+            case ResultOk<Long, Error> ok -> chatId = ok.unwrap().toString();
+            case ResultError<Long, Error> err -> {
+                draw(err.err());
+                return;
+            }
+        }
+        InlineKeyboardRow keyboardRow = new InlineKeyboardRow(
+                getButton(new IndexCmd(null))
+        );
+
+        String messageText = "Оптовикам";
+
+        var keyBoard = InlineKeyboardMarkup.builder()
+                .keyboardRow(keyboardRow)
+                .build();
+        Integer messageId = update.getCallbackQuery().getMessage().getMessageId();
+        AnswerCallbackQuery close = AnswerCallbackQuery.builder()
+                .callbackQueryId(update.getCallbackQuery().getId())
+                .build();
+        EditMessageText message = EditMessageText.builder()
+                .chatId(chatId)
+                .messageId(messageId)
+                .text(messageText)
+                .build();
+        EditMessageReplyMarkup replyMarkup = EditMessageReplyMarkup.builder()
+                .chatId(chatId)
+                .messageId(messageId)
+                .replyMarkup(keyBoard)
+                .build();
+        closeQueryAndRewriteMessage(close, message, replyMarkup);
+    }
+
+    @Override
+    public void drawPayAndDeliveryFormForm(PayAndDeliveryForm payAndDeliveryForm) {
+        String chatId;
+        switch (TelegramUtils.extractTelegramUserId(update)) {
+            case ResultOk<Long, Error> ok -> chatId = ok.unwrap().toString();
+            case ResultError<Long, Error> err -> {
+                draw(err.err());
+                return;
+            }
+        }
+        InlineKeyboardRow keyboardRow = new InlineKeyboardRow(
+                getButton(new IndexCmd(null))
+        );
+
+        String messageText = "Оплата и доставка";
+
+        var keyBoard = InlineKeyboardMarkup.builder()
+                .keyboardRow(keyboardRow)
+                .build();
+        Integer messageId = update.getCallbackQuery().getMessage().getMessageId();
+        AnswerCallbackQuery close = AnswerCallbackQuery.builder()
+                .callbackQueryId(update.getCallbackQuery().getId())
+                .build();
+        EditMessageText message = EditMessageText.builder()
+                .chatId(chatId)
+                .messageId(messageId)
+                .text(messageText)
+                .build();
+        EditMessageReplyMarkup replyMarkup = EditMessageReplyMarkup.builder()
+                .chatId(chatId)
+                .messageId(messageId)
+                .replyMarkup(keyBoard)
+                .build();
+        closeQueryAndRewriteMessage(close, message, replyMarkup);
+    }
+
+    @Override
     public void draw(Error error) {
         // todo implement this
         log.error("=== error inside the app: {}", error.toString());
@@ -323,6 +400,8 @@ public record TelegramView(OkHttpTelegramClient client, Update update, ProductSe
     private InlineKeyboardButton getButton(Command command) {
         String text = switch (command) {
             case AboutCmd cmd -> "О нас";
+            case ForWholesalerCmd cmd -> "Оптовикам";
+            case PayAndDeliveryCmd cmd -> "Оплата и доставка";
             case AddToBasketCmd cmd -> "Добавить в корзину";
             case BasketCmd cmd -> "Посмотреть корзину";
             case CatalogCmd cmd -> "Меню каталога";
