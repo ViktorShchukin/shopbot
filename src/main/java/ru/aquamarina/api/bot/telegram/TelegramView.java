@@ -406,7 +406,7 @@ public record TelegramView(OkHttpTelegramClient client, Update update, ProductSe
             case BasketCmd cmd -> "Посмотреть корзину";
             case CatalogCmd cmd -> "Меню каталога";
             case DoOrderCmd cmd -> "Сделать заказ";
-            case FolderCmd cmd -> PathUtil.getFolderName(cmd.path());
+            case FolderCmd cmd -> "Папка " + PathUtil.getFolderName(cmd.path());
             case IndexCmd cmd -> "На главную";
             case InstructionCmd cmd -> "Инструкция";
             case ProductAboutCmd cmd -> cmd.productName();

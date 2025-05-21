@@ -67,8 +67,8 @@ public class CatalogState implements FsmState {
                 .toList();
         Set<Folder> folderInFolder = products.stream()
                 .map(Product::getPath)
-                .filter(pth -> !pth.equals(path))
-                .map(PathUtil::getFolderName)
+                .filter(folderPth -> !folderPth.equals(path))
+                .map(folderPth -> PathUtil.getSubfolder(path, folderPth))
                 .map(this::mapToFolder)
                 .collect(Collectors.toSet());
         return new CatalogForm(productInFolder, List.copyOf(folderInFolder));
