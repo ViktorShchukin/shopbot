@@ -7,7 +7,6 @@ import ru.aquamarina.model.command.Command;
 import ru.aquamarina.model.command.DoOrderCmd;
 import ru.aquamarina.model.command.IndexCmd;
 import ru.aquamarina.model.command.StartCmd;
-import ru.aquamarina.model.entity.Basket;
 import ru.aquamarina.model.entity.BasketRow;
 import ru.aquamarina.model.entity.Product;
 import ru.aquamarina.model.entity.User;
@@ -36,7 +35,11 @@ public class BasketState implements FsmState {
             case DoOrderCmd ord -> context.getBasketService()
                     .getByUserId(command.getUser().getId())
                     .map(basket -> context.getOrderService().create(basket))
-                    .map(order -> Result.<FsmState, Error>ok(new OrderState(user)))
+                    .map(order -> {
+                        context.getTelegramService().notifySeller(order);
+                        return order;
+                    })
+                    .map(order -> Result.<FsmState, Error>ok(new OrderState(user, order)))
                     .orElseGet(() -> Result.error(new CanNotDoOrder()));
             case IndexCmd index -> Result.ok(new IndexState(user));
             case StartCmd start -> Result.ok(new IndexState(user));

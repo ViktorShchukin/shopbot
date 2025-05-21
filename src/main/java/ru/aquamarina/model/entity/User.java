@@ -4,6 +4,7 @@ import io.micronaut.data.annotation.Id;
 import io.micronaut.data.annotation.MappedEntity;
 import io.micronaut.data.annotation.MappedProperty;
 import io.micronaut.serde.annotation.Serdeable;
+import ru.aquamarina.model.UserRole;
 
 import java.util.UUID;
 
@@ -17,6 +18,9 @@ public class User {
 
     @MappedProperty("last_state")
     private String lastState;
+
+    @MappedProperty("user_role")
+    private UserRole userRole;
 
     public UUID getId() {
         return id;
@@ -40,5 +44,13 @@ public class User {
 
     public void setLastState(String lastState) {
         this.lastState = lastState;
+    }
+
+    public UserRole getUserRole() {
+        return userRole;
+    }
+
+    public void setUserRole(UserRole userRole) {
+        this.userRole = userRole;
     }
 }

@@ -7,7 +7,9 @@ import jakarta.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.aquamarina.mapper.TelegramInfoUtil;
+import ru.aquamarina.model.UserRole;
 import ru.aquamarina.model.error.IoError;
+import ru.aquamarina.model.error.NotFound;
 import ru.aquamarina.util.Result;
 import ru.aquamarina.model.entity.TelegramInfo;
 import ru.aquamarina.model.entity.User;
@@ -57,6 +59,17 @@ public class TelegramInfoService {
     }
 
     @Transactional
+    public Result<TelegramInfo, Error> getByUser(User user) {
+        try {
+            return telegramInfoRepository.findByUserId(user.getId())
+                    .map(Result::<TelegramInfo, Error>ok)
+                    .orElseGet(() -> Result.error(new NotFound("telegram info for this user not found. User Id: %s".formatted(user.getId().toString()))));
+        } catch (Exception e) {
+            return Result.error(new IoError(e));
+        }
+    }
+
+    @Transactional
     public Result<User, Error> getOrCrateUserByTelegramId(long telegramId) {
         Result<User, Error> res = getUserByTelegramId(telegramId);
         switch (res) {
@@ -64,7 +77,7 @@ public class TelegramInfoService {
                 return ok;
             }
             case ResultError error -> {
-                var user = userService.create(null);
+                var user = userService.create(null, UserRole.CUSTOMER);
                 user.map(usr -> create(telegramId, usr.getId()));
                 // todo not save. Think how to do user.create and telegramInfo.create as transactional operation
                 return user;

@@ -2,10 +2,7 @@ package ru.aquamarina.fsm;
 
 import jakarta.inject.Singleton;
 import org.telegram.telegrambots.client.okhttp.OkHttpTelegramClient;
-import ru.aquamarina.service.BasketService;
-import ru.aquamarina.service.OrderService;
-import ru.aquamarina.service.ProductService;
-import ru.aquamarina.service.TelegramInfoService;
+import ru.aquamarina.service.*;
 
 @Singleton
 public class FsmContextHolder {
@@ -15,13 +12,15 @@ public class FsmContextHolder {
     private final TelegramInfoService telegramInfoService;
     private final BasketService basketService;
     private final OrderService orderService;
+    private final TelegramService telegramService;
 
-    public FsmContextHolder(ProductService productService, OkHttpTelegramClient okHttpTelegramClient, TelegramInfoService getUserTelegramInfoService, BasketService basketService, OrderService orderService) {
+    public FsmContextHolder(ProductService productService, OkHttpTelegramClient okHttpTelegramClient, TelegramInfoService getUserTelegramInfoService, BasketService basketService, OrderService orderService, TelegramService telegramService) {
         this.productService = productService;
         this.telegramClient = okHttpTelegramClient;
         this.telegramInfoService = getUserTelegramInfoService;
         this.basketService = basketService;
         this.orderService = orderService;
+        this.telegramService = telegramService;
     }
 
     public OkHttpTelegramClient getTelegramClient() {
@@ -42,5 +41,9 @@ public class FsmContextHolder {
 
     public OrderService getOrderService() {
         return orderService;
+    }
+
+    public TelegramService getTelegramService() {
+        return telegramService;
     }
 }

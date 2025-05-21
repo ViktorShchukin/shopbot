@@ -6,16 +6,17 @@ import org.mapstruct.MappingTarget;
 import org.mapstruct.factory.Mappers;
 import ru.aquamarina.config.AppMapperConfig;
 import ru.aquamarina.fsm.state.FsmState;
+import ru.aquamarina.model.UserRole;
 import ru.aquamarina.model.entity.User;
 
 @Mapper(config = AppMapperConfig.class)
 public interface UserUtil {
 
     @Mapping(target = "id", expression = "java(java.util.UUID.randomUUID())")
-    User create(String login, String lastState);
+    User create(String login, String lastState, UserRole userRole);
 
     @Mapping(target = "id", ignore = true)
-    User update(@MappingTarget User user, String login, FsmState lastState);
+    User update(@MappingTarget User user, String login, FsmState lastState, UserRole userRole);
 
     default String mapState(FsmState state) {
         return state.toString();
