@@ -45,7 +45,14 @@ public class BasketService {
         // todo make create() return Result
         basketRepository.findByUserId(user.getId())
                 .or(() -> java.util.Optional.ofNullable(create(user)))
-                .map(basket -> basketRepository.addToBasket(basket.getId(), product.getId(), productQuantity));
+                .map(basket -> {
+                    boolean isRowExist = basketRepository.existByBasketIdProductId(basket.getId(), product.getId());
+                    if (isRowExist) {
+                        return basketRepository.updateRowQuantity(basket.getId(), product.getId(), productQuantity);
+                    } else {
+                        return basketRepository.addToBasket(basket.getId(), product.getId(), productQuantity);
+                    }
+                });
 
     }
 
