@@ -140,10 +140,18 @@ public record TelegramView(OkHttpTelegramClient client, Update update, ProductSe
                 .map(Folder::path)
                 .map(pth -> new FolderCmd(null, pth))
                 .collect(Collectors.toList());
-        List<Command> commands = List.of(
-                new IndexCmd(null),
-                new CatalogCmd(null)
-        );
+        List<Command> commands;
+        if (form.path().equals("/")) {
+            commands = List.of(
+                    new IndexCmd(null),
+                    new CatalogCmd(null)
+            );
+        } else {
+            commands = List.of(
+                    new IndexCmd(null)
+            );
+        }
+
         List<InlineKeyboardRow> keyboardRowList = new ArrayList<>();
         Stream.of(productInFolder, folderInFolder, commands)
                 .flatMap(Collection::stream)

@@ -6,7 +6,7 @@ import ru.aquamarina.model.entity.Product;
 
 import java.util.List;
 
-public record CatalogForm(List<Product> products, List<Folder> folders) implements Form {
+public record CatalogForm(List<Product> products, List<Folder> folders, String path) implements Form {
 
     @Override
     public void draw(View view) {
