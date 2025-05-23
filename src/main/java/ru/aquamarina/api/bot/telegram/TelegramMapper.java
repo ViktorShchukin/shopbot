@@ -30,6 +30,8 @@ public interface TelegramMapper {
         return switch (command) {
             case StartCmd.NAME -> Result.ok(new StartCmd(user));
             case AboutCmd.NAME -> Result.ok(new AboutCmd(user));
+            case ForWholesalerCmd.NAME -> Result.ok(new ForWholesalerCmd(user));
+            case PayAndDeliveryCmd.NAME -> Result.ok(new PayAndDeliveryCmd(user));
             case IndexCmd.NAME -> Result.ok(new IndexCmd(user));
             case CatalogCmd.NAME -> Result.ok(new CatalogCmd(user));
             case String str when str.contains(ProductAboutCmd.NAME) -> Result.ok(new ProductAboutCmd(user, str.split("\\?")[1]));

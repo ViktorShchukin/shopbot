@@ -2,44 +2,42 @@ package ru.aquamarina.fsm.state;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.aquamarina.fsm.form.Form;
 import ru.aquamarina.fsm.FsmContextHolder;
-import ru.aquamarina.fsm.form.IndexForm;
-import ru.aquamarina.model.command.*;
+import ru.aquamarina.fsm.form.AboutForm;
+import ru.aquamarina.fsm.form.ForWholesalerForm;
+import ru.aquamarina.fsm.form.Form;
+import ru.aquamarina.model.command.Command;
+import ru.aquamarina.model.command.IndexCmd;
+import ru.aquamarina.model.command.StartCmd;
 import ru.aquamarina.model.entity.User;
 import ru.aquamarina.model.error.Error;
 import ru.aquamarina.model.error.NotSupportedCommand;
 import ru.aquamarina.util.Result;
 
-import java.util.List;
+public class ForWholesalerState implements FsmState {
 
-public class IndexState implements FsmState {
-
-    public static final String NAME = "Start";
+    public static final String NAME = "ForWholesaler";
 
     private final Logger log = LoggerFactory.getLogger(IndexState.class);
 
     private final User user;
 
-    public IndexState(User user) {
+    public ForWholesalerState(User user) {
         this.user = user;
     }
 
     @Override
     public Result<FsmState, Error> doWork(FsmContextHolder context, Command command) {
         return switch (command) {
-            case AboutCmd ndx -> Result.ok(new AboutState(user));
-            case ForWholesalerCmd wls -> Result.ok(new ForWholesalerState(user));
-            case PayAndDeliveryCmd pad -> Result.ok(new PayAndDeliveryState(user));
-            case CatalogCmd ctg -> Result.ok(new CatalogState(user, "/"));
-            case StartCmd start-> Result.ok(new IndexState(user));
+            case IndexCmd index -> Result.ok(new IndexState(user));
+            case StartCmd start -> Result.ok(new IndexState(user));
             default -> Result.error(new NotSupportedCommand());
         };
     }
 
     @Override
     public Form getForm(FsmContextHolder context) {
-        return new IndexForm();
+        return new ForWholesalerForm();
     }
 
     @Override

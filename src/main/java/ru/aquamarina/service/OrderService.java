@@ -1,12 +1,19 @@
 package ru.aquamarina.service;
 
+import io.micronaut.data.exceptions.DataAccessException;
 import jakarta.inject.Singleton;
 import jakarta.transaction.Transactional;
 import ru.aquamarina.mapper.OrderTool;
 import ru.aquamarina.model.entity.*;
+import ru.aquamarina.model.error.Error;
+import ru.aquamarina.model.error.IoError;
+import ru.aquamarina.model.error.NotFound;
 import ru.aquamarina.repository.OrderRepository;
+import ru.aquamarina.util.Result;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Singleton
 public class OrderService {
@@ -32,10 +39,17 @@ public class OrderService {
         return order;
     }
 
-    public List<OrderRow> getOrderRow(User user) {
-        // todo think about it. should not just call get(). And it may be a lot of orders here.
-        // should get order by orderId
-        var order = orderRepository.findByUserId(user.getId()).get();
+    public List<OrderRow> getOrderRow(Order order) {
         return orderRepository.getBasketRowByBasketId(order.getId());
+    }
+
+    public Result<Order, Error> findById(UUID orderId) {
+        try {
+            return orderRepository.findById(orderId)
+                    .map(Result::<Order, Error>ok)
+                    .orElseGet(() -> Result.error(new NotFound("Order not found")));
+        } catch (DataAccessException e) {
+            return Result.error(new IoError(e));
+        }
     }
 }

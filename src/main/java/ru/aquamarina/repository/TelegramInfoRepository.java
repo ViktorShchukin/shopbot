@@ -14,4 +14,6 @@ import java.util.UUID;
 public interface TelegramInfoRepository extends PageableRepository<TelegramInfo, Long> {
 
     Optional<UUID> getUserIdByTelegramId(long id);
+
+    Optional<TelegramInfo> findByUserId(UUID id);
 }

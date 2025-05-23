@@ -11,6 +11,7 @@ import ru.aquamarina.api.bot.View;
 import ru.aquamarina.fsm.FsmRunner;
 import ru.aquamarina.fsm.form.Form;
 import ru.aquamarina.model.error.Error;
+import ru.aquamarina.service.ProductService;
 import ru.aquamarina.util.ResultError;
 import ru.aquamarina.util.ResultOk;
 
@@ -26,12 +27,14 @@ public class Bot implements LongPollingSingleThreadUpdateConsumer {
     private final FsmRunner fsmRunner;
     private final TelegramUtils telegramUtils;
     private final OkHttpTelegramClient client;
+    private final ProductService productService;
 
-    public Bot(TelegramMapper telegramMapper, FsmRunner fsmRunner, TelegramUtils telegramUtils, OkHttpTelegramClient client) {
+    public Bot(TelegramMapper telegramMapper, FsmRunner fsmRunner, TelegramUtils telegramUtils, OkHttpTelegramClient client, ProductService productService) {
         this.telegramMapper = telegramMapper;
         this.fsmRunner = fsmRunner;
         this.telegramUtils = telegramUtils;
         this.client = client;
+        this.productService = productService;
     }
 
     @Override
@@ -52,7 +55,7 @@ public class Bot implements LongPollingSingleThreadUpdateConsumer {
     }
 
     private void evaluateUpdate(Update update) {
-        View view = new TelegramView(client, update);
+        View view = new TelegramView(client, update, productService);
 
         var res = telegramUtils.getUser(update)
                 .map(user -> telegramMapper.mapToCommand(update, user))

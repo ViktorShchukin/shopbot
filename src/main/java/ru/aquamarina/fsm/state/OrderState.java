@@ -4,10 +4,7 @@ import ru.aquamarina.fsm.FsmContextHolder;
 import ru.aquamarina.fsm.form.Form;
 import ru.aquamarina.fsm.form.OrderForm;
 import ru.aquamarina.model.command.*;
-import ru.aquamarina.model.entity.BasketRow;
-import ru.aquamarina.model.entity.OrderRow;
-import ru.aquamarina.model.entity.Product;
-import ru.aquamarina.model.entity.User;
+import ru.aquamarina.model.entity.*;
 import ru.aquamarina.model.error.Error;
 import ru.aquamarina.model.error.NotSupportedCommand;
 import ru.aquamarina.util.Result;
@@ -19,9 +16,11 @@ public class OrderState implements FsmState {
     public final static String NAME = "Order";
 
     private final User user;
+    private final Order order;
 
-    public OrderState(User user) {
+    public OrderState(User user, Order order) {
         this.user = user;
+        this.order = order;
     }
 
     @Override
@@ -35,7 +34,7 @@ public class OrderState implements FsmState {
 
     @Override
     public Form getForm(FsmContextHolder context) {
-        List<OrderRow> rows = context.getOrderService().getOrderRow(user);
+        List<OrderRow> rows = context.getOrderService().getOrderRow(order);
         Long totalCost = rows.stream()
                 .flatMap(orderRow -> {
                     // todo add cost column to basketRow. Cost can be pulled with join query
@@ -52,6 +51,6 @@ public class OrderState implements FsmState {
 
     @Override
     public String toString() {
-        return NAME;
+        return NAME + "?" + order.getId().toString();
     }
 }

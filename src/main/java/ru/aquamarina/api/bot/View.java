@@ -18,4 +18,8 @@ public interface View {
     void drawOrderForm(OrderForm form);
 
     void drawBasketForm(BasketForm form);
+
+    void drawForWholesalerForm(ForWholesalerForm forWholesalerForm);
+
+    void drawPayAndDeliveryFormForm(PayAndDeliveryForm payAndDeliveryForm);
 }

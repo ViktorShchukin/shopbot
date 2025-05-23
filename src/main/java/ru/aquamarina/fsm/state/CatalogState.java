@@ -6,6 +6,7 @@ import ru.aquamarina.fsm.form.CatalogForm;
 import ru.aquamarina.fsm.form.Form;
 import ru.aquamarina.fsm.FsmContextHolder;
 import ru.aquamarina.model.command.*;
+import ru.aquamarina.model.entity.BasketRow;
 import ru.aquamarina.model.entity.Folder;
 import ru.aquamarina.model.entity.Product;
 import ru.aquamarina.model.entity.User;
@@ -41,7 +42,16 @@ public class CatalogState implements FsmState {
             case IndexCmd ndx -> Result.ok(new IndexState(user));
             case ProductAboutCmd pbt -> context.getProductService()
                     .getByName(pbt.productName())
-                    .map(product -> Result.ok(new ProductAboutState(user, product, 0)));
+                    .map(product -> {
+                        Long quantity = context.getBasketService()
+                                .getBasketRow(user).stream()
+                                .filter(bsk -> bsk.getProductId().equals(product.getId()))
+                                .findFirst()
+                                .map(BasketRow::getQuantity)
+                                .orElseGet(() -> 0L);
+                        return Result.ok(new ProductAboutState(user, product, quantity));
+                    });
+
             case FolderCmd fld -> Result.ok(new CatalogState(user, fld.path()));
             case CatalogCmd ctg -> Result.ok(new CatalogState(user, "/"));
             case StartCmd start -> Result.ok(new IndexState(user));
@@ -57,8 +67,8 @@ public class CatalogState implements FsmState {
                 .toList();
         Set<Folder> folderInFolder = products.stream()
                 .map(Product::getPath)
-                .filter(pth -> !pth.equals(path))
-                .map(PathUtil::getFolderName)
+                .filter(folderPth -> !folderPth.equals(path))
+                .map(folderPth -> PathUtil.getSubfolder(path, folderPth))
                 .map(this::mapToFolder)
                 .collect(Collectors.toSet());
         return new CatalogForm(productInFolder, List.copyOf(folderInFolder));

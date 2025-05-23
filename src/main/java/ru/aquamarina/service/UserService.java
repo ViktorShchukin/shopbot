@@ -8,12 +8,14 @@ import org.slf4j.LoggerFactory;
 import ru.aquamarina.fsm.state.FsmState;
 import ru.aquamarina.fsm.state.InitState;
 import ru.aquamarina.mapper.UserUtil;
+import ru.aquamarina.model.UserRole;
 import ru.aquamarina.model.entity.User;
 import ru.aquamarina.model.error.Error;
 import ru.aquamarina.model.error.IoError;
 import ru.aquamarina.repository.UserRepository;
 import ru.aquamarina.util.Result;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -37,9 +39,9 @@ public class UserService {
     }
 
     @Transactional
-    public Result<User, Error> create(String login) {
+    public Result<User, Error> create(String login, UserRole userRole) {
         try {
-            User user = userUtil.create(login, InitState.NAME);
+            User user = userUtil.create(login, InitState.NAME, userRole);
             return Result.ok(userRepository.save(user));
         } catch (Exception e) {
             return Result.error(new IoError(e));
@@ -48,12 +50,16 @@ public class UserService {
 
     public Result<FsmState, Error> updateState(User user, FsmState state) {
         try{
-            User updated = userUtil.update(user, null, state);
+            User updated = userUtil.update(user, null, state, user.getUserRole());
             userRepository.update(updated);
             // todo think about is it normal to return state instead of user.
             return Result.ok(state);
         } catch (DataAccessException e) {
             return Result.error(new IoError(e));
         }
+    }
+
+    public List<User> getAllByUserRole(UserRole userRole) {
+        return userRepository.findByUserRole(userRole);
     }
 }

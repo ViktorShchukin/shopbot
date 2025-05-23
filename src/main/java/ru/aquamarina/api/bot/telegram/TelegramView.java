@@ -19,6 +19,7 @@ import ru.aquamarina.model.command.*;
 import ru.aquamarina.model.entity.Folder;
 import ru.aquamarina.model.entity.Product;
 import ru.aquamarina.model.error.Error;
+import ru.aquamarina.service.ProductService;
 import ru.aquamarina.util.PathUtil;
 import ru.aquamarina.util.ResultError;
 import ru.aquamarina.util.ResultOk;
@@ -30,7 +31,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public record TelegramView(OkHttpTelegramClient client, Update update) implements View {
+public record TelegramView(OkHttpTelegramClient client, Update update, ProductService productService) implements View {
 
     private static final Logger log = LoggerFactory.getLogger(TelegramView.class);
 
@@ -85,10 +86,15 @@ public record TelegramView(OkHttpTelegramClient client, Update update) implement
                 getButton(new CatalogCmd(null))
         );
 
+        InlineKeyboardRow keyboardRow1 = new InlineKeyboardRow(
+                getButton(new ForWholesalerCmd(null)),
+                getButton(new PayAndDeliveryCmd(null))
+        );
+
         String messageText = "Привет. Чего желаете";
 
         var keyBoard = InlineKeyboardMarkup.builder()
-                .keyboardRow(keyboardRow)
+                .keyboard(List.of(keyboardRow, keyboardRow1))
                 .build();
         if (update.hasMessage() && update.getMessage().getText().equals("/start")) {
             SendMessage message = SendMessage.builder()
@@ -187,7 +193,7 @@ public record TelegramView(OkHttpTelegramClient client, Update update) implement
                 getButton(new QuantityPlusCmd(null))
         ));
         keyboardRowList.add(new InlineKeyboardRow(
-                getButton(new AddToBasketCmd(null)),
+//                getButton(new AddToBasketCmd(null)),
                 getButton(new CatalogCmd(null))
         ));
         keyboardRowList.add(new InlineKeyboardRow(
@@ -237,8 +243,9 @@ public record TelegramView(OkHttpTelegramClient client, Update update) implement
         );
         keyboardRowList.add(keyboardRow);
 
+        // todo get rid of Optional.get() call without check
         String products = form.rows().stream()
-                .map(basketRow -> basketRow.getProductId().toString() + "  " + basketRow.getQuantity().toString() + "\n")
+                .map(basketRow -> productService.getById(basketRow.getProductId()).get().getName() + "  " + basketRow.getQuantity().toString() + "\n")
                 .reduce("", String::concat);
         String messageText = products + "Сумма: " + (double) form.totalCost() / 100 + "\nСпасибо за заказ.\nМы свяжемся с вами позже.";
 
@@ -279,13 +286,86 @@ public record TelegramView(OkHttpTelegramClient client, Update update) implement
         );
         keyboardRowList.add(keyboardRow);
 
+        // todo get rid of Optional.get() call without check
         String products = form.rows().stream()
-                .map(basketRow -> basketRow.getProductId().toString() + "  " + basketRow.getQuantity().toString() + "\n")
+                .map(basketRow -> productService.getById(basketRow.getProductId()).get().getName() + "  " + basketRow.getQuantity().toString() + "\n")
                 .reduce("", String::concat);
         String messageText = "Корзина" + "\n" + products + "Сумма: " + (double) form.totalCost() / 100;
 
         var keyBoard = InlineKeyboardMarkup.builder()
                 .keyboard(keyboardRowList)
+                .build();
+        Integer messageId = update.getCallbackQuery().getMessage().getMessageId();
+        AnswerCallbackQuery close = AnswerCallbackQuery.builder()
+                .callbackQueryId(update.getCallbackQuery().getId())
+                .build();
+        EditMessageText message = EditMessageText.builder()
+                .chatId(chatId)
+                .messageId(messageId)
+                .text(messageText)
+                .build();
+        EditMessageReplyMarkup replyMarkup = EditMessageReplyMarkup.builder()
+                .chatId(chatId)
+                .messageId(messageId)
+                .replyMarkup(keyBoard)
+                .build();
+        closeQueryAndRewriteMessage(close, message, replyMarkup);
+    }
+
+    @Override
+    public void drawForWholesalerForm(ForWholesalerForm forWholesalerForm) {
+        String chatId;
+        switch (TelegramUtils.extractTelegramUserId(update)) {
+            case ResultOk<Long, Error> ok -> chatId = ok.unwrap().toString();
+            case ResultError<Long, Error> err -> {
+                draw(err.err());
+                return;
+            }
+        }
+        InlineKeyboardRow keyboardRow = new InlineKeyboardRow(
+                getButton(new IndexCmd(null))
+        );
+
+        String messageText = "Оптовикам";
+
+        var keyBoard = InlineKeyboardMarkup.builder()
+                .keyboardRow(keyboardRow)
+                .build();
+        Integer messageId = update.getCallbackQuery().getMessage().getMessageId();
+        AnswerCallbackQuery close = AnswerCallbackQuery.builder()
+                .callbackQueryId(update.getCallbackQuery().getId())
+                .build();
+        EditMessageText message = EditMessageText.builder()
+                .chatId(chatId)
+                .messageId(messageId)
+                .text(messageText)
+                .build();
+        EditMessageReplyMarkup replyMarkup = EditMessageReplyMarkup.builder()
+                .chatId(chatId)
+                .messageId(messageId)
+                .replyMarkup(keyBoard)
+                .build();
+        closeQueryAndRewriteMessage(close, message, replyMarkup);
+    }
+
+    @Override
+    public void drawPayAndDeliveryFormForm(PayAndDeliveryForm payAndDeliveryForm) {
+        String chatId;
+        switch (TelegramUtils.extractTelegramUserId(update)) {
+            case ResultOk<Long, Error> ok -> chatId = ok.unwrap().toString();
+            case ResultError<Long, Error> err -> {
+                draw(err.err());
+                return;
+            }
+        }
+        InlineKeyboardRow keyboardRow = new InlineKeyboardRow(
+                getButton(new IndexCmd(null))
+        );
+
+        String messageText = "Оплата и доставка";
+
+        var keyBoard = InlineKeyboardMarkup.builder()
+                .keyboardRow(keyboardRow)
                 .build();
         Integer messageId = update.getCallbackQuery().getMessage().getMessageId();
         AnswerCallbackQuery close = AnswerCallbackQuery.builder()
@@ -320,11 +400,13 @@ public record TelegramView(OkHttpTelegramClient client, Update update) implement
     private InlineKeyboardButton getButton(Command command) {
         String text = switch (command) {
             case AboutCmd cmd -> "О нас";
+            case ForWholesalerCmd cmd -> "Оптовикам";
+            case PayAndDeliveryCmd cmd -> "Оплата и доставка";
             case AddToBasketCmd cmd -> "Добавить в корзину";
             case BasketCmd cmd -> "Посмотреть корзину";
             case CatalogCmd cmd -> "Меню каталога";
             case DoOrderCmd cmd -> "Сделать заказ";
-            case FolderCmd cmd -> PathUtil.getFolderName(cmd.path());
+            case FolderCmd cmd -> "Папка " + PathUtil.getFolderName(cmd.path());
             case IndexCmd cmd -> "На главную";
             case InstructionCmd cmd -> "Инструкция";
             case ProductAboutCmd cmd -> cmd.productName();
