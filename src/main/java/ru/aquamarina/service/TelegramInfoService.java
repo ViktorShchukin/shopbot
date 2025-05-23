@@ -19,6 +19,8 @@ import ru.aquamarina.repository.TelegramInfoRepository;
 import ru.aquamarina.util.ResultError;
 import ru.aquamarina.util.ResultOk;
 
+import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
 @Validated
@@ -101,5 +103,9 @@ public class TelegramInfoService {
         } catch (Exception e) {
             return Result.error(new IoError(e));
         }
+    }
+
+    public List<TelegramInfo> getByUserRole(UserRole userRole) {
+        return telegramInfoRepository.getByUserRole(userRole);
     }
 }

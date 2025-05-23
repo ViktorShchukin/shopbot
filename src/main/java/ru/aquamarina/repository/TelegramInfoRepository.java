@@ -4,9 +4,11 @@ import io.micronaut.data.annotation.Query;
 import io.micronaut.data.jdbc.annotation.JdbcRepository;
 import io.micronaut.data.model.query.builder.sql.Dialect;
 import io.micronaut.data.repository.PageableRepository;
+import ru.aquamarina.model.UserRole;
 import ru.aquamarina.model.entity.TelegramInfo;
 import ru.aquamarina.model.entity.User;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -16,4 +18,11 @@ public interface TelegramInfoRepository extends PageableRepository<TelegramInfo,
     Optional<UUID> getUserIdByTelegramId(long id);
 
     Optional<TelegramInfo> findByUserId(UUID id);
+
+    @Query("""
+            select * from user_telegram_info uti
+            	join app_user au on au.id = uti.user_id
+            	where au.user_role = :userRole
+            """)
+    List<TelegramInfo> getByUserRole(UserRole userRole);
 }
