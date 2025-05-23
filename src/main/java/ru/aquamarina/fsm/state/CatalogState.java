@@ -54,6 +54,7 @@ public class CatalogState implements FsmState {
 
             case FolderCmd fld -> Result.ok(new CatalogState(user, fld.path()));
             case CatalogCmd ctg -> Result.ok(new CatalogState(user, "/"));
+            case BasketCmd bsk -> Result.ok(new BasketState(user));
             case StartCmd start -> Result.ok(new IndexState(user));
             default -> Result.error(new NotSupportedCommand());
         };
@@ -71,7 +72,7 @@ public class CatalogState implements FsmState {
                 .map(folderPth -> PathUtil.getSubfolder(path, folderPth))
                 .map(this::mapToFolder)
                 .collect(Collectors.toSet());
-        return new CatalogForm(productInFolder, List.copyOf(folderInFolder));
+        return new CatalogForm(productInFolder, List.copyOf(folderInFolder), path);
     }
 
     @Override

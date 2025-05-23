@@ -143,11 +143,13 @@ public record TelegramView(OkHttpTelegramClient client, Update update, ProductSe
         List<Command> commands;
         if (form.path().equals("/")) {
             commands = List.of(
-                    new IndexCmd(null),
-                    new CatalogCmd(null)
+                    new BasketCmd(null),
+                    new CatalogCmd(null),
+                    new IndexCmd(null)
             );
         } else {
             commands = List.of(
+                    new BasketCmd(null),
                     new IndexCmd(null)
             );
         }
@@ -287,7 +289,7 @@ public record TelegramView(OkHttpTelegramClient client, Update update, ProductSe
         List<InlineKeyboardRow> keyboardRowList = new ArrayList<>();
         InlineKeyboardRow keyboardRow = new InlineKeyboardRow(
                 getButton(new DoOrderCmd(null)),
-                getButton(new IndexCmd(null))
+                getButton(new CatalogCmd(null))
         );
         keyboardRowList.add(keyboardRow);
 

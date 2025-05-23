@@ -3,10 +3,7 @@ package ru.aquamarina.fsm.state;
 import ru.aquamarina.fsm.FsmContextHolder;
 import ru.aquamarina.fsm.form.BasketForm;
 import ru.aquamarina.fsm.form.Form;
-import ru.aquamarina.model.command.Command;
-import ru.aquamarina.model.command.DoOrderCmd;
-import ru.aquamarina.model.command.IndexCmd;
-import ru.aquamarina.model.command.StartCmd;
+import ru.aquamarina.model.command.*;
 import ru.aquamarina.model.entity.BasketRow;
 import ru.aquamarina.model.entity.Product;
 import ru.aquamarina.model.entity.User;
@@ -42,6 +39,7 @@ public class BasketState implements FsmState {
                     .map(order -> Result.<FsmState, Error>ok(new OrderState(user, order)))
                     .orElseGet(() -> Result.error(new CanNotDoOrder()));
             case IndexCmd index -> Result.ok(new IndexState(user));
+            case CatalogCmd ctg -> Result.ok(new CatalogState(user, "/"));
             case StartCmd start -> Result.ok(new IndexState(user));
             default -> Result.error(new NotSupportedCommand());
         };
