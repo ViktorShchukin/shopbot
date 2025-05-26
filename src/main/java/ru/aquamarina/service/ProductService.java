@@ -27,13 +27,13 @@ public class ProductService {
         return productRepository.findAll();
     }
 
-    public Product create(String name, long cost, String description) {
-        Product created = productUtil.create(name, cost, description);
+    public Product create(String name, long cost, String description, String path) {
+        Product created = productUtil.create(name, cost, description, path);
         return productRepository.save(created);
     }
 
-    public Product update(Product product, String name, long cost, String description) {
-        Product updated = productUtil.update(product, name, cost, description);
+    public Product update(Product product, String name, long cost, String description, String path) {
+        Product updated = productUtil.update(product, name, cost, description, path);
         return productRepository.update(updated);
     }
 
