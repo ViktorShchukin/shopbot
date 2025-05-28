@@ -784,11 +784,11 @@ function _Debug_crash_UNUSED(identifier, fact1, fact2, fact3, fact4)
 
 function _Debug_regionToString(region)
 {
-	if (region.N.B === region.W.B)
+	if (region.O.B === region.X.B)
 	{
-		return 'on line ' + region.N.B;
+		return 'on line ' + region.O.B;
 	}
-	return 'on lines ' + region.N.B + ' through ' + region.W.B;
+	return 'on lines ' + region.O.B + ' through ' + region.X.B;
 }
 
 
@@ -2719,9 +2719,9 @@ var _VirtualDom_mapEventTuple = F2(function(func, tuple)
 var _VirtualDom_mapEventRecord = F2(function(func, record)
 {
 	return {
-		ab: func(record.ab),
-		O: record.O,
-		L: record.L
+		ac: func(record.ac),
+		P: record.P,
+		M: record.M
 	}
 });
 
@@ -2989,11 +2989,11 @@ function _VirtualDom_makeCallback(eventNode, initialHandler)
 		// 3 = Custom
 
 		var value = result.a;
-		var message = !tag ? value : tag < 3 ? value.a : value.ab;
-		var stopPropagation = tag == 1 ? value.b : tag == 3 && value.O;
+		var message = !tag ? value : tag < 3 ? value.a : value.ac;
+		var stopPropagation = tag == 1 ? value.b : tag == 3 && value.P;
 		var currentEventNode = (
 			stopPropagation && event.stopPropagation(),
-			(tag == 2 ? value.b : tag == 3 && value.L) && event.preventDefault(),
+			(tag == 2 ? value.b : tag == 3 && value.M) && event.preventDefault(),
 			eventNode
 		);
 		var tagger;
@@ -3983,7 +3983,7 @@ var _Browser_document = _Debugger_document || F4(function(impl, flagDecoder, deb
 		impl.aW,
 		impl.aS,
 		function(sendToApp, initialModel) {
-			var divertHrefToApp = impl.M && impl.M(sendToApp)
+			var divertHrefToApp = impl.N && impl.N(sendToApp)
 			var view = impl.aX;
 			var title = _VirtualDom_doc.title;
 			var bodyNode = _VirtualDom_doc.body;
@@ -3992,7 +3992,7 @@ var _Browser_document = _Debugger_document || F4(function(impl, flagDecoder, deb
 			{
 				_VirtualDom_divertHrefToApp = divertHrefToApp;
 				var doc = view(model);
-				var nextNode = _VirtualDom_node('body')(_List_Nil)(doc.R);
+				var nextNode = _VirtualDom_node('body')(_List_Nil)(doc.S);
 				var patches = _VirtualDom_diff(currNode, nextNode);
 				bodyNode = _VirtualDom_applyPatches(bodyNode, currNode, patches, sendToApp);
 				currNode = nextNode;
@@ -4058,7 +4058,7 @@ function _Browser_application(impl)
 	var key = function() { key.a(onUrlChange(_Browser_getUrl())); };
 
 	return _Browser_document({
-		M: function(sendToApp)
+		N: function(sendToApp)
 		{
 			key.a = sendToApp;
 			_Browser_window.addEventListener('popstate', key);
@@ -4075,7 +4075,7 @@ function _Browser_application(impl)
 					sendToApp(onUrlRequest(
 						(next
 							&& curr.ak === next.ak
-							&& curr._ === next._
+							&& curr.aa === next.aa
 							&& curr.ah.a === next.ah.a
 						)
 							? $elm$browser$Browser$Internal(next)
@@ -4252,7 +4252,7 @@ function _Browser_getViewport()
 			aw: _Browser_window.pageXOffset,
 			ax: _Browser_window.pageYOffset,
 			av: _Browser_doc.documentElement.clientWidth,
-			Z: _Browser_doc.documentElement.clientHeight
+			_: _Browser_doc.documentElement.clientHeight
 		}
 	};
 }
@@ -4263,7 +4263,7 @@ function _Browser_getScene()
 	var elem = _Browser_doc.documentElement;
 	return {
 		av: Math.max(body.scrollWidth, body.offsetWidth, elem.scrollWidth, elem.offsetWidth, elem.clientWidth),
-		Z: Math.max(body.scrollHeight, body.offsetHeight, elem.scrollHeight, elem.offsetHeight, elem.clientHeight)
+		_: Math.max(body.scrollHeight, body.offsetHeight, elem.scrollHeight, elem.offsetHeight, elem.clientHeight)
 	};
 }
 
@@ -4288,13 +4288,13 @@ function _Browser_getViewportOf(id)
 		return {
 			aq: {
 				av: node.scrollWidth,
-				Z: node.scrollHeight
+				_: node.scrollHeight
 			},
 			au: {
 				aw: node.scrollLeft,
 				ax: node.scrollTop,
 				av: node.clientWidth,
-				Z: node.clientHeight
+				_: node.clientHeight
 			}
 		};
 	});
@@ -4329,13 +4329,13 @@ function _Browser_getElement(id)
 				aw: x,
 				ax: y,
 				av: _Browser_doc.documentElement.clientWidth,
-				Z: _Browser_doc.documentElement.clientHeight
+				_: _Browser_doc.documentElement.clientHeight
 			},
 			aD: {
 				aw: x + rect.left,
 				ax: y + rect.top,
 				av: rect.width,
-				Z: rect.height
+				_: rect.height
 			}
 		};
 	});
@@ -4390,15 +4390,15 @@ var _Http_toTask = F3(function(router, toTask, request)
 		$elm$core$Maybe$isJust(request.aV) && _Http_track(router, xhr, request.aV.a);
 
 		try {
-			xhr.open(request.aJ, request.P, true);
+			xhr.open(request.aJ, request.Q, true);
 		} catch (e) {
-			return done($elm$http$Http$BadUrl_(request.P));
+			return done($elm$http$Http$BadUrl_(request.Q));
 		}
 
 		_Http_configureRequest(xhr, request);
 
-		request.R.a && xhr.setRequestHeader('Content-Type', request.R.a);
-		xhr.send(request.R.b);
+		request.S.a && xhr.setRequestHeader('Content-Type', request.S.a);
+		xhr.send(request.S.b);
 
 		return function() { xhr.c = true; xhr.abort(); };
 	});
@@ -4436,7 +4436,7 @@ function _Http_toResponse(toBody, xhr)
 function _Http_toMetadata(xhr)
 {
 	return {
-		P: xhr.responseURL,
+		Q: xhr.responseURL,
 		aQ: xhr.status,
 		aR: xhr.statusText,
 		aF: _Http_parseHeaders(xhr.getAllResponseHeaders())
@@ -5049,7 +5049,7 @@ var $elm$url$Url$Http = 0;
 var $elm$url$Url$Https = 1;
 var $elm$url$Url$Url = F6(
 	function (protocol, host, port_, path, query, fragment) {
-		return {Y: fragment, _: host, af: path, ah: port_, ak: protocol, al: query};
+		return {Z: fragment, aa: host, af: path, ah: port_, ak: protocol, al: query};
 	});
 var $elm$core$String$contains = _String_contains;
 var $elm$core$String$length = _String_length;
@@ -5333,7 +5333,7 @@ var $author$project$Main$GotProducts = function (a) {
 };
 var $author$project$Product$Product = F5(
 	function (id, name, cost, description, path) {
-		return {T: cost, V: description, f: id, ad: name, af: path};
+		return {U: cost, W: description, f: id, K: name, af: path};
 	});
 var $elm$json$Json$Decode$decodeString = _Json_runOnString;
 var $elm$http$Http$BadStatus_ = F2(
@@ -6087,13 +6087,13 @@ var $elm$http$Http$cmdMap = F2(
 			return $elm$http$Http$Request(
 				{
 					az: r.az,
-					R: r.R,
+					S: r.S,
 					I: A2(_Http_mapExpect, func, r.I),
 					aF: r.aF,
 					aJ: r.aJ,
 					aT: r.aT,
 					aV: r.aV,
-					P: r.P
+					Q: r.Q
 				});
 		}
 	});
@@ -6116,11 +6116,11 @@ var $elm$http$Http$subscription = _Platform_leaf('Http');
 var $elm$http$Http$request = function (r) {
 	return $elm$http$Http$command(
 		$elm$http$Http$Request(
-			{az: false, R: r.R, I: r.I, aF: r.aF, aJ: r.aJ, aT: r.aT, aV: r.aV, P: r.P}));
+			{az: false, S: r.S, I: r.I, aF: r.aF, aJ: r.aJ, aT: r.aT, aV: r.aV, Q: r.Q}));
 };
 var $elm$http$Http$get = function (r) {
 	return $elm$http$Http$request(
-		{R: $elm$http$Http$emptyBody, I: r.I, aF: _List_Nil, aJ: 'GET', aT: $elm$core$Maybe$Nothing, aV: $elm$core$Maybe$Nothing, P: r.P});
+		{S: $elm$http$Http$emptyBody, I: r.I, aF: _List_Nil, aJ: 'GET', aT: $elm$core$Maybe$Nothing, aV: $elm$core$Maybe$Nothing, Q: r.Q});
 };
 var $elm$json$Json$Decode$list = _Json_decodeList;
 var $elm$json$Json$Decode$field = _Json_decodeField;
@@ -6142,7 +6142,7 @@ var $author$project$Product$getAllProduct = function (msg) {
 				$elm$http$Http$expectJson,
 				msg,
 				$elm$json$Json$Decode$list($author$project$Product$productDecoder)),
-			P: '/product'
+			Q: '/product'
 		});
 };
 var $author$project$Main$init = function (_v0) {
@@ -6185,32 +6185,32 @@ var $elm$json$Json$Encode$object = function (pairs) {
 };
 var $elm$http$Http$post = function (r) {
 	return $elm$http$Http$request(
-		{R: r.R, I: r.I, aF: _List_Nil, aJ: 'POST', aT: $elm$core$Maybe$Nothing, aV: $elm$core$Maybe$Nothing, P: r.P});
+		{S: r.S, I: r.I, aF: _List_Nil, aJ: 'POST', aT: $elm$core$Maybe$Nothing, aV: $elm$core$Maybe$Nothing, Q: r.Q});
 };
 var $elm$json$Json$Encode$string = _Json_wrap;
 var $author$project$Product$addProduct = F2(
 	function (product, msg) {
 		return $elm$http$Http$post(
 			{
-				R: $elm$http$Http$jsonBody(
+				S: $elm$http$Http$jsonBody(
 					$elm$json$Json$Encode$object(
 						_List_fromArray(
 							[
 								_Utils_Tuple2(
 								'name',
-								$elm$json$Json$Encode$string(product.ad)),
+								$elm$json$Json$Encode$string(product.K)),
 								_Utils_Tuple2(
 								'cost',
-								$elm$json$Json$Encode$int(product.T)),
+								$elm$json$Json$Encode$int(product.U)),
 								_Utils_Tuple2(
 								'description',
-								$elm$json$Json$Encode$string(product.V)),
+								$elm$json$Json$Encode$string(product.W)),
 								_Utils_Tuple2(
 								'path',
 								$elm$json$Json$Encode$string(product.af))
 							]))),
 				I: A2($elm$http$Http$expectJson, msg, $author$project$Product$productDecoder),
-				P: '/product'
+				Q: '/product'
 			});
 	});
 var $elm$core$List$filter = F2(
@@ -6255,7 +6255,7 @@ var $author$project$Main$updateProductCost = F2(
 	function (product, cost) {
 		return _Utils_update(
 			product,
-			{T: cost});
+			{U: cost});
 	});
 var $author$project$Main$gotProductCostToUpdate = F3(
 	function (model, prod, cost) {
@@ -6288,7 +6288,7 @@ var $author$project$Main$updateProductDescription = F2(
 	function (product, description) {
 		return _Utils_update(
 			product,
-			{V: description});
+			{W: description});
 	});
 var $author$project$Main$gotProductDescriptionToUpdate = F3(
 	function (model, prod, str) {
@@ -6321,7 +6321,7 @@ var $author$project$Main$updateProductName = F2(
 	function (product, name) {
 		return _Utils_update(
 			product,
-			{ad: name});
+			{K: name});
 	});
 var $author$project$Main$gotProductNameToUpdate = F3(
 	function (model, prod, str) {
@@ -6386,7 +6386,7 @@ var $author$project$Main$gotProductPathToUpdate = F3(
 var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
 var $author$project$Main$LogEntry = function (message) {
-	return {ab: message};
+	return {ac: message};
 };
 var $author$project$Main$myTag = 'Main.elm';
 var $author$project$Main$httpErrorToString = function (err) {
@@ -6439,12 +6439,12 @@ var $author$project$Main$processGotProducts = F2(
 var $author$project$Product$updateProduct = F3(
 	function (old, product, msg) {
 		var path = (product.af === '') ? old.af : product.af;
-		var name = (product.ad === '') ? old.ad : product.ad;
-		var description = (product.V === '') ? old.V : product.V;
-		var cost = (!product.T) ? old.T : product.T;
+		var name = (product.K === '') ? old.K : product.K;
+		var description = (product.W === '') ? old.W : product.W;
+		var cost = (!product.U) ? old.U : product.U;
 		return $elm$http$Http$request(
 			{
-				R: $elm$http$Http$jsonBody(
+				S: $elm$http$Http$jsonBody(
 					$elm$json$Json$Encode$object(
 						_List_fromArray(
 							[
@@ -6466,7 +6466,7 @@ var $author$project$Product$updateProduct = F3(
 				aJ: 'PUT',
 				aT: $elm$core$Maybe$Nothing,
 				aV: $elm$core$Maybe$Nothing,
-				P: '/product/' + product.f
+				Q: '/product/' + product.f
 			});
 	});
 var $author$project$Main$update = F2(
@@ -6718,7 +6718,7 @@ var $author$project$Main$drawLogLine = function (log) {
 		_List_Nil,
 		_List_fromArray(
 			[
-				$elm$html$Html$text(log.ab)
+				$elm$html$Html$text(log.ac)
 			]));
 };
 var $author$project$Main$drawLogs = function (logs) {
@@ -6759,7 +6759,7 @@ var $author$project$Main$drawProductRow = function (product) {
 				_List_Nil,
 				_List_fromArray(
 					[
-						$elm$html$Html$text(product.ad),
+						$elm$html$Html$text(product.K),
 						A2(
 						$elm$html$Html$input,
 						_List_fromArray(
@@ -6776,7 +6776,7 @@ var $author$project$Main$drawProductRow = function (product) {
 				_List_fromArray(
 					[
 						$elm$html$Html$text(
-						$elm$core$String$fromInt(product.T)),
+						$elm$core$String$fromInt(product.U)),
 						A2(
 						$elm$html$Html$input,
 						_List_fromArray(
@@ -6792,7 +6792,7 @@ var $author$project$Main$drawProductRow = function (product) {
 				_List_Nil,
 				_List_fromArray(
 					[
-						$elm$html$Html$text(product.V),
+						$elm$html$Html$text(product.W),
 						A2(
 						$elm$html$Html$input,
 						_List_fromArray(
@@ -6893,6 +6893,7 @@ var $author$project$Main$drawProductTable = function (productList) {
 				A2($elm$core$List$map, $author$project$Main$drawProductRow, productList))
 			]));
 };
+var $elm$core$List$sortBy = _List_sortBy;
 var $author$project$Main$view = function (model) {
 	return A2(
 		$elm$html$Html$div,
@@ -6900,7 +6901,13 @@ var $author$project$Main$view = function (model) {
 		_List_fromArray(
 			[
 				$author$project$Main$drawAddProductForm,
-				$author$project$Main$drawProductTable(model.H),
+				$author$project$Main$drawProductTable(
+				A2(
+					$elm$core$List$sortBy,
+					function ($) {
+						return $.K;
+					},
+					model.H)),
 				$elm$html$Html$text('--- ниже будут печататься ошибки. Если они возникнут, то прошу сообщить мне ---'),
 				$author$project$Main$drawLogs(model.C)
 			]));

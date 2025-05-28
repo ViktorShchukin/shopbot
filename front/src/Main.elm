@@ -200,7 +200,7 @@ updateProductPath product pth =
 view : Model -> Html Msg
 view model =
   div [] [ drawAddProductForm
-         , drawProductTable model.products
+         , drawProductTable <| List.sortBy .name model.products
          , text "--- ниже будут печататься ошибки. Если они возникнут, то прошу сообщить мне ---"
          , drawLogs model.logs
          ]
