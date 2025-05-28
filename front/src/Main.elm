@@ -7,8 +7,27 @@ import Html.Events
 import Http exposing (Error(..))
 import Product exposing (..)
 
--- main
+-- constant
 
+name_str : String
+name_str = "Название"
+
+cost_str : String
+cost_str = "Цена"
+
+description_str : String
+description_str = "Описание"
+
+path_str : String
+path_str = "Путь"
+
+update_str : String
+update_str = "Обновить"
+
+add_str : String
+add_str = "Добавить"
+
+-- main
 
 main : Program () Model Msg
 main =
@@ -217,10 +236,10 @@ drawProductTable productList =
 drawProductTableHeader : Html.Html Msg
 drawProductTableHeader =
   Html.tr []
-    [ Html.th [] [text "product name"]
-    , Html.th [] [text "product cost"]
-    , Html.th [] [text "product description"]
-    , Html.th [] [text "product path"]
+    [ Html.th [] [text name_str]
+    , Html.th [] [text cost_str]
+    , Html.th [] [text description_str]
+    , Html.th [] [text path_str]
     ]
 
 
@@ -228,29 +247,29 @@ drawProductRow : Product -> Html.Html Msg
 drawProductRow product =
   Html.tr []
     [ Html.td [] [ text product.name
-                 , Html.input [ Html.Events.onInput <| GotProductNameToUpdate product, Html.Attributes.placeholder "name"] []
+                 , Html.input [ Html.Events.onInput <| GotProductNameToUpdate product, Html.Attributes.placeholder name_str] []
                  ]
     , Html.td [] [ text <| String.fromInt product.cost
-                 , Html.input [ Html.Events.onInput <| GotProductCostToUpdate product, Html.Attributes.placeholder "cost"] []
+                 , Html.input [ Html.Events.onInput <| GotProductCostToUpdate product, Html.Attributes.placeholder cost_str] []
                  ]
     , Html.td [] [ text product.description
-                 , Html.input [ Html.Events.onInput <| GotProductDescriptionToUpdate product, Html.Attributes.placeholder "description"] []
+                 , Html.input [ Html.Events.onInput <| GotProductDescriptionToUpdate product, Html.Attributes.placeholder description_str] []
                  ]
     , Html.td [] [ text product.path
-                 , Html.input [ Html.Events.onInput <| GotProductPathToUpdate product, Html.Attributes.placeholder "path"] []
+                 , Html.input [ Html.Events.onInput <| GotProductPathToUpdate product, Html.Attributes.placeholder path_str] []
                  ]
-    , Html.td [] [ Html.button [ Html.Events.onClick <| UpdateProduct product] [ text "update"]]
+    , Html.td [] [ Html.button [ Html.Events.onClick <| UpdateProduct product] [ text update_str]]
     ]
 
 
 drawAddProductForm : Html.Html Msg
 drawAddProductForm =
   Html.fieldset [ role "group"]
-    [ Html.input [ Html.Events.onInput GotProductNameToAdd, Html.Attributes.placeholder "name"] []
-    , Html.input [ Html.Events.onInput GotProductCostToAdd, Html.Attributes.placeholder "cost"] []
-    , Html.input [ Html.Events.onInput GotProductDescriptionToAdd, Html.Attributes.placeholder "description"] []
-    , Html.input [ Html.Events.onInput GotProductPathToAdd, Html.Attributes.placeholder "path"] []
-    , Html.button [ Html.Events.onClick AddProduct ] [ text "add product"]
+    [ Html.input [ Html.Events.onInput GotProductNameToAdd, Html.Attributes.placeholder name_str] []
+    , Html.input [ Html.Events.onInput GotProductCostToAdd, Html.Attributes.placeholder cost_str] []
+    , Html.input [ Html.Events.onInput GotProductDescriptionToAdd, Html.Attributes.placeholder description_str] []
+    , Html.input [ Html.Events.onInput GotProductPathToAdd, Html.Attributes.placeholder path_str] []
+    , Html.button [ Html.Events.onClick AddProduct ] [ text add_str]
     ]
 
 drawLogs : List LogEntry -> Html.Html Msg

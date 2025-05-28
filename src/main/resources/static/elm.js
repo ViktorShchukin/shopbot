@@ -6588,9 +6588,13 @@ var $author$project$Main$GotProductNameToAdd = function (a) {
 var $author$project$Main$GotProductPathToAdd = function (a) {
 	return {$: 8, a: a};
 };
+var $author$project$Main$add_str = 'Добавить';
 var $elm$html$Html$button = _VirtualDom_node('button');
+var $author$project$Main$cost_str = 'Цена';
+var $author$project$Main$description_str = 'Описание';
 var $elm$html$Html$fieldset = _VirtualDom_node('fieldset');
 var $elm$html$Html$input = _VirtualDom_node('input');
+var $author$project$Main$name_str = 'Название';
 var $elm$virtual_dom$VirtualDom$Normal = function (a) {
 	return {$: 0, a: a};
 };
@@ -6639,6 +6643,7 @@ var $elm$html$Html$Events$onInput = function (tagger) {
 			$elm$html$Html$Events$alwaysStop,
 			A2($elm$json$Json$Decode$map, tagger, $elm$html$Html$Events$targetValue)));
 };
+var $author$project$Main$path_str = 'Путь';
 var $elm$html$Html$Attributes$stringProperty = F2(
 	function (key, string) {
 		return A2(
@@ -6673,7 +6678,7 @@ var $author$project$Main$drawAddProductForm = A2(
 			_List_fromArray(
 				[
 					$elm$html$Html$Events$onInput($author$project$Main$GotProductNameToAdd),
-					$elm$html$Html$Attributes$placeholder('name')
+					$elm$html$Html$Attributes$placeholder($author$project$Main$name_str)
 				]),
 			_List_Nil),
 			A2(
@@ -6681,7 +6686,7 @@ var $author$project$Main$drawAddProductForm = A2(
 			_List_fromArray(
 				[
 					$elm$html$Html$Events$onInput($author$project$Main$GotProductCostToAdd),
-					$elm$html$Html$Attributes$placeholder('cost')
+					$elm$html$Html$Attributes$placeholder($author$project$Main$cost_str)
 				]),
 			_List_Nil),
 			A2(
@@ -6689,7 +6694,7 @@ var $author$project$Main$drawAddProductForm = A2(
 			_List_fromArray(
 				[
 					$elm$html$Html$Events$onInput($author$project$Main$GotProductDescriptionToAdd),
-					$elm$html$Html$Attributes$placeholder('description')
+					$elm$html$Html$Attributes$placeholder($author$project$Main$description_str)
 				]),
 			_List_Nil),
 			A2(
@@ -6697,7 +6702,7 @@ var $author$project$Main$drawAddProductForm = A2(
 			_List_fromArray(
 				[
 					$elm$html$Html$Events$onInput($author$project$Main$GotProductPathToAdd),
-					$elm$html$Html$Attributes$placeholder('path')
+					$elm$html$Html$Attributes$placeholder($author$project$Main$path_str)
 				]),
 			_List_Nil),
 			A2(
@@ -6708,7 +6713,7 @@ var $author$project$Main$drawAddProductForm = A2(
 				]),
 			_List_fromArray(
 				[
-					$elm$html$Html$text('add product')
+					$elm$html$Html$text($author$project$Main$add_str)
 				]))
 		]));
 var $elm$html$Html$p = _VirtualDom_node('p');
@@ -6748,6 +6753,7 @@ var $author$project$Main$UpdateProduct = function (a) {
 };
 var $elm$html$Html$td = _VirtualDom_node('td');
 var $elm$html$Html$tr = _VirtualDom_node('tr');
+var $author$project$Main$update_str = 'Обновить';
 var $author$project$Main$drawProductRow = function (product) {
 	return A2(
 		$elm$html$Html$tr,
@@ -6766,7 +6772,7 @@ var $author$project$Main$drawProductRow = function (product) {
 							[
 								$elm$html$Html$Events$onInput(
 								$author$project$Main$GotProductNameToUpdate(product)),
-								$elm$html$Html$Attributes$placeholder('name')
+								$elm$html$Html$Attributes$placeholder($author$project$Main$name_str)
 							]),
 						_List_Nil)
 					])),
@@ -6783,7 +6789,7 @@ var $author$project$Main$drawProductRow = function (product) {
 							[
 								$elm$html$Html$Events$onInput(
 								$author$project$Main$GotProductCostToUpdate(product)),
-								$elm$html$Html$Attributes$placeholder('cost')
+								$elm$html$Html$Attributes$placeholder($author$project$Main$cost_str)
 							]),
 						_List_Nil)
 					])),
@@ -6799,7 +6805,7 @@ var $author$project$Main$drawProductRow = function (product) {
 							[
 								$elm$html$Html$Events$onInput(
 								$author$project$Main$GotProductDescriptionToUpdate(product)),
-								$elm$html$Html$Attributes$placeholder('description')
+								$elm$html$Html$Attributes$placeholder($author$project$Main$description_str)
 							]),
 						_List_Nil)
 					])),
@@ -6815,7 +6821,7 @@ var $author$project$Main$drawProductRow = function (product) {
 							[
 								$elm$html$Html$Events$onInput(
 								$author$project$Main$GotProductPathToUpdate(product)),
-								$elm$html$Html$Attributes$placeholder('path')
+								$elm$html$Html$Attributes$placeholder($author$project$Main$path_str)
 							]),
 						_List_Nil)
 					])),
@@ -6833,7 +6839,7 @@ var $author$project$Main$drawProductRow = function (product) {
 							]),
 						_List_fromArray(
 							[
-								$elm$html$Html$text('update')
+								$elm$html$Html$text($author$project$Main$update_str)
 							]))
 					]))
 			]));
@@ -6849,28 +6855,28 @@ var $author$project$Main$drawProductTableHeader = A2(
 			_List_Nil,
 			_List_fromArray(
 				[
-					$elm$html$Html$text('product name')
+					$elm$html$Html$text($author$project$Main$name_str)
 				])),
 			A2(
 			$elm$html$Html$th,
 			_List_Nil,
 			_List_fromArray(
 				[
-					$elm$html$Html$text('product cost')
+					$elm$html$Html$text($author$project$Main$cost_str)
 				])),
 			A2(
 			$elm$html$Html$th,
 			_List_Nil,
 			_List_fromArray(
 				[
-					$elm$html$Html$text('product description')
+					$elm$html$Html$text($author$project$Main$description_str)
 				])),
 			A2(
 			$elm$html$Html$th,
 			_List_Nil,
 			_List_fromArray(
 				[
-					$elm$html$Html$text('product path')
+					$elm$html$Html$text($author$project$Main$path_str)
 				]))
 		]));
 var $elm$html$Html$table = _VirtualDom_node('table');
