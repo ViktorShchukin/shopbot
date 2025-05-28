@@ -5,9 +5,7 @@ import Html exposing (Html, div, text)
 import Html.Attributes
 import Html.Events
 import Http exposing (Error(..))
-import Json.Decode exposing (Decoder, field, map4)
 import Product exposing (..)
-import Time
 
 -- main
 
@@ -32,7 +30,7 @@ type alias LogEntry =
 type alias Model =
    { products : List Product
    , productToAdd : Product
-   , productToUpdate : Product
+   , productToUpdate : List Product
    , logs : List LogEntry
    }
 
@@ -44,7 +42,7 @@ init : () -> (Model, Cmd Msg)
 init _ =
   ( { products = []
     , productToAdd = Product "" "" 0 "" ""
-    , productToUpdate = Product "" "" 0 "" ""
+    , productToUpdate = []
     , logs = []
     }
   , getAllProduct GotProducts
@@ -74,27 +72,28 @@ update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
     GotProducts res -> (processGotProducts model res, Cmd.none)
+    -- todo make processGotProduct which should filter model.products, find by id, if exists update else add
+    GotProduct res -> (model, getAllProduct GotProducts)
     AddProduct -> (model, addProduct model.productToAdd GotProduct)
+    UpdateProduct product -> case findProductById model.productToUpdate product.id of
+                                Nothing -> (model, Cmd.none)
+                                Just prod ->  (model, updateProduct product prod GotProduct)
     DeleteProduct product -> (model, Cmd.none)
-    UpdateProduct product -> if product.id == model.productToUpdate.id then
-                               (model, updateProduct product model.productToUpdate GotProduct)
-                             else
-                              (model, Cmd.none)
+
     GotProductNameToAdd str -> ( { model | productToAdd = updateProductName model.productToAdd str }, Cmd.none)
     GotProductCostToAdd str -> case String.toInt str of
       Just cost -> ( { model | productToAdd = updateProductCost model.productToAdd cost}, Cmd.none)
       Nothing -> (model, Cmd.none) -- todo add error handling in case where you cant cast to int.
     GotProductDescriptionToAdd str -> ( { model | productToAdd = updateProductDescription model.productToAdd str}, Cmd.none)
     GotProductPathToAdd pth ->  ( { model | productToAdd =  updateProductPath model.productToAdd pth}, Cmd.none)
-    -- todo make processGotProduct which should filter model.products, find by id, if exists update else add
-    GotProduct res -> (model, getAllProduct GotProducts)
-    GotProductNameToUpdate prod str -> ({ model | productToUpdate = (updateProductName (updateProductId model.productToUpdate prod.id) str)}, Cmd.none)
+
+    GotProductNameToUpdate prod str -> (gotProductNameToUpdate model prod str, Cmd.none)
     GotProductCostToUpdate prod str -> case String.toInt str of
-      Just cost -> ({ model | productToUpdate = (updateProductCost (updateProductId model.productToUpdate prod.id) cost)}, Cmd.none)
+      Just cost -> (gotProductCostToUpdate model prod cost, Cmd.none)
       -- todo add error handling in case where you cant cast to int.
       Nothing -> (model, Cmd.none)
-    GotProductDescriptionToUpdate prod str -> ({ model | productToUpdate = (updateProductDescription (updateProductId model.productToUpdate prod.id) str)}, Cmd.none)
-    GotProductPathToUpdate prod str -> ({ model | productToUpdate = (updateProductPath (updateProductId model.productToUpdate prod.id) str)}, Cmd.none)
+    GotProductDescriptionToUpdate prod str -> (gotProductDescriptionToUpdate model prod str, Cmd.none)
+    GotProductPathToUpdate prod str -> (gotProductPathToUpdate model prod str, Cmd.none)
 
 
 processGotProducts : Model -> (Result Http.Error (List Product)) -> Model
@@ -121,6 +120,59 @@ httpErrorToString err =
       NetworkError -> "ERROR " ++ myTag ++ " HTTP NetworkErr"
       BadStatus int -> "ERROR " ++ myTag ++ " HTTP BadStatus: " ++ (String.fromInt int)
       BadBody str -> "ERROR " ++ myTag ++ " HTTP BadBody: " ++ str
+
+
+gotProductNameToUpdate : Model -> Product -> String -> Model
+gotProductNameToUpdate model prod str =
+  let productList = case (findProductById model.productToUpdate prod.id) of
+                      Just product ->
+                        let
+                            updated = updateProductName product str
+                        in
+                          List.map (\prod1 -> if prod1.id == updated.id then updated else prod1) model.productToUpdate
+                      Nothing -> List.append model.productToUpdate [updateProductName prod str]
+  in
+    { model | productToUpdate = productList}
+
+gotProductCostToUpdate : Model -> Product -> Int -> Model
+gotProductCostToUpdate model prod cost =
+  let productList = case (findProductById model.productToUpdate prod.id) of
+                      Just product ->
+                        let
+                            updated = updateProductCost product cost
+                        in
+                          List.map (\prod1 -> if prod1.id == updated.id then updated else prod1) model.productToUpdate
+                      Nothing -> List.append model.productToUpdate [updateProductCost prod cost]
+  in
+    { model | productToUpdate = productList}
+
+gotProductDescriptionToUpdate : Model -> Product -> String -> Model
+gotProductDescriptionToUpdate model prod str =
+  let productList = case (findProductById model.productToUpdate prod.id) of
+                      Just product ->
+                        let
+                            updated = updateProductDescription product str
+                        in
+                          List.map (\prod1 -> if prod1.id == updated.id then updated else prod1) model.productToUpdate
+                      Nothing -> List.append model.productToUpdate [updateProductDescription prod str]
+  in
+    { model | productToUpdate = productList}
+
+gotProductPathToUpdate : Model -> Product -> String -> Model
+gotProductPathToUpdate model prod str =
+  let productList = case (findProductById model.productToUpdate prod.id) of
+                      Just product ->
+                        let
+                            updated = updateProductPath product str
+                        in
+                          List.map (\prod1 -> if prod1.id == updated.id then updated else prod1) model.productToUpdate
+                      Nothing -> List.append model.productToUpdate [updateProductPath prod str]
+  in
+    { model | productToUpdate = productList}
+
+findProductById : List Product -> String -> Maybe Product
+findProductById productList id =
+  List.filter (\prod -> prod.id == id) productList |> List.head
 
 updateProductId : Product -> String -> Product
 updateProductId product id =

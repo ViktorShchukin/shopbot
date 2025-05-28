@@ -4954,22 +4954,22 @@ var $elm$core$Array$builderToArray = F2(
 		if (!builder.a) {
 			return A4(
 				$elm$core$Array$Array_elm_builtin,
-				$elm$core$Elm$JsArray$length(builder.c),
+				$elm$core$Elm$JsArray$length(builder.d),
 				$elm$core$Array$shiftStep,
 				$elm$core$Elm$JsArray$empty,
-				builder.c);
+				builder.d);
 		} else {
 			var treeLen = builder.a * $elm$core$Array$branchFactor;
 			var depth = $elm$core$Basics$floor(
 				A2($elm$core$Basics$logBase, $elm$core$Array$branchFactor, treeLen - 1));
-			var correctNodeList = reverseNodeList ? $elm$core$List$reverse(builder.d) : builder.d;
+			var correctNodeList = reverseNodeList ? $elm$core$List$reverse(builder.e) : builder.e;
 			var tree = A2($elm$core$Array$treeFromBuilder, correctNodeList, builder.a);
 			return A4(
 				$elm$core$Array$Array_elm_builtin,
-				$elm$core$Elm$JsArray$length(builder.c) + treeLen,
+				$elm$core$Elm$JsArray$length(builder.d) + treeLen,
 				A2($elm$core$Basics$max, 5, depth * $elm$core$Array$shiftStep),
 				tree,
-				builder.c);
+				builder.d);
 		}
 	});
 var $elm$core$Basics$idiv = _Basics_idiv;
@@ -4982,7 +4982,7 @@ var $elm$core$Array$initializeHelp = F5(
 				return A2(
 					$elm$core$Array$builderToArray,
 					false,
-					{d: nodeList, a: (len / $elm$core$Array$branchFactor) | 0, c: tail});
+					{e: nodeList, a: (len / $elm$core$Array$branchFactor) | 0, d: tail});
 			} else {
 				var leaf = $elm$core$Array$Leaf(
 					A3($elm$core$Elm$JsArray$initialize, $elm$core$Array$branchFactor, fromIndex, fn));
@@ -5333,7 +5333,7 @@ var $author$project$Main$GotProducts = function (a) {
 };
 var $author$project$Product$Product = F5(
 	function (id, name, cost, description, path) {
-		return {T: cost, V: description, t: id, ad: name, af: path};
+		return {T: cost, V: description, f: id, ad: name, af: path};
 	});
 var $elm$json$Json$Decode$decodeString = _Json_runOnString;
 var $elm$http$Http$BadStatus_ = F2(
@@ -6149,8 +6149,8 @@ var $author$project$Main$init = function (_v0) {
 	return _Utils_Tuple2(
 		{
 			C: _List_Nil,
-			k: A5($author$project$Product$Product, '', '', 0, '', ''),
-			i: A5($author$project$Product$Product, '', '', 0, '', ''),
+			l: A5($author$project$Product$Product, '', '', 0, '', ''),
+			b: _List_Nil,
 			H: _List_Nil
 		},
 		$author$project$Product$getAllProduct($author$project$Main$GotProducts));
@@ -6213,8 +6213,36 @@ var $author$project$Product$addProduct = F2(
 				P: '/product'
 			});
 	});
-var $elm$core$Platform$Cmd$batch = _Platform_batch;
-var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
+var $elm$core$List$filter = F2(
+	function (isGood, list) {
+		return A3(
+			$elm$core$List$foldr,
+			F2(
+				function (x, xs) {
+					return isGood(x) ? A2($elm$core$List$cons, x, xs) : xs;
+				}),
+			_List_Nil,
+			list);
+	});
+var $elm$core$List$head = function (list) {
+	if (list.b) {
+		var x = list.a;
+		var xs = list.b;
+		return $elm$core$Maybe$Just(x);
+	} else {
+		return $elm$core$Maybe$Nothing;
+	}
+};
+var $author$project$Main$findProductById = F2(
+	function (productList, id) {
+		return $elm$core$List$head(
+			A2(
+				$elm$core$List$filter,
+				function (prod) {
+					return _Utils_eq(prod.f, id);
+				},
+				productList));
+	});
 var $elm$core$List$append = F2(
 	function (xs, ys) {
 		if (!ys.b) {
@@ -6223,6 +6251,140 @@ var $elm$core$List$append = F2(
 			return A3($elm$core$List$foldr, $elm$core$List$cons, ys, xs);
 		}
 	});
+var $author$project$Main$updateProductCost = F2(
+	function (product, cost) {
+		return _Utils_update(
+			product,
+			{T: cost});
+	});
+var $author$project$Main$gotProductCostToUpdate = F3(
+	function (model, prod, cost) {
+		var productList = function () {
+			var _v0 = A2($author$project$Main$findProductById, model.b, prod.f);
+			if (!_v0.$) {
+				var product = _v0.a;
+				var updated = A2($author$project$Main$updateProductCost, product, cost);
+				return A2(
+					$elm$core$List$map,
+					function (prod1) {
+						return _Utils_eq(prod1.f, updated.f) ? updated : prod1;
+					},
+					model.b);
+			} else {
+				return A2(
+					$elm$core$List$append,
+					model.b,
+					_List_fromArray(
+						[
+							A2($author$project$Main$updateProductCost, prod, cost)
+						]));
+			}
+		}();
+		return _Utils_update(
+			model,
+			{b: productList});
+	});
+var $author$project$Main$updateProductDescription = F2(
+	function (product, description) {
+		return _Utils_update(
+			product,
+			{V: description});
+	});
+var $author$project$Main$gotProductDescriptionToUpdate = F3(
+	function (model, prod, str) {
+		var productList = function () {
+			var _v0 = A2($author$project$Main$findProductById, model.b, prod.f);
+			if (!_v0.$) {
+				var product = _v0.a;
+				var updated = A2($author$project$Main$updateProductDescription, product, str);
+				return A2(
+					$elm$core$List$map,
+					function (prod1) {
+						return _Utils_eq(prod1.f, updated.f) ? updated : prod1;
+					},
+					model.b);
+			} else {
+				return A2(
+					$elm$core$List$append,
+					model.b,
+					_List_fromArray(
+						[
+							A2($author$project$Main$updateProductDescription, prod, str)
+						]));
+			}
+		}();
+		return _Utils_update(
+			model,
+			{b: productList});
+	});
+var $author$project$Main$updateProductName = F2(
+	function (product, name) {
+		return _Utils_update(
+			product,
+			{ad: name});
+	});
+var $author$project$Main$gotProductNameToUpdate = F3(
+	function (model, prod, str) {
+		var productList = function () {
+			var _v0 = A2($author$project$Main$findProductById, model.b, prod.f);
+			if (!_v0.$) {
+				var product = _v0.a;
+				var updated = A2($author$project$Main$updateProductName, product, str);
+				return A2(
+					$elm$core$List$map,
+					function (prod1) {
+						return _Utils_eq(prod1.f, updated.f) ? updated : prod1;
+					},
+					model.b);
+			} else {
+				return A2(
+					$elm$core$List$append,
+					model.b,
+					_List_fromArray(
+						[
+							A2($author$project$Main$updateProductName, prod, str)
+						]));
+			}
+		}();
+		return _Utils_update(
+			model,
+			{b: productList});
+	});
+var $author$project$Main$updateProductPath = F2(
+	function (product, pth) {
+		return _Utils_update(
+			product,
+			{af: pth});
+	});
+var $author$project$Main$gotProductPathToUpdate = F3(
+	function (model, prod, str) {
+		var productList = function () {
+			var _v0 = A2($author$project$Main$findProductById, model.b, prod.f);
+			if (!_v0.$) {
+				var product = _v0.a;
+				var updated = A2($author$project$Main$updateProductPath, product, str);
+				return A2(
+					$elm$core$List$map,
+					function (prod1) {
+						return _Utils_eq(prod1.f, updated.f) ? updated : prod1;
+					},
+					model.b);
+			} else {
+				return A2(
+					$elm$core$List$append,
+					model.b,
+					_List_fromArray(
+						[
+							A2($author$project$Main$updateProductPath, prod, str)
+						]));
+			}
+		}();
+		return _Utils_update(
+			model,
+			{b: productList});
+	});
+var $elm$core$Platform$Cmd$batch = _Platform_batch;
+var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
 var $author$project$Main$LogEntry = function (message) {
 	return {ab: message};
 };
@@ -6304,38 +6466,8 @@ var $author$project$Product$updateProduct = F3(
 				aJ: 'PUT',
 				aT: $elm$core$Maybe$Nothing,
 				aV: $elm$core$Maybe$Nothing,
-				P: '/product/' + product.t
+				P: '/product/' + product.f
 			});
-	});
-var $author$project$Main$updateProductCost = F2(
-	function (product, cost) {
-		return _Utils_update(
-			product,
-			{T: cost});
-	});
-var $author$project$Main$updateProductDescription = F2(
-	function (product, description) {
-		return _Utils_update(
-			product,
-			{V: description});
-	});
-var $author$project$Main$updateProductId = F2(
-	function (product, id) {
-		return _Utils_update(
-			product,
-			{t: id});
-	});
-var $author$project$Main$updateProductName = F2(
-	function (product, name) {
-		return _Utils_update(
-			product,
-			{ad: name});
-	});
-var $author$project$Main$updateProductPath = F2(
-	function (product, pth) {
-		return _Utils_update(
-			product,
-			{af: pth});
 	});
 var $author$project$Main$update = F2(
 	function (msg, model) {
@@ -6345,37 +6477,48 @@ var $author$project$Main$update = F2(
 				return _Utils_Tuple2(
 					A2($author$project$Main$processGotProducts, model, res),
 					$elm$core$Platform$Cmd$none);
+			case 1:
+				var res = msg.a;
+				return _Utils_Tuple2(
+					model,
+					$author$project$Product$getAllProduct($author$project$Main$GotProducts));
 			case 2:
 				return _Utils_Tuple2(
 					model,
-					A2($author$project$Product$addProduct, model.k, $author$project$Main$GotProduct));
+					A2($author$project$Product$addProduct, model.l, $author$project$Main$GotProduct));
+			case 3:
+				var product = msg.a;
+				var _v1 = A2($author$project$Main$findProductById, model.b, product.f);
+				if (_v1.$ === 1) {
+					return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
+				} else {
+					var prod = _v1.a;
+					return _Utils_Tuple2(
+						model,
+						A3($author$project$Product$updateProduct, product, prod, $author$project$Main$GotProduct));
+				}
 			case 4:
 				var product = msg.a;
 				return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
-			case 3:
-				var product = msg.a;
-				return _Utils_eq(product.t, model.i.t) ? _Utils_Tuple2(
-					model,
-					A3($author$project$Product$updateProduct, product, model.i, $author$project$Main$GotProduct)) : _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
 			case 5:
 				var str = msg.a;
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
 						{
-							k: A2($author$project$Main$updateProductName, model.k, str)
+							l: A2($author$project$Main$updateProductName, model.l, str)
 						}),
 					$elm$core$Platform$Cmd$none);
 			case 6:
 				var str = msg.a;
-				var _v1 = $elm$core$String$toInt(str);
-				if (!_v1.$) {
-					var cost = _v1.a;
+				var _v2 = $elm$core$String$toInt(str);
+				if (!_v2.$) {
+					var cost = _v2.a;
 					return _Utils_Tuple2(
 						_Utils_update(
 							model,
 							{
-								k: A2($author$project$Main$updateProductCost, model.k, cost)
+								l: A2($author$project$Main$updateProductCost, model.l, cost)
 							}),
 						$elm$core$Platform$Cmd$none);
 				} else {
@@ -6387,7 +6530,7 @@ var $author$project$Main$update = F2(
 					_Utils_update(
 						model,
 						{
-							k: A2($author$project$Main$updateProductDescription, model.k, str)
+							l: A2($author$project$Main$updateProductDescription, model.l, str)
 						}),
 					$elm$core$Platform$Cmd$none);
 			case 8:
@@ -6396,42 +6539,23 @@ var $author$project$Main$update = F2(
 					_Utils_update(
 						model,
 						{
-							k: A2($author$project$Main$updateProductPath, model.k, pth)
+							l: A2($author$project$Main$updateProductPath, model.l, pth)
 						}),
 					$elm$core$Platform$Cmd$none);
-			case 1:
-				var res = msg.a;
-				return _Utils_Tuple2(
-					model,
-					$author$project$Product$getAllProduct($author$project$Main$GotProducts));
 			case 9:
 				var prod = msg.a;
 				var str = msg.b;
 				return _Utils_Tuple2(
-					_Utils_update(
-						model,
-						{
-							i: A2(
-								$author$project$Main$updateProductName,
-								A2($author$project$Main$updateProductId, model.i, prod.t),
-								str)
-						}),
+					A3($author$project$Main$gotProductNameToUpdate, model, prod, str),
 					$elm$core$Platform$Cmd$none);
 			case 10:
 				var prod = msg.a;
 				var str = msg.b;
-				var _v2 = $elm$core$String$toInt(str);
-				if (!_v2.$) {
-					var cost = _v2.a;
+				var _v3 = $elm$core$String$toInt(str);
+				if (!_v3.$) {
+					var cost = _v3.a;
 					return _Utils_Tuple2(
-						_Utils_update(
-							model,
-							{
-								i: A2(
-									$author$project$Main$updateProductCost,
-									A2($author$project$Main$updateProductId, model.i, prod.t),
-									cost)
-							}),
+						A3($author$project$Main$gotProductCostToUpdate, model, prod, cost),
 						$elm$core$Platform$Cmd$none);
 				} else {
 					return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
@@ -6440,27 +6564,13 @@ var $author$project$Main$update = F2(
 				var prod = msg.a;
 				var str = msg.b;
 				return _Utils_Tuple2(
-					_Utils_update(
-						model,
-						{
-							i: A2(
-								$author$project$Main$updateProductDescription,
-								A2($author$project$Main$updateProductId, model.i, prod.t),
-								str)
-						}),
+					A3($author$project$Main$gotProductDescriptionToUpdate, model, prod, str),
 					$elm$core$Platform$Cmd$none);
 			default:
 				var prod = msg.a;
 				var str = msg.b;
 				return _Utils_Tuple2(
-					_Utils_update(
-						model,
-						{
-							i: A2(
-								$author$project$Main$updateProductPath,
-								A2($author$project$Main$updateProductId, model.i, prod.t),
-								str)
-						}),
+					A3($author$project$Main$gotProductPathToUpdate, model, prod, str),
 					$elm$core$Platform$Cmd$none);
 		}
 	});
