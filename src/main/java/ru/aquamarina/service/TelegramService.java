@@ -53,20 +53,15 @@ public class TelegramService {
                 .text(messageText)
                 .parseMode("Markdown");
 
-        List<SendMessage> messages = userService.getAllByUserRole(UserRole.SELLER).stream()
-                .map(telegramInfoService::getByUser)
-                .filter(res -> {
-                    boolean isPres = res.ok().isPresent();
-                    if (!isPres) {
-                        log.error("Can not get telegram info for user with role seller. Err message: {}", res.error().get().toString());
-                    }
-                    return isPres;
-                })
-                .map(res -> res.ok().get())
+        List<SendMessage> messages = telegramInfoService.getByUserRole(UserRole.SELLER).stream()
                 .map(TelegramInfo::getTelegramId)
                 .map(chatId -> messageBuilder.chatId(chatId))
                 .map(SendMessage.SendMessageBuilder::build)
                 .toList();
+
+        if (messages.isEmpty()) {
+            log.error("Can not notify any user about order");
+        }
 
         // todo maybe return result instead of void???
         messages.forEach(this::sendMessage);

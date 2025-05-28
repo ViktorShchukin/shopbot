@@ -140,10 +140,20 @@ public record TelegramView(OkHttpTelegramClient client, Update update, ProductSe
                 .map(Folder::path)
                 .map(pth -> new FolderCmd(null, pth))
                 .collect(Collectors.toList());
-        List<Command> commands = List.of(
-                new IndexCmd(null),
-                new CatalogCmd(null)
-        );
+        List<Command> commands;
+        if (form.path().equals("/")) {
+            commands = List.of(
+                    new BasketCmd(null),
+                    new CatalogCmd(null),
+                    new IndexCmd(null)
+            );
+        } else {
+            commands = List.of(
+                    new BasketCmd(null),
+                    new IndexCmd(null)
+            );
+        }
+
         List<InlineKeyboardRow> keyboardRowList = new ArrayList<>();
         Stream.of(productInFolder, folderInFolder, commands)
                 .flatMap(Collection::stream)
@@ -189,23 +199,20 @@ public record TelegramView(OkHttpTelegramClient client, Update update, ProductSe
         List<InlineKeyboardRow> keyboardRowList = new ArrayList<>();
         keyboardRowList.add(new InlineKeyboardRow(
                 getButton(new QuantityMinusCmd(null)),
-                getButton("В корзине: " + form.quantity(), "not-supported"),
                 getButton(new QuantityPlusCmd(null))
-        ));
-        keyboardRowList.add(new InlineKeyboardRow(
-//                getButton(new AddToBasketCmd(null)),
-                getButton(new CatalogCmd(null))
         ));
         keyboardRowList.add(new InlineKeyboardRow(
                 getButton(new BasketCmd(null)),
                 getButton(new InstructionCmd(null))
         ));
         keyboardRowList.add(new InlineKeyboardRow(
-                getButton(new CatalogCmd(null)),
+                getButton(new CatalogCmd(null))
+        ));
+        keyboardRowList.add(new InlineKeyboardRow(
                 getButton(new IndexCmd(null))
         ));
 
-        String messageText = product.getName() + "\n" + (double) product.getCost() / 100 + "\n" + product.getDescription();
+        String messageText = product.getName() + "\n" + "Цена: " + (double) product.getCost() / 100 + " руб" + "\n" + "В корзине: " + form.quantity();
 
         var keyBoard = InlineKeyboardMarkup.builder()
                 .keyboard(keyboardRowList)
@@ -282,7 +289,7 @@ public record TelegramView(OkHttpTelegramClient client, Update update, ProductSe
         List<InlineKeyboardRow> keyboardRowList = new ArrayList<>();
         InlineKeyboardRow keyboardRow = new InlineKeyboardRow(
                 getButton(new DoOrderCmd(null)),
-                getButton(new IndexCmd(null))
+                getButton(new CatalogCmd(null))
         );
         keyboardRowList.add(keyboardRow);
 
@@ -404,14 +411,14 @@ public record TelegramView(OkHttpTelegramClient client, Update update, ProductSe
             case PayAndDeliveryCmd cmd -> "Оплата и доставка";
             case AddToBasketCmd cmd -> "Добавить в корзину";
             case BasketCmd cmd -> "Посмотреть корзину";
-            case CatalogCmd cmd -> "Меню каталога";
-            case DoOrderCmd cmd -> "Сделать заказ";
+            case CatalogCmd cmd -> "Каталог товаров";
+            case DoOrderCmd cmd -> "Оформить заказ";
             case FolderCmd cmd -> "Папка " + PathUtil.getFolderName(cmd.path());
             case IndexCmd cmd -> "На главную";
-            case InstructionCmd cmd -> "Инструкция";
+            case InstructionCmd cmd -> "Инструкция к товару";
             case ProductAboutCmd cmd -> cmd.productName();
-            case QuantityMinusCmd cmd -> "-";
-            case QuantityPlusCmd cmd -> "+";
+            case QuantityMinusCmd cmd -> "Убрать из корзины";
+            case QuantityPlusCmd cmd -> "Добавить в корзину";
             case StartCmd cmd -> "Restart session. This command should not appear in user interface.";
         };
         return InlineKeyboardButton.builder()
@@ -440,15 +447,20 @@ public record TelegramView(OkHttpTelegramClient client, Update update, ProductSe
         }
     }
 
+    private void closeQuery(AnswerCallbackQuery answerCallbackQuery) {
+        try {
+            log.trace("Try to close telegram query");
+            client.execute(answerCallbackQuery);
+        } catch (TelegramApiException e) {
+            log.error("Telegram error during closing query: ", e);
+        }
+    }
+
     private void closeQueryAndRewriteMessage(AnswerCallbackQuery answerCallbackQuery,
                                              EditMessageText messageText,
                                              EditMessageReplyMarkup messageReplyMarkup) {
-//        try {
-//            log.trace("Try to close telegram query and rewrite message");
-//            client.execute(answerCallbackQuery);
+        closeQuery(answerCallbackQuery);
         rewriteMessage(messageText, messageReplyMarkup);
-//        } catch (TelegramApiException e) {
-//            log.error("Telegram error during closing query: ", e);
-//        }
+
     }
 }

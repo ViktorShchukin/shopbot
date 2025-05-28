@@ -1,5 +1,7 @@
 package ru.aquamarina.api.rest.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.micronaut.data.annotation.Id;
 import io.micronaut.serde.annotation.Serdeable;
 
@@ -8,6 +10,7 @@ import java.util.UUID;
 @Serdeable
 public class ProductDto {
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
     private UUID id;
 
     private String name;
@@ -16,6 +19,8 @@ public class ProductDto {
     private Long cost;
 
     private String description;
+
+    private String path;
 
     public UUID getId() {
         return id;
@@ -47,5 +52,13 @@ public class ProductDto {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
     }
 }

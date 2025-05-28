@@ -6,6 +6,8 @@ import Html.Attributes
 import Html.Events
 import Http exposing (Error(..))
 import Json.Decode exposing (Decoder, field, map4)
+import Product exposing (..)
+import Time
 
 -- main
 
@@ -22,18 +24,16 @@ main =
 
 -- model
 
-
-type alias Product =
-  { id : String
-  , name : String
-  , cost : Int
-  , description : String
+type alias LogEntry =
+  { message : String
+  --, timestamp : Time.Posix
   }
-
 
 type alias Model =
    { products : List Product
    , productToAdd : Product
+   , productToUpdate : Product
+   , logs : List LogEntry
    }
 
 
@@ -42,11 +42,12 @@ type alias Model =
 
 init : () -> (Model, Cmd Msg)
 init _ =
-  let _ = Debug.log "i am working" in
   ( { products = []
-    , productToAdd = Product "" "" 0 ""
+    , productToAdd = Product "" "" 0 "" ""
+    , productToUpdate = Product "" "" 0 "" ""
+    , logs = []
     }
-  , getAllProduct
+  , getAllProduct GotProducts
   )
 
 
@@ -54,46 +55,76 @@ init _ =
 
 type Msg
     = GotProducts (Result Http.Error (List Product))
+    | GotProduct (Result Http.Error Product)
     | AddProduct
-    | DeleteProduct Product
     | UpdateProduct Product
+    | DeleteProduct Product
+
     | GotProductNameToAdd String
     | GotProductCostToAdd String
     | GotProductDescriptionToAdd String
-    --| GotProduct (Result Http.Error Product)
+    | GotProductPathToAdd String
 
+    | GotProductNameToUpdate Product String
+    | GotProductCostToUpdate Product String
+    | GotProductDescriptionToUpdate Product String
+    | GotProductPathToUpdate Product String
 
-update : Msg -> Model -> (Model, Cmd msg)
+update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
-    GotProducts res -> (processGotProduct model res, Cmd.none)
-    AddProduct -> (model, Cmd.none)
+    GotProducts res -> (processGotProducts model res, Cmd.none)
+    AddProduct -> (model, addProduct model.productToAdd GotProduct)
     DeleteProduct product -> (model, Cmd.none)
-    UpdateProduct product -> (model, Cmd.none)
+    UpdateProduct product -> if product.id == model.productToUpdate.id then
+                               (model, updateProduct product model.productToUpdate GotProduct)
+                             else
+                              (model, Cmd.none)
     GotProductNameToAdd str -> ( { model | productToAdd = updateProductName model.productToAdd str }, Cmd.none)
     GotProductCostToAdd str -> case String.toInt str of
       Just cost -> ( { model | productToAdd = updateProductCost model.productToAdd cost}, Cmd.none)
       Nothing -> (model, Cmd.none) -- todo add error handling in case where you cant cast to int.
     GotProductDescriptionToAdd str -> ( { model | productToAdd = updateProductDescription model.productToAdd str}, Cmd.none)
-    --GotProduct res -> (model, Cmd.none)
+    GotProductPathToAdd pth ->  ( { model | productToAdd =  updateProductPath model.productToAdd pth}, Cmd.none)
+    -- todo make processGotProduct which should filter model.products, find by id, if exists update else add
+    GotProduct res -> (model, getAllProduct GotProducts)
+    GotProductNameToUpdate prod str -> ({ model | productToUpdate = (updateProductName (updateProductId model.productToUpdate prod.id) str)}, Cmd.none)
+    GotProductCostToUpdate prod str -> case String.toInt str of
+      Just cost -> ({ model | productToUpdate = (updateProductCost (updateProductId model.productToUpdate prod.id) cost)}, Cmd.none)
+      -- todo add error handling in case where you cant cast to int.
+      Nothing -> (model, Cmd.none)
+    GotProductDescriptionToUpdate prod str -> ({ model | productToUpdate = (updateProductDescription (updateProductId model.productToUpdate prod.id) str)}, Cmd.none)
+    GotProductPathToUpdate prod str -> ({ model | productToUpdate = (updateProductPath (updateProductId model.productToUpdate prod.id) str)}, Cmd.none)
 
 
-processGotProduct : Model -> (Result Http.Error (List Product)) -> Model
-processGotProduct model res =
+processGotProducts : Model -> (Result Http.Error (List Product)) -> Model
+processGotProducts model res =
   case res of
     Ok prod -> { model | products = prod }
-    Err err -> let _ = (logHttpErr err) in model
+    Err err -> logHttpErr model err
 
 myTag = "Main.elm"
 
-logHttpErr : Http.Error -> Http.Error
-logHttpErr err =
-  case err of
-    BadUrl str -> let _ = ( "ERROR " ++ myTag ++ " HTTP BadUrl: " ++ str |> Debug.log ) in BadUrl str
-    Timeout -> let _ = ( "ERROR " ++ myTag ++ " HTTP Timeout" |> Debug.log ) in Timeout
-    NetworkError -> let _ = ( "ERROR " ++ myTag ++ " HTTP NetworkErr" |> Debug.log ) in NetworkError
-    BadStatus int -> let _ = ( "ERROR " ++ myTag ++ " HTTP BadStatus: " ++ (String.fromInt int) |> Debug.log ) in BadStatus int
-    BadBody str -> let _ = ( "ERROR " ++ myTag ++ " HTTP BadBody: " ++ str |> Debug.log ) in BadBody str
+logHttpErr : Model -> Http.Error -> Model
+logHttpErr model err =
+  { model | logs = List.append model.logs [httpErrorToLogEntry err] }
+
+httpErrorToLogEntry : Http.Error -> LogEntry
+httpErrorToLogEntry err =
+  LogEntry (httpErrorToString err) --Time.now
+
+httpErrorToString : Http.Error -> String
+httpErrorToString err =
+    case err of
+      BadUrl str -> "ERROR " ++ myTag ++ " HTTP BadUrl: " ++ str
+      Timeout -> "ERROR " ++ myTag ++ " HTTP Timeout"
+      NetworkError -> "ERROR " ++ myTag ++ " HTTP NetworkErr"
+      BadStatus int -> "ERROR " ++ myTag ++ " HTTP BadStatus: " ++ (String.fromInt int)
+      BadBody str -> "ERROR " ++ myTag ++ " HTTP BadBody: " ++ str
+
+updateProductId : Product -> String -> Product
+updateProductId product id =
+  {product | id = id}
 
 updateProductName : Product -> String -> Product
 updateProductName product name =
@@ -107,12 +138,20 @@ updateProductDescription : Product -> String -> Product
 updateProductDescription product description =
   {product | description = description}
 
+updateProductPath : Product -> String -> Product
+updateProductPath product pth =
+  { product | path = pth}
+
 -- view
 
 
 view : Model -> Html Msg
 view model =
-  div [] [drawProductTable model.products, drawAddProductForm]
+  div [] [ drawAddProductForm
+         , drawProductTable model.products
+         , text "--- ниже будут печататься ошибки. Если они возникнут, то прошу сообщить мне ---"
+         , drawLogs model.logs
+         ]
 
 
 drawProductTable: List Product -> Html.Html Msg
@@ -129,25 +168,46 @@ drawProductTableHeader =
     [ Html.th [] [text "product name"]
     , Html.th [] [text "product cost"]
     , Html.th [] [text "product description"]
+    , Html.th [] [text "product path"]
     ]
 
 
 drawProductRow : Product -> Html.Html Msg
 drawProductRow product =
   Html.tr []
-    [ Html.td [] [text product.name]
-    , Html.td [] [text <| String.fromInt product.cost]
-    , Html.td [] [text product.description]
+    [ Html.td [] [ text product.name
+                 , Html.input [ Html.Events.onInput <| GotProductNameToUpdate product, Html.Attributes.placeholder "name"] []
+                 ]
+    , Html.td [] [ text <| String.fromInt product.cost
+                 , Html.input [ Html.Events.onInput <| GotProductCostToUpdate product, Html.Attributes.placeholder "cost"] []
+                 ]
+    , Html.td [] [ text product.description
+                 , Html.input [ Html.Events.onInput <| GotProductDescriptionToUpdate product, Html.Attributes.placeholder "description"] []
+                 ]
+    , Html.td [] [ text product.path
+                 , Html.input [ Html.Events.onInput <| GotProductPathToUpdate product, Html.Attributes.placeholder "path"] []
+                 ]
+    , Html.td [] [ Html.button [ Html.Events.onClick <| UpdateProduct product] [ text "update"]]
     ]
+
 
 drawAddProductForm : Html.Html Msg
 drawAddProductForm =
-  div []
+  Html.fieldset [ role "group"]
     [ Html.input [ Html.Events.onInput GotProductNameToAdd, Html.Attributes.placeholder "name"] []
     , Html.input [ Html.Events.onInput GotProductCostToAdd, Html.Attributes.placeholder "cost"] []
     , Html.input [ Html.Events.onInput GotProductDescriptionToAdd, Html.Attributes.placeholder "description"] []
-    , Html.button [ Html.Events.onClick AddProduct ] []
+    , Html.input [ Html.Events.onInput GotProductPathToAdd, Html.Attributes.placeholder "path"] []
+    , Html.button [ Html.Events.onClick AddProduct ] [ text "add product"]
     ]
+
+drawLogs : List LogEntry -> Html.Html Msg
+drawLogs logs =
+  div [] <| List.map drawLogLine logs
+
+drawLogLine : LogEntry -> Html.Html Msg
+drawLogLine log =
+  Html.p [] [text log.message]
 
 -- subscriptions
 
@@ -156,17 +216,6 @@ subscriptions _ = Sub.none
 
 -- http
 
-getAllProduct: Cmd Msg
-getAllProduct =
-  Http.get
-    { url = "/product"
-    , expect = Http.expectJson GotProducts (Json.Decode.list productDecoder)
-    }
-
-productDecoder : Decoder Product
-productDecoder =
-  map4 Product
-    (field "id" Json.Decode.string)
-    (field "name" Json.Decode.string)
-    (field "cost" Json.Decode.int)
-    (field "description" Json.Decode.string)
+role: String -> Html.Attribute msg
+role value =
+    Html.Attributes.attribute "role" value

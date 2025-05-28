@@ -35,6 +35,7 @@ Catalog --> Catalog : previousPage
 Catalog --> Catalog : folder?{folderPath}
 '' go to the root of the catalog
 Catalog --> Catalog : catalog
+Catalog --> Basket : basket
 
 ProductAbout --> ProductAbout : quantityMinus
 ProductAbout --> ProductAbout : quantityPlus

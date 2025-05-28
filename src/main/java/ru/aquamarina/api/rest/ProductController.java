@@ -39,16 +39,16 @@ public class ProductController {
     }
 
     @Post
-    public HttpResponse<ProductDto> addProduct(@RequestBean ProductDto dto) {
-        var res = productService.create(dto.getName(), dto.getCost(), dto.getDescription());
+    public HttpResponse<ProductDto> addProduct(@Body ProductDto dto) {
+        var res = productService.create(dto.getName(), dto.getCost(), dto.getDescription(), dto.getPath());
         return HttpResponse.ok(productMapper.mapTo(res));
     }
 
     @Put("/{id}")
     public HttpResponse<ProductDto> updateProduct(@PathVariable UUID id,
-                                                  @RequestBean ProductDto dto) {
+                                                  @Body ProductDto dto) {
         return productService.getById(id)
-                .map(product -> productService.update(product, dto.getName(), dto.getCost(), dto.getDescription()))
+                .map(product -> productService.update(product, dto.getName(), dto.getCost(), dto.getDescription(), dto.getPath()))
                 .map(productMapper::mapTo)
                 .map(HttpResponse::ok)
                 .orElseGet(HttpResponse::notFound);
