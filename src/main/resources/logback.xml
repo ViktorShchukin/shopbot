@@ -1,5 +1,7 @@
 <configuration>
 
+    <variable name="FILE_NAME_PREFIX" value="shopbot"/>
+
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <!-- encoders are assigned the type
              ch.qos.logback.classic.encoder.PatternLayoutEncoder by default -->
@@ -7,10 +9,28 @@
             <pattern>%cyan(%d{HH:mm:ss.SSS}) %gray([%thread]) %highlight(%-5level) %magenta(%logger{36}) - %msg%n</pattern>
         </encoder>
     </appender>
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- daily rollover -->
+            <fileNamePattern>${SB_LOG_PATH}/${FILE_NAME_PREFIX}.%d{yyyy-MM-dd}.log</fileNamePattern>
+
+            <!-- keep 30 days' worth of history capped at 3GB total size -->
+            <maxHistory>30</maxHistory>
+            <totalSizeCap>3GB</totalSizeCap>
+        </rollingPolicy>
+
+        <encoder>
+            <pattern>%cyan(%d{HH:mm:ss.SSS}) %gray([%thread]) %highlight(%-5level) %magenta(%logger{36}) - %msg%n</pattern>
+        </encoder>
+    </appender>
+
 
     <root level="info">
         <appender-ref ref="STDOUT" />
+        <appender-ref ref="FILE" />
     </root>
-    <logger name="io.micronaut.data.query" level="trace" />
-    <logger name="org.telegram.telegrambots.longpolling.BotSession" level="trace" />
+    <logger name="io.micronaut.data" level="trace" />
+    <logger name="io.micronaut.http" level="trace" />
+    <logger name="ru.aquamarina" level="trace" />
+    <logger name="org.telegram" level="trace" />
 </configuration>
