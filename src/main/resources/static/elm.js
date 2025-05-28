@@ -6518,7 +6518,7 @@ var $author$project$Main$update = F2(
 						_Utils_update(
 							model,
 							{
-								l: A2($author$project$Main$updateProductCost, model.l, cost)
+								l: A2($author$project$Main$updateProductCost, model.l, cost * 100)
 							}),
 						$elm$core$Platform$Cmd$none);
 				} else {
@@ -6555,7 +6555,7 @@ var $author$project$Main$update = F2(
 				if (!_v3.$) {
 					var cost = _v3.a;
 					return _Utils_Tuple2(
-						A3($author$project$Main$gotProductCostToUpdate, model, prod, cost),
+						A3($author$project$Main$gotProductCostToUpdate, model, prod, cost * 100),
 						$elm$core$Platform$Cmd$none);
 				} else {
 					return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
@@ -6751,6 +6751,7 @@ var $author$project$Main$GotProductPathToUpdate = F2(
 var $author$project$Main$UpdateProduct = function (a) {
 	return {$: 3, a: a};
 };
+var $elm$core$String$fromFloat = _String_fromNumber;
 var $elm$html$Html$td = _VirtualDom_node('td');
 var $elm$html$Html$tr = _VirtualDom_node('tr');
 var $author$project$Main$update_str = 'Обновить';
@@ -6782,7 +6783,7 @@ var $author$project$Main$drawProductRow = function (product) {
 				_List_fromArray(
 					[
 						$elm$html$Html$text(
-						$elm$core$String$fromInt(product.U)),
+						$elm$core$String$fromFloat(product.U / 100)),
 						A2(
 						$elm$html$Html$input,
 						_List_fromArray(

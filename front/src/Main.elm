@@ -101,14 +101,14 @@ update msg model =
 
     GotProductNameToAdd str -> ( { model | productToAdd = updateProductName model.productToAdd str }, Cmd.none)
     GotProductCostToAdd str -> case String.toInt str of
-      Just cost -> ( { model | productToAdd = updateProductCost model.productToAdd cost}, Cmd.none)
+      Just cost -> ( { model | productToAdd = updateProductCost model.productToAdd (cost * 100)}, Cmd.none)
       Nothing -> (model, Cmd.none) -- todo add error handling in case where you cant cast to int.
     GotProductDescriptionToAdd str -> ( { model | productToAdd = updateProductDescription model.productToAdd str}, Cmd.none)
     GotProductPathToAdd pth ->  ( { model | productToAdd =  updateProductPath model.productToAdd pth}, Cmd.none)
 
     GotProductNameToUpdate prod str -> (gotProductNameToUpdate model prod str, Cmd.none)
     GotProductCostToUpdate prod str -> case String.toInt str of
-      Just cost -> (gotProductCostToUpdate model prod cost, Cmd.none)
+      Just cost -> (gotProductCostToUpdate model prod (cost * 100), Cmd.none)
       -- todo add error handling in case where you cant cast to int.
       Nothing -> (model, Cmd.none)
     GotProductDescriptionToUpdate prod str -> (gotProductDescriptionToUpdate model prod str, Cmd.none)
@@ -249,7 +249,7 @@ drawProductRow product =
     [ Html.td [] [ text product.name
                  , Html.input [ Html.Events.onInput <| GotProductNameToUpdate product, Html.Attributes.placeholder name_str] []
                  ]
-    , Html.td [] [ text <| String.fromInt product.cost
+    , Html.td [] [ text <| String.fromFloat <| (toFloat product.cost) / 100
                  , Html.input [ Html.Events.onInput <| GotProductCostToUpdate product, Html.Attributes.placeholder cost_str] []
                  ]
     , Html.td [] [ text product.description
