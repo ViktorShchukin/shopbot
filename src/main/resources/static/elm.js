@@ -6135,6 +6135,7 @@ var $author$project$Product$productDecoder = A6(
 	A2($elm$json$Json$Decode$field, 'cost', $elm$json$Json$Decode$int),
 	A2($elm$json$Json$Decode$field, 'description', $elm$json$Json$Decode$string),
 	A2($elm$json$Json$Decode$field, 'path', $elm$json$Json$Decode$string));
+var $author$project$Product$productPath = 'product';
 var $author$project$Product$getAllProduct = function (msg) {
 	return $elm$http$Http$get(
 		{
@@ -6142,7 +6143,7 @@ var $author$project$Product$getAllProduct = function (msg) {
 				$elm$http$Http$expectJson,
 				msg,
 				$elm$json$Json$Decode$list($author$project$Product$productDecoder)),
-			Q: '/product'
+			Q: $author$project$Product$productPath
 		});
 };
 var $author$project$Main$init = function (_v0) {
@@ -6210,7 +6211,7 @@ var $author$project$Product$addProduct = F2(
 								$elm$json$Json$Encode$string(product.af))
 							]))),
 				I: A2($elm$http$Http$expectJson, msg, $author$project$Product$productDecoder),
-				Q: '/product'
+				Q: $author$project$Product$productPath
 			});
 	});
 var $elm$core$List$filter = F2(
@@ -6466,7 +6467,7 @@ var $author$project$Product$updateProduct = F3(
 				aJ: 'PUT',
 				aT: $elm$core$Maybe$Nothing,
 				aV: $elm$core$Maybe$Nothing,
-				Q: '/product/' + product.f
+				Q: $author$project$Product$productPath + ('/' + product.f)
 			});
 	});
 var $author$project$Main$update = F2(

@@ -4,6 +4,8 @@ import Http
 import Json.Decode as De
 import Json.Encode as Ne
 
+productPath : String
+productPath = "product"
 
 type alias Product =
   { id : String
@@ -26,14 +28,14 @@ productDecoder =
 getAllProduct : (Result Http.Error (List Product) -> msg) -> Cmd msg
 getAllProduct msg =
   Http.get
-    { url = "/product"
+    { url = productPath
     , expect = Http.expectJson msg (De.list productDecoder)
     }
 
 addProduct : Product -> (Result Http.Error Product -> msg) -> Cmd msg
 addProduct product msg =
   Http.post
-    { url = "/product"
+    { url = productPath
     , body = Http.jsonBody <| Ne.object [ ("name", Ne.string product.name)
                                      , ("cost", Ne.int product.cost)
                                      , ("description", Ne.string product.description)
@@ -54,7 +56,7 @@ updateProduct old product msg =
   Http.request
     { method = "PUT"
     , headers = []
-    , url = "/product/" ++ product.id
+    , url = productPath ++ "/" ++ product.id
     , body = Http.jsonBody <| Ne.object [ ("name", Ne.string name)
                                      , ("cost", Ne.int cost)
                                      , ("description", Ne.string description)
