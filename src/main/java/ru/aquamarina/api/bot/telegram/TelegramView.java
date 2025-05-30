@@ -133,7 +133,7 @@ public record TelegramView(OkHttpTelegramClient client, Update update, ProductSe
             }
         }
         List<Command> productInFolder = form.products().stream()
-                .map(product -> new ProductAboutCmd(null, product.getName()))
+                .map(product -> new ProductAboutCmd(null, product.getId()))
                 .collect(Collectors.toList());
         List<Command> folderInFolder = form.folders().stream()
                 .map(Folder::path)
@@ -415,7 +415,7 @@ public record TelegramView(OkHttpTelegramClient client, Update update, ProductSe
             case FolderCmd cmd -> "Папка " + PathUtil.getFolderName(cmd.path());
             case IndexCmd cmd -> "На главную";
             case InstructionCmd cmd -> "Инструкция к товару";
-            case ProductAboutCmd cmd -> cmd.productName();
+            case ProductAboutCmd cmd -> productService.getById(cmd.productId()).ok().get().getName();
             case QuantityMinusCmd cmd -> "Убрать из корзины";
             case QuantityPlusCmd cmd -> "Добавить в корзину";
             case StartCmd cmd -> "Restart session. This command should not appear in user interface.";

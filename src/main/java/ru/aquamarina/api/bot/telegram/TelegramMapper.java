@@ -7,6 +7,7 @@ import ru.aquamarina.config.AppMapperConfig;
 import ru.aquamarina.fsm.state.OrderState;
 import ru.aquamarina.model.command.*;
 import ru.aquamarina.model.entity.User;
+import ru.aquamarina.util.CommandUtil;
 import ru.aquamarina.util.Result;
 import ru.aquamarina.model.command.IndexCmd;
 import ru.aquamarina.model.error.Error;
@@ -34,7 +35,7 @@ public interface TelegramMapper {
             case PayAndDeliveryCmd.NAME -> Result.ok(new PayAndDeliveryCmd(user));
             case IndexCmd.NAME -> Result.ok(new IndexCmd(user));
             case CatalogCmd.NAME -> Result.ok(new CatalogCmd(user));
-            case String str when str.contains(ProductAboutCmd.NAME) -> Result.ok(new ProductAboutCmd(user, str.split("\\?")[1]));
+            case String str when str.contains(ProductAboutCmd.NAME) -> CommandUtil.parseProductAboutCmd(str).mapValue(id -> new ProductAboutCmd(user, id));
             case QuantityMinusCmd.NAME -> Result.ok(new QuantityMinusCmd(user));
             case QuantityPlusCmd.NAME -> Result.ok(new QuantityPlusCmd(user));
             case AddToBasketCmd.NAME -> Result.ok(new AddToBasketCmd(user));

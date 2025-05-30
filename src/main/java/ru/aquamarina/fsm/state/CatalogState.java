@@ -39,7 +39,7 @@ public class CatalogState implements FsmState {
         return switch (command) {
             case IndexCmd ndx -> Result.ok(new IndexState(user));
             case ProductAboutCmd pbt -> context.getProductService()
-                    .getByName(pbt.productName())
+                    .getById(pbt.productId())
                     .map(product -> {
                         Long quantity = context.getBasketService()
                                 .getBasketRow(user).stream()
