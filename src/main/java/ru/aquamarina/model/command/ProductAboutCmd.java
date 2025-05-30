@@ -2,7 +2,9 @@ package ru.aquamarina.model.command;
 
 import ru.aquamarina.model.entity.User;
 
-public record ProductAboutCmd(User user, String productName) implements Command {
+import java.util.UUID;
+
+public record ProductAboutCmd(User user, UUID productId) implements Command {
 
     // todo think how to pass product name
     public static final String NAME = "productAbout";
@@ -15,6 +17,6 @@ public record ProductAboutCmd(User user, String productName) implements Command 
     // todo think about using something else. It is not clear that you should override this method. And you can miss it.
     @Override
     public String toString() {
-        return new StringBuilder(NAME).append("?").append(productName).toString();
+        return new StringBuilder(NAME).append("?").append(productId.toString()).toString();
     }
 }

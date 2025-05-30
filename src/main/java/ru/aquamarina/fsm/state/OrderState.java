@@ -41,8 +41,9 @@ public class OrderState implements FsmState {
                     Long quantity = orderRow.getQuantity();
                     return context.getProductService()
                             .getById(orderRow.getProductId())
-                            .map(Product::getCost)
-                            .map(cost -> cost * quantity)
+                            .mapValue(Product::getCost)
+                            .mapValue(cost -> cost * quantity)
+                            .ok()
                             .stream();
                 })
                 .reduce(0L, Long::sum);

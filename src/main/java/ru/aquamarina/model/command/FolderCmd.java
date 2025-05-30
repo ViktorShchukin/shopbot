@@ -4,7 +4,7 @@ import ru.aquamarina.model.entity.User;
 
 public record FolderCmd(User user, String path) implements Command {
 
-    public static final String NAME = "catalog";
+    public static final String NAME = "f";
 
     @Override
     public User getUser() {

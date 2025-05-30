@@ -37,7 +37,8 @@ public class TelegramService {
 
     public void notifySeller(Order order) {
         String messageText = orderService.getOrderRow(order).stream()
-                .map(orderRow -> "товар: " + productService.getById(orderRow.getProductId()).get().getName() + " кол-во:" + orderRow.getQuantity().toString())
+                // todo get rid of call get without check
+                .map(orderRow -> "товар: " + productService.getById(orderRow.getProductId()).ok().get().getName() + " кол-во:" + orderRow.getQuantity().toString())
                 .reduce("", (acc, element) -> acc + "\n" + element);
 
         String clientId = userService.getUser(order.getUserId())

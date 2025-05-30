@@ -1,6 +1,5 @@
 package ru.aquamarina.util;
 
-import org.telegram.telegrambots.meta.api.objects.stickers.Sticker;
 
 import java.util.Arrays;
 import java.util.List;

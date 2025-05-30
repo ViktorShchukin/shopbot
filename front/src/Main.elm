@@ -1,57 +1,90 @@
 module Main exposing (..)
 
 import Browser
+import Bytes.Encode
 import Html exposing (Html, div, text)
 import Html.Attributes
 import Html.Events
 import Http exposing (Error(..))
-import Json.Decode exposing (Decoder, field, map4)
 import Product exposing (..)
-import Time
+
+
+
+-- constant
+
+
+name_str : String
+name_str =
+    "Название"
+
+
+cost_str : String
+cost_str =
+    "Цена"
+
+
+description_str : String
+description_str =
+    "Описание"
+
+
+path_str : String
+path_str =
+    "Путь"
+
+
+update_str : String
+update_str =
+    "Обновить"
+
+
+add_str : String
+add_str =
+    "Добавить"
+
+
 
 -- main
 
 
 main : Program () Model Msg
 main =
-  Browser.element
-    { init = init
-    , view = view
-    ,update = update
-    , subscriptions = subscriptions
-    }
+    Browser.element
+        { init = init
+        , view = view
+        , update = update
+        , subscriptions = subscriptions
+        }
+
 
 
 -- model
 
-type alias LogEntry =
-  { message : String
-  --, timestamp : Time.Posix
-  }
 
 type alias Model =
-   { products : List Product
-   , productToAdd : Product
-   , productToUpdate : Product
-   , logs : List LogEntry
-   }
+    { products : List Product
+    , productToAdd : Product
+    , productToUpdate : List Product
+    }
+
 
 
 -- init
 
 
-init : () -> (Model, Cmd Msg)
+init : () -> ( Model, Cmd Msg )
 init _ =
-  ( { products = []
-    , productToAdd = Product "" "" 0 "" ""
-    , productToUpdate = Product "" "" 0 "" ""
-    , logs = []
-    }
-  , getAllProduct GotProducts
-  )
+    ( { products = []
+      , productToAdd = Product "" "" 0 "" ""
+      , productToUpdate = []
+      }
+    , getAllProduct GotProducts
+    )
+
 
 
 -- update
+
 
 type Msg
     = GotProducts (Result Http.Error (List Product))
@@ -59,163 +92,397 @@ type Msg
     | AddProduct
     | UpdateProduct Product
     | DeleteProduct Product
-
+      --
     | GotProductNameToAdd String
     | GotProductCostToAdd String
     | GotProductDescriptionToAdd String
     | GotProductPathToAdd String
-
+      --
     | GotProductNameToUpdate Product String
     | GotProductCostToUpdate Product String
     | GotProductDescriptionToUpdate Product String
     | GotProductPathToUpdate Product String
 
-update : Msg -> Model -> (Model, Cmd Msg)
+
+update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-  case msg of
-    GotProducts res -> (processGotProducts model res, Cmd.none)
-    AddProduct -> (model, addProduct model.productToAdd GotProduct)
-    DeleteProduct product -> (model, Cmd.none)
-    UpdateProduct product -> if product.id == model.productToUpdate.id then
-                               (model, updateProduct product model.productToUpdate GotProduct)
-                             else
-                              (model, Cmd.none)
-    GotProductNameToAdd str -> ( { model | productToAdd = updateProductName model.productToAdd str }, Cmd.none)
-    GotProductCostToAdd str -> case String.toInt str of
-      Just cost -> ( { model | productToAdd = updateProductCost model.productToAdd cost}, Cmd.none)
-      Nothing -> (model, Cmd.none) -- todo add error handling in case where you cant cast to int.
-    GotProductDescriptionToAdd str -> ( { model | productToAdd = updateProductDescription model.productToAdd str}, Cmd.none)
-    GotProductPathToAdd pth ->  ( { model | productToAdd =  updateProductPath model.productToAdd pth}, Cmd.none)
-    -- todo make processGotProduct which should filter model.products, find by id, if exists update else add
-    GotProduct res -> (model, getAllProduct GotProducts)
-    GotProductNameToUpdate prod str -> ({ model | productToUpdate = (updateProductName (updateProductId model.productToUpdate prod.id) str)}, Cmd.none)
-    GotProductCostToUpdate prod str -> case String.toInt str of
-      Just cost -> ({ model | productToUpdate = (updateProductCost (updateProductId model.productToUpdate prod.id) cost)}, Cmd.none)
-      -- todo add error handling in case where you cant cast to int.
-      Nothing -> (model, Cmd.none)
-    GotProductDescriptionToUpdate prod str -> ({ model | productToUpdate = (updateProductDescription (updateProductId model.productToUpdate prod.id) str)}, Cmd.none)
-    GotProductPathToUpdate prod str -> ({ model | productToUpdate = (updateProductPath (updateProductId model.productToUpdate prod.id) str)}, Cmd.none)
+    case msg of
+        GotProducts res ->
+            ( processGotProducts model res, Cmd.none )
+
+        -- todo make processGotProduct which should filter model.products, find by id, if exists update else add
+        GotProduct res ->
+            case res of
+                Ok ok ->
+                    ( model, getAllProduct GotProducts )
+
+                Err err ->
+                    let
+                        _ =
+                            logHttpErr err
+                    in
+                    ( model, Cmd.none )
+
+        AddProduct ->
+            case isValidProduct model.productToAdd of
+                True ->
+                    ( model, addProduct model.productToAdd GotProduct )
+
+                False ->
+                    let
+                        _ =
+                            Debug.log "ERROR" <| "invalid product to add: " ++ productToString model.productToAdd
+                    in
+                    ( model, Cmd.none )
+
+        UpdateProduct product ->
+            case findProductById model.productToUpdate product.id of
+                Nothing ->
+                    ( model, Cmd.none )
+
+                Just prod ->
+                    ( model, updateProduct product prod GotProduct )
+
+        DeleteProduct product ->
+            ( model, Cmd.none )
+
+        GotProductNameToAdd str ->
+            ( { model | productToAdd = updateProductName model.productToAdd str }, Cmd.none )
+
+        GotProductCostToAdd str ->
+            case String.toInt str of
+                Just cost ->
+                    ( { model | productToAdd = updateProductCost model.productToAdd (cost * 100) }, Cmd.none )
+
+                Nothing ->
+                    ( model, Cmd.none )
+
+        -- todo add error handling in case where you cant cast to int.
+        GotProductDescriptionToAdd str ->
+            ( { model | productToAdd = updateProductDescription model.productToAdd str }, Cmd.none )
+
+        GotProductPathToAdd pth ->
+            case isValidPath pth of
+                True ->
+                    ( { model | productToAdd = updateProductPath model.productToAdd pth }, Cmd.none )
+
+                False ->
+                    ( model, Cmd.none )
+
+        GotProductNameToUpdate prod str ->
+            ( gotProductNameToUpdate model prod str, Cmd.none )
+
+        GotProductCostToUpdate prod str ->
+            case String.toInt str of
+                Just cost ->
+                    ( gotProductCostToUpdate model prod (cost * 100), Cmd.none )
+
+                -- todo add error handling in case where you cant cast to int.
+                Nothing ->
+                    ( model, Cmd.none )
+
+        GotProductDescriptionToUpdate prod str ->
+            ( gotProductDescriptionToUpdate model prod str, Cmd.none )
+
+        GotProductPathToUpdate prod pth ->
+            case isValidPath pth of
+                True ->
+                    ( gotProductPathToUpdate model prod pth, Cmd.none )
+
+                False ->
+                    ( model, Cmd.none )
 
 
-processGotProducts : Model -> (Result Http.Error (List Product)) -> Model
+processGotProducts : Model -> Result Http.Error (List Product) -> Model
 processGotProducts model res =
-  case res of
-    Ok prod -> { model | products = prod }
-    Err err -> logHttpErr model err
+    case res of
+        Ok prod ->
+            { model | products = prod }
 
-myTag = "Main.elm"
+        Err err ->
+            let
+                _ =
+                    logHttpErr err
+            in
+            model
 
-logHttpErr : Model -> Http.Error -> Model
-logHttpErr model err =
-  { model | logs = List.append model.logs [httpErrorToLogEntry err] }
 
-httpErrorToLogEntry : Http.Error -> LogEntry
-httpErrorToLogEntry err =
-  LogEntry (httpErrorToString err) --Time.now
+myTag =
+    "Main.elm"
+
+
+logHttpErr : Http.Error -> Http.Error
+logHttpErr err =
+    Debug.log "ERROR HTTP" <| err
+
 
 httpErrorToString : Http.Error -> String
 httpErrorToString err =
     case err of
-      BadUrl str -> "ERROR " ++ myTag ++ " HTTP BadUrl: " ++ str
-      Timeout -> "ERROR " ++ myTag ++ " HTTP Timeout"
-      NetworkError -> "ERROR " ++ myTag ++ " HTTP NetworkErr"
-      BadStatus int -> "ERROR " ++ myTag ++ " HTTP BadStatus: " ++ (String.fromInt int)
-      BadBody str -> "ERROR " ++ myTag ++ " HTTP BadBody: " ++ str
+        BadUrl str ->
+            "ERROR " ++ myTag ++ " HTTP BadUrl: " ++ str
+
+        Timeout ->
+            "ERROR " ++ myTag ++ " HTTP Timeout"
+
+        NetworkError ->
+            "ERROR " ++ myTag ++ " HTTP NetworkErr"
+
+        BadStatus int ->
+            "ERROR " ++ myTag ++ " HTTP BadStatus: " ++ String.fromInt int
+
+        BadBody str ->
+            "ERROR " ++ myTag ++ " HTTP BadBody: " ++ str
+
+
+gotProductNameToUpdate : Model -> Product -> String -> Model
+gotProductNameToUpdate model prod str =
+    let
+        productList =
+            case findProductById model.productToUpdate prod.id of
+                Just product ->
+                    let
+                        updated =
+                            updateProductName product str
+                    in
+                    List.map
+                        (\prod1 ->
+                            if prod1.id == updated.id then
+                                updated
+
+                            else
+                                prod1
+                        )
+                        model.productToUpdate
+
+                Nothing ->
+                    List.append model.productToUpdate [ updateProductName prod str ]
+    in
+    { model | productToUpdate = productList }
+
+
+gotProductCostToUpdate : Model -> Product -> Int -> Model
+gotProductCostToUpdate model prod cost =
+    let
+        productList =
+            case findProductById model.productToUpdate prod.id of
+                Just product ->
+                    let
+                        updated =
+                            updateProductCost product cost
+                    in
+                    List.map
+                        (\prod1 ->
+                            if prod1.id == updated.id then
+                                updated
+
+                            else
+                                prod1
+                        )
+                        model.productToUpdate
+
+                Nothing ->
+                    List.append model.productToUpdate [ updateProductCost prod cost ]
+    in
+    { model | productToUpdate = productList }
+
+
+gotProductDescriptionToUpdate : Model -> Product -> String -> Model
+gotProductDescriptionToUpdate model prod str =
+    let
+        productList =
+            case findProductById model.productToUpdate prod.id of
+                Just product ->
+                    let
+                        updated =
+                            updateProductDescription product str
+                    in
+                    List.map
+                        (\prod1 ->
+                            if prod1.id == updated.id then
+                                updated
+
+                            else
+                                prod1
+                        )
+                        model.productToUpdate
+
+                Nothing ->
+                    List.append model.productToUpdate [ updateProductDescription prod str ]
+    in
+    { model | productToUpdate = productList }
+
+
+gotProductPathToUpdate : Model -> Product -> String -> Model
+gotProductPathToUpdate model prod str =
+    let
+        productList =
+            case findProductById model.productToUpdate prod.id of
+                Just product ->
+                    let
+                        updated =
+                            updateProductPath product str
+                    in
+                    List.map
+                        (\prod1 ->
+                            if prod1.id == updated.id then
+                                updated
+
+                            else
+                                prod1
+                        )
+                        model.productToUpdate
+
+                Nothing ->
+                    List.append model.productToUpdate [ updateProductPath prod str ]
+    in
+    { model | productToUpdate = productList }
+
+
+findProductById : List Product -> String -> Maybe Product
+findProductById productList id =
+    List.filter (\prod -> prod.id == id) productList |> List.head
+
 
 updateProductId : Product -> String -> Product
 updateProductId product id =
-  {product | id = id}
+    { product | id = id }
+
 
 updateProductName : Product -> String -> Product
 updateProductName product name =
-  {product | name = name}
+    { product | name = name }
+
 
 updateProductCost : Product -> Int -> Product
 updateProductCost product cost =
-  {product | cost = cost}
+    { product | cost = cost }
+
 
 updateProductDescription : Product -> String -> Product
 updateProductDescription product description =
-  {product | description = description}
+    { product | description = description }
+
 
 updateProductPath : Product -> String -> Product
 updateProductPath product pth =
-  { product | path = pth}
+    { product | path = pth }
+
+
 
 -- view
 
 
 view : Model -> Html Msg
 view model =
-  div [] [ drawAddProductForm
-         , drawProductTable model.products
-         , text "--- ниже будут печататься ошибки. Если они возникнут, то прошу сообщить мне ---"
-         , drawLogs model.logs
-         ]
+    div []
+        [ drawAddProductForm model
+        , drawProductTable model <| List.sortBy .name model.products
+        ]
 
 
-drawProductTable: List Product -> Html.Html Msg
-drawProductTable productList =
-  Html.table []
-    [ Html.thead [] [drawProductTableHeader]
-    , Html.tbody [] (List.map drawProductRow productList)
-    ]
+drawProductTable : Model -> List Product -> Html.Html Msg
+drawProductTable model productList =
+    Html.table []
+        [ Html.thead [] [ drawProductTableHeader ]
+        , Html.tbody [] (List.map (drawProductRow model) productList)
+        ]
 
 
 drawProductTableHeader : Html.Html Msg
 drawProductTableHeader =
-  Html.tr []
-    [ Html.th [] [text "product name"]
-    , Html.th [] [text "product cost"]
-    , Html.th [] [text "product description"]
-    , Html.th [] [text "product path"]
-    ]
+    Html.tr []
+        [ Html.th [] [ text name_str ]
+        , Html.th [] [ text cost_str ]
+        , Html.th [] [ text description_str ]
+        , Html.th [] [ text path_str ]
+        ]
 
 
-drawProductRow : Product -> Html.Html Msg
-drawProductRow product =
-  Html.tr []
-    [ Html.td [] [ text product.name
-                 , Html.input [ Html.Events.onInput <| GotProductNameToUpdate product, Html.Attributes.placeholder "name"] []
-                 ]
-    , Html.td [] [ text <| String.fromInt product.cost
-                 , Html.input [ Html.Events.onInput <| GotProductCostToUpdate product, Html.Attributes.placeholder "cost"] []
-                 ]
-    , Html.td [] [ text product.description
-                 , Html.input [ Html.Events.onInput <| GotProductDescriptionToUpdate product, Html.Attributes.placeholder "description"] []
-                 ]
-    , Html.td [] [ text product.path
-                 , Html.input [ Html.Events.onInput <| GotProductPathToUpdate product, Html.Attributes.placeholder "path"] []
-                 ]
-    , Html.td [] [ Html.button [ Html.Events.onClick <| UpdateProduct product] [ text "update"]]
-    ]
+drawProductRow : Model -> Product -> Html.Html Msg
+drawProductRow model product =
+    Html.tr []
+        [ Html.td []
+            [ text product.name
+            , Html.input [ Html.Events.onInput <| GotProductNameToUpdate product, Html.Attributes.placeholder name_str ] []
+            ]
+        , Html.td []
+            [ text <| String.fromFloat <| toFloat product.cost / 100
+            , Html.input [ Html.Events.onInput <| GotProductCostToUpdate product, Html.Attributes.placeholder cost_str ] []
+            ]
+        , Html.td []
+            [ text product.description
+            , Html.input
+                [ Html.Events.onInput <| GotProductDescriptionToUpdate product
+                , Html.Attributes.placeholder description_str
+                ]
+                []
+            ]
+        , Html.td []
+            [ text product.path
+            , Html.input
+                [ Html.Events.onInput <| GotProductPathToUpdate product
+                , Html.Attributes.placeholder path_str
+                ]
+                []
+            ]
+        , Html.td [] [ Html.button [ Html.Events.onClick <| UpdateProduct product ] [ text update_str ] ]
+        ]
 
 
-drawAddProductForm : Html.Html Msg
-drawAddProductForm =
-  Html.fieldset [ role "group"]
-    [ Html.input [ Html.Events.onInput GotProductNameToAdd, Html.Attributes.placeholder "name"] []
-    , Html.input [ Html.Events.onInput GotProductCostToAdd, Html.Attributes.placeholder "cost"] []
-    , Html.input [ Html.Events.onInput GotProductDescriptionToAdd, Html.Attributes.placeholder "description"] []
-    , Html.input [ Html.Events.onInput GotProductPathToAdd, Html.Attributes.placeholder "path"] []
-    , Html.button [ Html.Events.onClick AddProduct ] [ text "add product"]
-    ]
+drawAddProductForm : Model -> Html.Html Msg
+drawAddProductForm model =
+    Html.fieldset [ role "group" ]
+        [ Html.input [ Html.Events.onInput GotProductNameToAdd, Html.Attributes.placeholder name_str ] []
+        , Html.input [ Html.Events.onInput GotProductCostToAdd, Html.Attributes.placeholder cost_str ] []
+        , Html.input [ Html.Events.onInput GotProductDescriptionToAdd, Html.Attributes.placeholder description_str ] []
+        , Html.input
+            [ Html.Events.onInput GotProductPathToAdd
+            , Html.Attributes.placeholder path_str
+            , Html.Attributes.value model.productToAdd.path
+            ]
+            []
+        , Html.button [ Html.Events.onClick AddProduct ] [ text add_str ]
+        ]
 
-drawLogs : List LogEntry -> Html.Html Msg
-drawLogs logs =
-  div [] <| List.map drawLogLine logs
 
-drawLogLine : LogEntry -> Html.Html Msg
-drawLogLine log =
-  Html.p [] [text log.message]
+boolToString : Bool -> String
+boolToString value =
+    case value of
+        True ->
+            "True"
+
+        False ->
+            "False"
+
+
 
 -- subscriptions
 
+
 subscriptions : Model -> Sub Msg
-subscriptions _ = Sub.none
+subscriptions _ =
+    Sub.none
+
+
 
 -- http
 
-role: String -> Html.Attribute msg
+
+role : String -> Html.Attribute msg
 role value =
     Html.Attributes.attribute "role" value
+
+
+
+-- validate
+
+
+isValidPath : String -> Bool
+isValidPath paht =
+    stringLenghtInBytes paht < 60
+
+
+stringLenghtInBytes : String -> Int
+stringLenghtInBytes str =
+    Bytes.Encode.getStringWidth str
