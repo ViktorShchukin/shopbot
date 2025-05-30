@@ -54,8 +54,9 @@ public class BasketState implements FsmState {
                     Long quantity = basket.getQuantity();
                     return context.getProductService()
                             .getById(basket.getProductId())
-                            .map(Product::getCost)
-                            .map(cost -> cost * quantity)
+                            .mapValue(Product::getCost)
+                            .mapValue(cost -> cost * quantity)
+                            .ok()
                             .stream();
                 })
                 .reduce(0L, Long::sum);

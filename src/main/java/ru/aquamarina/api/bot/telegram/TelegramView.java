@@ -27,7 +27,6 @@ import ru.aquamarina.util.ResultOk;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -144,12 +143,12 @@ public record TelegramView(OkHttpTelegramClient client, Update update, ProductSe
         if (form.path().equals("/")) {
             commands = List.of(
                     new BasketCmd(null),
-                    new CatalogCmd(null),
                     new IndexCmd(null)
             );
         } else {
             commands = List.of(
                     new BasketCmd(null),
+                    new CatalogCmd(null),
                     new IndexCmd(null)
             );
         }
@@ -252,7 +251,7 @@ public record TelegramView(OkHttpTelegramClient client, Update update, ProductSe
 
         // todo get rid of Optional.get() call without check
         String products = form.rows().stream()
-                .map(basketRow -> productService.getById(basketRow.getProductId()).get().getName() + "  " + basketRow.getQuantity().toString() + "\n")
+                .map(basketRow -> productService.getById(basketRow.getProductId()).ok().get().getName() + "  " + basketRow.getQuantity().toString() + "\n")
                 .reduce("", String::concat);
         String messageText = products + "Сумма: " + (double) form.totalCost() / 100 + "\nСпасибо за заказ.\nМы свяжемся с вами позже.";
 
@@ -295,7 +294,7 @@ public record TelegramView(OkHttpTelegramClient client, Update update, ProductSe
 
         // todo get rid of Optional.get() call without check
         String products = form.rows().stream()
-                .map(basketRow -> productService.getById(basketRow.getProductId()).get().getName() + "  " + basketRow.getQuantity().toString() + "\n")
+                .map(basketRow -> productService.getById(basketRow.getProductId()).ok().get().getName() + "  " + basketRow.getQuantity().toString() + "\n")
                 .reduce("", String::concat);
         String messageText = "Корзина" + "\n" + products + "Сумма: " + (double) form.totalCost() / 100;
 

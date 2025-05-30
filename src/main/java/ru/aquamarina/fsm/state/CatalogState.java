@@ -15,12 +15,10 @@ import ru.aquamarina.model.error.NotSupportedCommand;
 import ru.aquamarina.util.PathUtil;
 import ru.aquamarina.util.Result;
 
-import java.util.Collection;
-import java.util.Collections;
+
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class CatalogState implements FsmState {
 
@@ -81,8 +79,7 @@ public class CatalogState implements FsmState {
     }
 
     private Folder mapToFolder(String folderPath) {
-        // todo maybe crate special util class???
-        var name = folderPath.substring(path.length()).split("/")[0];
+        var name = PathUtil.getFolderName(folderPath);
         return new Folder(name, folderPath);
     }
 }
