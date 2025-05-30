@@ -1,6 +1,8 @@
 module Main exposing (..)
 
 import Browser
+import Bytes
+import Bytes.Encode
 import Html exposing (Html, div, text)
 import Html.Attributes
 import Html.Events
@@ -104,8 +106,9 @@ update msg model =
       Just cost -> ( { model | productToAdd = updateProductCost model.productToAdd (cost * 100)}, Cmd.none)
       Nothing -> (model, Cmd.none) -- todo add error handling in case where you cant cast to int.
     GotProductDescriptionToAdd str -> ( { model | productToAdd = updateProductDescription model.productToAdd str}, Cmd.none)
-    GotProductPathToAdd pth ->  ( { model | productToAdd =  updateProductPath model.productToAdd pth}, Cmd.none)
-
+    GotProductPathToAdd pth ->  case (isValidPath (Debug.log "path value: " pth))  of
+      True -> ( { model | productToAdd =  updateProductPath model.productToAdd pth}, Cmd.none)
+      False -> (model, Cmd.none)
     GotProductNameToUpdate prod str -> (gotProductNameToUpdate model prod str, Cmd.none)
     GotProductCostToUpdate prod str -> case String.toInt str of
       Just cost -> (gotProductCostToUpdate model prod (cost * 100), Cmd.none)
@@ -215,10 +218,9 @@ updateProductPath product pth =
 
 -- view
 
-
 view : Model -> Html Msg
 view model =
-  div [] [ drawAddProductForm
+  div [] [ drawAddProductForm model
          , drawProductTable <| List.sortBy .name model.products
          , text "--- ниже будут печататься ошибки. Если они возникнут, то прошу сообщить мне ---"
          , drawLogs model.logs
@@ -262,13 +264,15 @@ drawProductRow product =
     ]
 
 
-drawAddProductForm : Html.Html Msg
-drawAddProductForm =
+drawAddProductForm : Model -> Html.Html Msg
+drawAddProductForm model =
   Html.fieldset [ role "group"]
     [ Html.input [ Html.Events.onInput GotProductNameToAdd, Html.Attributes.placeholder name_str] []
     , Html.input [ Html.Events.onInput GotProductCostToAdd, Html.Attributes.placeholder cost_str] []
     , Html.input [ Html.Events.onInput GotProductDescriptionToAdd, Html.Attributes.placeholder description_str] []
-    , Html.input [ Html.Events.onInput GotProductPathToAdd, Html.Attributes.placeholder path_str] []
+    , Html.input [ Html.Events.onInput GotProductPathToAdd
+                 , Html.Attributes.placeholder path_str
+                 , Html.Attributes.value model.productToAdd.path] []
     , Html.button [ Html.Events.onClick AddProduct ] [ text add_str]
     ]
 
@@ -280,6 +284,12 @@ drawLogLine : LogEntry -> Html.Html Msg
 drawLogLine log =
   Html.p [] [text log.message]
 
+boolToString : Bool -> String
+boolToString value =
+  case value of
+    True -> "True"
+    False -> "False"
+
 -- subscriptions
 
 subscriptions : Model -> Sub Msg
@@ -290,3 +300,13 @@ subscriptions _ = Sub.none
 role: String -> Html.Attribute msg
 role value =
     Html.Attributes.attribute "role" value
+
+-- validate
+
+isValidPath: String -> Bool
+isValidPath paht =
+  (stringLenghtInBytes paht) < 60
+
+stringLenghtInBytes : String -> Int
+stringLenghtInBytes str =
+  Bytes.Encode.getStringWidth str
