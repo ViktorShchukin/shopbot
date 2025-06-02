@@ -26,6 +26,7 @@ export SB_SERVER_PORT=7474
 | SB_DB_USERNAME        |               | bd username which app will use in postgres db             |
 | SB_DB_URL             |               | url for db. like: jdbc:postgresql://localhost:5432/dbname |
 | SB_SERVER_PORT        | 8080          | port on which server will be running                      |
+| SB_MONITORING_PORT    | 8080          | port on which will be available monitoring endpoints      |
 | SB_TELEGRAM_BOT_TOKEN |               | access token for telegram bot                             |
 | SB_LOG_PATH           |               | directory in which log file will be placed                |
 
