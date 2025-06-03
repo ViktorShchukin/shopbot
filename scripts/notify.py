@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import argparse as arg
 from urllib.request import urlopen, Request
 from json import dumps
