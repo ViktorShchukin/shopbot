@@ -40,13 +40,15 @@ def check_health(content) -> bool:
     
     return res 
 
-def check_log(log_path) -> bool:
+def check_log(log_path, log_cache_path) -> bool:
     res = True
-    with open(log_path) as file:
+    with open(log_path, "r") as file, open(log_cache_path, "a") as cache, open(log_cache_path, "r") as cache_read:
+        cache_lines = cache_read.readlines()
         for line in file:
-            if "ERROR" in line:
+            if ("ERROR" in line) and (line not in cache_lines):
                 res = res and False
-                message.append("ALERT: find error in log file: {}\n".format(log_path))
+                message.append("ALERT: find error in log file: {0}\n\t-->{1}".format(log_path, line))
+                cache.write(line)
     return res
 
 def prepare_err(exc: urllib.error.HTTPError) -> str:
@@ -58,14 +60,16 @@ if __name__ == "__main__":
     parser.add_argument("bot_token", type=str)
     parser.add_argument("chat_id", type=int)
     parser.add_argument("log_file_path", type=str)
+    parser.add_argument("log_cache_path", type=str)
     args = parser.parse_args()
     bot_token = args.bot_token
     chat_id = args.chat_id
     log_file = args.log_file_path
+    log_cache = args.log_cache_path
 
     try:
         resource = req.urlopen(health_url)
-        if not (check_health(resource) and check_log(log_file)):
+        if not (check_health(resource) and check_log(log_file, log_cache)):
             notify_telegram(bot_token, chat_id, "".join(message))
     except urllib.error.HTTPError as e:
         message.append(prepare_err(e))
