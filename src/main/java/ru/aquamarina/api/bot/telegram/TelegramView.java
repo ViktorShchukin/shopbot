@@ -348,7 +348,7 @@ public record TelegramView(OkHttpTelegramClient client, Update update, ProductSe
     }
 
     @Override
-    public void drawForWholesalerForm(ForWholesalerForm forWholesalerForm) {
+    public void drawForWholesalerForm(ForWholesalerForm form) {
         String chatId;
         switch (TelegramUtils.extractTelegramUserId(update)) {
             case ResultOk<Long, Error> ok -> chatId = ok.unwrap().toString();
@@ -384,7 +384,7 @@ public record TelegramView(OkHttpTelegramClient client, Update update, ProductSe
     }
 
     @Override
-    public void drawPayAndDeliveryFormForm(PayAndDeliveryForm payAndDeliveryForm) {
+    public void drawPayAndDeliveryFormForm(PayAndDeliveryForm form) {
         String chatId;
         switch (TelegramUtils.extractTelegramUserId(update)) {
             case ResultOk<Long, Error> ok -> chatId = ok.unwrap().toString();
@@ -398,6 +398,42 @@ public record TelegramView(OkHttpTelegramClient client, Update update, ProductSe
         );
 
         String messageText = "Оплата и доставка";
+
+        var keyBoard = InlineKeyboardMarkup.builder()
+                .keyboardRow(keyboardRow)
+                .build();
+        Integer messageId = update.getCallbackQuery().getMessage().getMessageId();
+        AnswerCallbackQuery close = AnswerCallbackQuery.builder()
+                .callbackQueryId(update.getCallbackQuery().getId())
+                .build();
+        EditMessageText message = EditMessageText.builder()
+                .chatId(chatId)
+                .messageId(messageId)
+                .text(messageText)
+                .build();
+        EditMessageReplyMarkup replyMarkup = EditMessageReplyMarkup.builder()
+                .chatId(chatId)
+                .messageId(messageId)
+                .replyMarkup(keyBoard)
+                .build();
+        closeQueryAndRewriteMessage(close, message, replyMarkup);
+    }
+
+    @Override
+    public void drawProductInstructionForm(ProductInstructionForm form) {
+        String chatId;
+        switch (TelegramUtils.extractTelegramUserId(update)) {
+            case ResultOk<Long, Error> ok -> chatId = ok.unwrap().toString();
+            case ResultError<Long, Error> err -> {
+                draw(err.err());
+                return;
+            }
+        }
+        InlineKeyboardRow keyboardRow = new InlineKeyboardRow(
+                getButton(new ProductAboutCmd(null, form.product().getId()))
+        );
+
+        String messageText = "Описание товара\n\n" + form.product().getDescription();
 
         var keyBoard = InlineKeyboardMarkup.builder()
                 .keyboardRow(keyboardRow)

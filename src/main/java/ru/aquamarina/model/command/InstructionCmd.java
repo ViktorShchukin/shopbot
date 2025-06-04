@@ -8,7 +8,7 @@ public record InstructionCmd(User user) implements Command {
 
     @Override
     public User getUser() {
-        return null;
+        return user;
     }
 
     @Override
