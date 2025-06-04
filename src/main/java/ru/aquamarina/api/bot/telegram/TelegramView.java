@@ -430,7 +430,7 @@ public record TelegramView(OkHttpTelegramClient client, Update update, ProductSe
             }
         }
         InlineKeyboardRow keyboardRow = new InlineKeyboardRow(
-                getButton(new ProductAboutCmd(null, form.product().getId()))
+                getButton("Назад", new ProductAboutCmd(null, form.product().getId()))
         );
 
         String messageText = "Описание товара\n\n" + form.product().getDescription();
@@ -461,10 +461,10 @@ public record TelegramView(OkHttpTelegramClient client, Update update, ProductSe
         log.error("=== error inside the app: {}", error.toString());
     }
 
-    private InlineKeyboardButton getButton(String text, String command) {
+    private InlineKeyboardButton getButton(String buttonText, Command command) {
         return InlineKeyboardButton.builder()
-                .text(text)
-                .callbackData(command)
+                .text(buttonText)
+                .callbackData(command.toString())
                 .build();
     }
 
