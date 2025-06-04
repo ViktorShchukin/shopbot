@@ -29,4 +29,7 @@ public interface BasketRepository extends PageableRepository<Basket, UUID> {
 
     @Query("select exists(select * from basket_and_product bap where bap.basket_id = :basketId and bap.product_id = :productId)")
     boolean existByBasketIdProductId(UUID basketId, UUID productId);
+
+    @Query("delete from basket_and_product where basket_id = :basketId and product_id = :productId")
+    int deleteFromBasketByProductId(UUID basketId, UUID productId);
 }

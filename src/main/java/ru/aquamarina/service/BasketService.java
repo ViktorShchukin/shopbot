@@ -81,4 +81,21 @@ public class BasketService {
     public void clearBasket(Basket basket) {
         basketRepository.deleteAllFromBasket(basket.getId());
     }
+
+    public Result<Integer, Error> deleteFromBasket(User user, Product product) {
+        try {
+            return basketRepository.findByUserId(user.getId())
+                    .map(basket -> {
+                        if (basketRepository.existByBasketIdProductId(basket.getId(), product.getId())) {
+                            var deletedQuantity = basketRepository.deleteFromBasketByProductId(basket.getId(), product.getId());
+                            return Result.<Integer, Error>ok(deletedQuantity);
+                        } else {
+                            return Result.<Integer, Error>ok(0);
+                        }
+                    })
+                    .orElseGet(() -> Result.error(new NotFound("basket for this user is not exist")));
+        } catch (DataAccessException e) {
+            return Result.error(new ExceptionWrapperError(e, "data access error during BasketService::deleteFromBasket"));
+        }
+    }
 }
