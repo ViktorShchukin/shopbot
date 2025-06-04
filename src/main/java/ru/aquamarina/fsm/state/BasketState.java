@@ -4,6 +4,7 @@ import ru.aquamarina.fsm.FsmContextHolder;
 import ru.aquamarina.fsm.form.BasketForm;
 import ru.aquamarina.fsm.form.Form;
 import ru.aquamarina.model.command.*;
+import ru.aquamarina.model.entity.Basket;
 import ru.aquamarina.model.entity.BasketRow;
 import ru.aquamarina.model.entity.Product;
 import ru.aquamarina.model.entity.User;
@@ -41,6 +42,11 @@ public class BasketState implements FsmState {
             case IndexCmd index -> Result.ok(new IndexState(user));
             case CatalogCmd ctg -> Result.ok(new CatalogState(user, "/"));
             case StartCmd start -> Result.ok(new IndexState(user));
+            case ClearBasketCmd clr -> context.getBasketService().getByUser(user)
+                    .map(basket -> {
+                        context.getBasketService().clearBasket(basket);
+                        return Result.ok(new BasketState(user));
+                    });
             default -> Result.error(new NotSupportedCommand());
         };
     }

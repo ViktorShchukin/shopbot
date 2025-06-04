@@ -8,12 +8,12 @@ import ru.aquamarina.model.entity.BasketRow;
 import ru.aquamarina.model.entity.Product;
 import ru.aquamarina.model.entity.User;
 import ru.aquamarina.model.error.Error;
-import ru.aquamarina.model.error.IoError;
+import ru.aquamarina.model.error.ExceptionWrapperError;
+import ru.aquamarina.model.error.NotFound;
 import ru.aquamarina.repository.BasketRepository;
 import ru.aquamarina.util.Result;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -25,6 +25,16 @@ public class BasketService {
 
     public BasketService(BasketRepository basketRepository) {
         this.basketRepository = basketRepository;
+    }
+
+    public Result<Basket, Error> getByUser(User user) {
+        try {
+            return getByUserId(user.getId())
+                    .map(bsk -> Result.<Basket, Error>ok(bsk))
+                    .orElseGet(() -> Result.error(new NotFound("basket for this user not found")));
+        } catch (DataAccessException e) {
+            return Result.error(new ExceptionWrapperError(e, "error in BasketService::getByUser"));
+        }
     }
 
     public Optional<Basket> getByUserId(UUID userId) {
@@ -68,7 +78,7 @@ public class BasketService {
         return basketRepository.getBasketRowByBasketId(basket.getId());
     }
 
-    public void cleanBasket(Basket basket) {
+    public void clearBasket(Basket basket) {
         basketRepository.deleteAllFromBasket(basket.getId());
     }
 }

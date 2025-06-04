@@ -310,7 +310,11 @@ public record TelegramView(OkHttpTelegramClient client, Update update, ProductSe
                 getButton(new DoOrderCmd(null)),
                 getButton(new CatalogCmd(null))
         );
+        InlineKeyboardRow clearBasketRow = new InlineKeyboardRow(
+                getButton(new ClearBasketCmd(null))
+        );
         keyboardRowList.add(keyboardRow);
+        keyboardRowList.add(clearBasketRow);
 
         List<ProductRowDto> products = form.rows().stream()
                 .map(basketRow -> productMapper.mapTo(basketRow, productService::getById))
@@ -443,6 +447,7 @@ public record TelegramView(OkHttpTelegramClient client, Update update, ProductSe
             case ProductAboutCmd cmd -> productService.getById(cmd.productId()).ok().get().getName();
             case QuantityMinusCmd cmd -> "Убрать из корзины";
             case QuantityPlusCmd cmd -> "Добавить в корзину";
+            case ClearBasketCmd cmd -> "Очистить корзину";
             case StartCmd cmd -> "Restart session. This command should not appear in user interface.";
         };
         return InlineKeyboardButton.builder()
