@@ -10,6 +10,7 @@
         </encoder>
     </appender>
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${SB_LOG_PATH}/${FILE_NAME_PREFIX}.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <!-- daily rollover -->
             <fileNamePattern>${SB_LOG_PATH}/${FILE_NAME_PREFIX}.%d{yyyy-MM-dd}.log</fileNamePattern>
