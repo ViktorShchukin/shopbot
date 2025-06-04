@@ -211,6 +211,9 @@ public record TelegramView(OkHttpTelegramClient client, Update update, ProductSe
         Product product = form.product();
         List<InlineKeyboardRow> keyboardRowList = new ArrayList<>();
         keyboardRowList.add(new InlineKeyboardRow(
+                getButton(String.valueOf(form.quantity()), new DoNothing(null))
+        ));
+        keyboardRowList.add(new InlineKeyboardRow(
                 getButton(new QuantityMinusCmd(null)),
                 getButton(new QuantityPlusCmd(null))
         ));
@@ -273,7 +276,7 @@ public record TelegramView(OkHttpTelegramClient client, Update update, ProductSe
                 .toList();
 
         String productTable = getProductTable(products);
-        String messageText = productTable +"\n" + "Сумма заказа: " + (double) form.totalCost() / 100 + "\n\nСпасибо за заказ.\nМы свяжемся с вами позже.";
+        String messageText = productTable + "\n" + "Сумма заказа: " + (double) form.totalCost() / 100 + "\n\nСпасибо за заказ.\nМы свяжемся с вами позже.";
 
         var keyBoard = InlineKeyboardMarkup.builder()
                 .keyboard(keyboardRowList)
@@ -484,6 +487,7 @@ public record TelegramView(OkHttpTelegramClient client, Update update, ProductSe
             case QuantityMinusCmd cmd -> "Убрать из корзины";
             case QuantityPlusCmd cmd -> "Добавить в корзину";
             case ClearBasketCmd cmd -> "Очистить корзину";
+            case DoNothing cmd -> "¯\\_(ツ)_/¯";
             case StartCmd cmd -> "Restart session. This command should not appear in user interface.";
         };
         return InlineKeyboardButton.builder()

@@ -44,6 +44,7 @@ public interface TelegramMapper {
             case String str when str.contains(FolderCmd.NAME) -> Result.ok(new FolderCmd(user, str.split("\\?")[1]));
             case ClearBasketCmd.NAME -> Result.ok(new ClearBasketCmd(user));
             case InstructionCmd.NAME -> Result.ok(new InstructionCmd(user));
+            case DoNothing.NAME -> Result.ok(new DoNothing(user));
             case null, default -> Result.error(new UnknownCommand());
         };
     }

@@ -58,6 +58,7 @@ public class ProductAboutState implements FsmState {
             case CatalogCmd ctg -> Result.ok(new CatalogState(user, product.getPath()));
             case StartCmd start -> Result.ok(new IndexState(user));
             case InstructionCmd inst -> Result.ok(new ProductInstructionState(user, product));
+            case DoNothing don -> Result.ok(this);
             default -> Result.error(new NotSupportedCommand());
         };
     }
