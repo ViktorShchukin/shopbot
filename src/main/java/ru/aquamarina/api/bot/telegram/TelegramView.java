@@ -1,5 +1,6 @@
 package ru.aquamarina.api.bot.telegram;
 
+import org.mapstruct.factory.Mappers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.client.okhttp.OkHttpTelegramClient;
@@ -14,6 +15,8 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.aquamarina.api.bot.View;
+import ru.aquamarina.api.dto.ProductRowDto;
+import ru.aquamarina.api.mapper.ProductMapper;
 import ru.aquamarina.fsm.form.*;
 import ru.aquamarina.model.command.*;
 import ru.aquamarina.model.entity.Folder;
@@ -27,12 +30,23 @@ import ru.aquamarina.util.ResultOk;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public record TelegramView(OkHttpTelegramClient client, Update update, ProductService productService) implements View {
 
     private static final Logger log = LoggerFactory.getLogger(TelegramView.class);
+    private static final ProductMapper productMapper = Mappers.getMapper(ProductMapper.class);
+
+    // | productName | quantity | totalSumByThisPosition |
+    private static final String PRODUCT_ROW_TABLE_TEMPLATE = " %s  %s  %s ";
+    private static final String NAME_OF_PRODUCT = "Название";
+    private static final String QUANTITY_OF_PRODUCT = "Кол-во";
+    private static final String TOTAL_SUM_OF_PRODUCT = "Итог";
+
+    private static final String QUANTITY_TEMPLATE = "%dx%.2f";
+    private static final String TOTAL_SUM_TEMPLATE = "%.2f";
 
     @Override
     public void drawAboutForm(AboutForm form) {
@@ -162,7 +176,7 @@ public record TelegramView(OkHttpTelegramClient client, Update update, ProductSe
                     keyboardRowList.add(keyboardRow);
                 });
 
-        String messageText = "Каталог";
+        String messageText = "Выберете нужный товар";
 
         var keyBoard = InlineKeyboardMarkup.builder()
                 .keyboard(keyboardRowList)
@@ -249,11 +263,17 @@ public record TelegramView(OkHttpTelegramClient client, Update update, ProductSe
         );
         keyboardRowList.add(keyboardRow);
 
-        // todo get rid of Optional.get() call without check
-        String products = form.rows().stream()
-                .map(basketRow -> productService.getById(basketRow.getProductId()).ok().get().getName() + "  " + basketRow.getQuantity().toString() + "\n")
-                .reduce("", String::concat);
-        String messageText = products + "Сумма: " + (double) form.totalCost() / 100 + "\nСпасибо за заказ.\nМы свяжемся с вами позже.";
+
+        List<ProductRowDto> products = form.rows().stream()
+                .map(basketRow -> productMapper.mapTo(basketRow, productService::getById))
+                // todo how to handle that product exist in basket and doesn't exist in product table???
+                .map(res -> res.ok())
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .toList();
+
+        String productTable = getProductTable(products);
+        String messageText = productTable +"\n" + "Сумма заказа: " + (double) form.totalCost() / 100 + "\n\nСпасибо за заказ.\nМы свяжемся с вами позже.";
 
         var keyBoard = InlineKeyboardMarkup.builder()
                 .keyboard(keyboardRowList)
@@ -292,11 +312,16 @@ public record TelegramView(OkHttpTelegramClient client, Update update, ProductSe
         );
         keyboardRowList.add(keyboardRow);
 
-        // todo get rid of Optional.get() call without check
-        String products = form.rows().stream()
-                .map(basketRow -> productService.getById(basketRow.getProductId()).ok().get().getName() + "  " + basketRow.getQuantity().toString() + "\n")
-                .reduce("", String::concat);
-        String messageText = "Корзина" + "\n" + products + "Сумма: " + (double) form.totalCost() / 100;
+        List<ProductRowDto> products = form.rows().stream()
+                .map(basketRow -> productMapper.mapTo(basketRow, productService::getById))
+                // todo how to handle that product exist in basket and doesn't exist in product table???
+                .map(res -> res.ok())
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .toList();
+
+        String productTable = getProductTable(products);
+        String messageText = "Корзина" + "\n\n" + productTable + "\n" + "Сумма: " + (double) form.totalCost() / 100;
 
         var keyBoard = InlineKeyboardMarkup.builder()
                 .keyboard(keyboardRowList)
@@ -412,9 +437,9 @@ public record TelegramView(OkHttpTelegramClient client, Update update, ProductSe
             case BasketCmd cmd -> "Посмотреть корзину";
             case CatalogCmd cmd -> "Каталог товаров";
             case DoOrderCmd cmd -> "Оформить заказ";
-            case FolderCmd cmd -> "Папка " + PathUtil.getFolderName(cmd.path());
+            case FolderCmd cmd -> PathUtil.getFolderName(cmd.path());
             case IndexCmd cmd -> "На главную";
-            case InstructionCmd cmd -> "Инструкция к товару";
+            case InstructionCmd cmd -> "Описание товара";
             case ProductAboutCmd cmd -> productService.getById(cmd.productId()).ok().get().getName();
             case QuantityMinusCmd cmd -> "Убрать из корзины";
             case QuantityPlusCmd cmd -> "Добавить в корзину";
@@ -461,5 +486,81 @@ public record TelegramView(OkHttpTelegramClient client, Update update, ProductSe
         closeQuery(answerCallbackQuery);
         rewriteMessage(messageText, messageReplyMarkup);
 
+    }
+
+    private String getProductTableHeader() {
+        return PRODUCT_ROW_TABLE_TEMPLATE
+                .formatted(NAME_OF_PRODUCT, QUANTITY_OF_PRODUCT, TOTAL_SUM_OF_PRODUCT);
+    }
+
+    private String getProductTable(List<ProductRowDto> products) {
+        long maxProductNameLength = products.stream()
+                .map(ProductRowDto::product)
+                .map(Product::getName)
+                .mapToInt(String::length)
+                .map(i -> i + 5)
+                .max()
+                .orElseGet(() -> 0);
+
+        long maxQuantityLength = products.stream()
+                .map(this::quantityToString)
+                .mapToInt(String::length)
+                .map(i -> i + 5)
+                .max()
+                .orElseGet(() -> 0);
+
+        long maxTotalSumLength = products.stream()
+                .map(this::totalSumToString)
+                .mapToInt(String::length)
+                .map(i -> i + 5)
+                .max()
+                .orElseGet(() -> 0);
+
+        List<String> productRowStringList = products.stream()
+                .map(productRowDto ->
+                        getProductTableRow(productRowDto, maxProductNameLength, maxQuantityLength, maxTotalSumLength))
+                .map(rowStr -> rowStr.concat("\n"))
+                .toList();
+
+        String productTableHeader = getProductTableHeader() + "\n";
+        String productTable = Stream.concat(Stream.of(productTableHeader, "\n"), productRowStringList.stream())
+                .reduce("", String::concat);
+
+        return productTable;
+    }
+
+    private String getProductTableRow(ProductRowDto productRowDto, long maxName, long maxQuantity, long maxTotalSum) {
+        String quantityStr = quantityToString(productRowDto);
+        String totalSumStr = totalSumToString(productRowDto);
+        return getProductRow(
+                productRowDto.product().getName(),
+                quantityStr,
+                totalSumStr,
+                maxName,
+                maxQuantity,
+                maxTotalSum
+        );
+    }
+
+    private String getProductRow(String productName, String quantity, String totalSum, long maxName, long maxQuantity, long maxTotalSum) {
+        String nameNormalized = normalizeByPadding(productName, maxName);
+        String quantityNormalized = normalizeByPadding(quantity, maxQuantity);
+        String totalSumNormalized = normalizeByPadding(totalSum, maxTotalSum);
+        return PRODUCT_ROW_TABLE_TEMPLATE.formatted(nameNormalized, quantityNormalized, totalSumNormalized);
+    }
+
+    private String normalizeByPadding(String value, long maxLineLength) {
+        String template = new StringBuilder("%-").append(maxLineLength).append("s").toString();
+        return template.formatted(value);
+    }
+
+    private String quantityToString(ProductRowDto productRowDto) {
+        double costInRub = (double) productRowDto.product().getCost() / 100;
+        return QUANTITY_TEMPLATE.formatted(productRowDto.quantity(), costInRub);
+    }
+
+    private String totalSumToString(ProductRowDto productRowDto) {
+        double totalSumInRub = (double) productRowDto.product().getCost() * productRowDto.quantity() / 100;
+        return TOTAL_SUM_TEMPLATE.formatted(totalSumInRub);
     }
 }
