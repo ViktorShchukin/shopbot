@@ -7343,6 +7343,13 @@ var $author$project$Main$drawProductTableHeader = A2(
 			_List_fromArray(
 				[
 					$elm$html$Html$text($author$project$Main$path_str)
+				])),
+			A2(
+			$elm$html$Html$th,
+			_List_Nil,
+			_List_fromArray(
+				[
+					$elm$html$Html$text($author$project$Main$itemCode_str)
 				]))
 		]));
 var $elm$html$Html$table = _VirtualDom_node('table');

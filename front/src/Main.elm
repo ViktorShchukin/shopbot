@@ -450,6 +450,7 @@ drawProductTableHeader =
         , Html.th [] [ text cost_str ]
         , Html.th [] [ text description_str ]
         , Html.th [] [ text path_str ]
+        , Html.th [] [ text itemCode_str ]
         ]
 
 
