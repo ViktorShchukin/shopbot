@@ -1,6 +1,6 @@
 #!/bin/bash
 
-elm-format ./src
+elm-format ./src --yes
 
 elm make ./src/Main.elm --output=out/elm.js
 

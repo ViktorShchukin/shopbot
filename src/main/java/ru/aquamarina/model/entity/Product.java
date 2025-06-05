@@ -21,6 +21,8 @@ public class Product {
 
     private String path;
 
+    private Long itemCode;
+
     public UUID getId() {
         return id;
     }
@@ -59,5 +61,13 @@ public class Product {
 
     public void setPath(String path) {
         this.path = path;
+    }
+
+    public Long getItemCode() {
+        return itemCode;
+    }
+
+    public void setItemCode(Long itemCode) {
+        this.itemCode = itemCode;
     }
 }
