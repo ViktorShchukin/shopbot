@@ -31,13 +31,40 @@ public class TelegramUtils {
      * @return {@link NotSupportedUpdateType} {@link UserNotFound}
      */
     public Result<User, Error> getUser(Update update) {
-        return extractTelegramUserId(update)
+        Result<org.telegram.telegrambots.meta.api.objects.User, Error> telegramUser = extractTelegramUser(update);
+        return telegramUser
+                .mapValue(telUser -> telUser.getId())
                 // todo is it good idea just to create user. What if in future in will require more complicated initialization
-                .map(telegramInfoService::getOrCrateUserByTelegramId);
+                .map(telegramInfoService::getOrCrateUserByTelegramId)
+                .map(user -> telegramUser.mapValue(this::mapToDto)
+                        .map(dto -> telegramInfoService.update(
+                                dto.telegramId(),
+                                dto.firstName(),
+                                dto.lastName(),
+                                dto.username()))
+                        .map(info -> Result.ok(user))
+                );
     }
 
     /**
      * telegram userId can be used as chat id to send message
+     *
+     * @param update
+     * @return {@link NotSupportedUpdateType}
+     */
+    public static Result<org.telegram.telegrambots.meta.api.objects.User, Error> extractTelegramUser(Update update) {
+        if (update.hasMessage()) {
+            return Result.ok(update.getMessage().getFrom());
+        }
+        if (update.hasCallbackQuery()) {
+            return Result.ok(update.getCallbackQuery().getFrom());
+        }
+        return Result.error(new NotSupportedUpdateType(update));
+    }
+
+    /**
+     * telegram userId can be used as chat id to send message
+     *
      * @param update
      * @return {@link NotSupportedUpdateType}
      */
@@ -49,5 +76,13 @@ public class TelegramUtils {
             return Result.ok(update.getCallbackQuery().getFrom().getId());
         }
         return Result.error(new NotSupportedUpdateType(update));
+    }
+
+
+    static record TelegramUserDto(Long telegramId, String firstName, String lastName, String username) {
+    }
+
+    TelegramUserDto mapToDto(org.telegram.telegrambots.meta.api.objects.User user) {
+        return new TelegramUserDto(user.getId(), user.getFirstName(), user.getLastName(), user.getUserName());
     }
 }

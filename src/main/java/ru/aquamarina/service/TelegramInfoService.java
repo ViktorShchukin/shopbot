@@ -1,5 +1,6 @@
 package ru.aquamarina.service;
 
+import io.micronaut.data.exceptions.DataAccessException;
 import io.micronaut.validation.Validated;
 import jakarta.inject.Singleton;
 import jakarta.transaction.Transactional;
@@ -50,12 +51,41 @@ public class TelegramInfoService {
     }
 
     @Transactional
-    public Result<TelegramInfo, Error> create(@NotNull long telegramId, @NotNull UUID userId) {
+    public Result<TelegramInfo, Error> create(@NotNull long telegramId,
+                                              @NotNull UUID userId,
+                                              String firstName,
+                                              String lastName,
+                                              String userName,
+                                              Boolean updated) {
         // todo get rid of try-catch block
         try {
-            TelegramInfo newO = telegramInfoUtil.create(telegramId, userId);
+            TelegramInfo newO = telegramInfoUtil.create(
+                    telegramId,
+                    userId,
+                    firstName,
+                    lastName,
+                    userName,
+                    updated
+            );
             return Result.ok(telegramInfoRepository.save(newO));
         } catch (Exception e) {
+            return Result.error(new IoError(e));
+        }
+    }
+
+    @Transactional
+    public Result<TelegramInfo, Error> update(Long telegramId,
+                                              String firstName,
+                                              String lastName,
+                                              String userName) {
+        try {
+            return telegramInfoRepository
+                    .findById(telegramId)
+                    .map(info -> telegramInfoUtil.update(info, firstName, lastName, userName))
+                    .map(telegramInfoRepository::update)
+                    .map(Result::<TelegramInfo, Error>ok)
+                    .orElseGet(() -> Result.error(new NotFound("this telegram info not found")));
+        } catch (DataAccessException e) {
             return Result.error(new IoError(e));
         }
     }
@@ -80,7 +110,7 @@ public class TelegramInfoService {
             }
             case ResultError error -> {
                 var user = userService.create(null, UserRole.CUSTOMER);
-                user.map(usr -> create(telegramId, usr.getId()));
+                user.map(usr -> create(telegramId, usr.getId(), null, null, null, false));
                 // todo not save. Think how to do user.create and telegramInfo.create as transactional operation
                 return user;
             }
@@ -105,6 +135,7 @@ public class TelegramInfoService {
         }
     }
 
+    @Transactional
     public List<TelegramInfo> getByUserRole(UserRole userRole) {
         return telegramInfoRepository.getByUserRole(userRole);
     }

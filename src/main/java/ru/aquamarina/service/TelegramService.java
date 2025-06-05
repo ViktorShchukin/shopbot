@@ -48,7 +48,13 @@ public class TelegramService {
                 .map(String::valueOf)
                 // todo get rid of get() call
                 .get();
-        messageText = messageText + "\n" + "[клиент](tg://user?id=%s)".formatted(clientId);
+        String clientUserName = userService.getUser(order.getUserId())
+                .map(telegramInfoService::getByUser)
+                .flatMap(res -> res.ok())
+                .map(TelegramInfo::getUserName)
+                .get();
+
+        messageText = messageText + "\n" + "[@%s](tg://user?id=%s)".formatted(clientUserName, clientId);
 
         SendMessage.SendMessageBuilder messageBuilder = SendMessage.builder()
                 .text(messageText)
