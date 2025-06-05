@@ -14,6 +14,7 @@ import ru.aquamarina.model.error.NotSupportedCommand;
 import ru.aquamarina.util.Result;
 
 import java.util.List;
+import java.util.Objects;
 
 public class ProductAboutState implements FsmState {
 
@@ -35,6 +36,7 @@ public class ProductAboutState implements FsmState {
     public Result<FsmState, Error> doWork(FsmContextHolder context, Command command) {
         return switch (command) {
             case QuantityMinusCmd qm -> {
+                assert Objects.equals(qm.productId(), product.getId());
                 long resQuantity = productQuantity == 0 ? 0 : productQuantity - 1;
                 if (resQuantity == 0) {
                     yield context.getBasketService().deleteFromBasket(user, product)
@@ -45,6 +47,7 @@ public class ProductAboutState implements FsmState {
                 }
             }
             case QuantityPlusCmd qp -> {
+                assert Objects.equals(qp.productId(), product.getId());
                 long resQuantity = productQuantity + 1;
                 context.getBasketService().addToBasket(user, product, resQuantity);
                 yield Result.ok(new ProductAboutState(user, product, resQuantity));

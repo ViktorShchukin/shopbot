@@ -19,6 +19,7 @@ import ru.aquamarina.api.dto.ProductRowDto;
 import ru.aquamarina.api.mapper.ProductMapper;
 import ru.aquamarina.fsm.form.*;
 import ru.aquamarina.model.command.*;
+import ru.aquamarina.model.entity.BasketRow;
 import ru.aquamarina.model.entity.Folder;
 import ru.aquamarina.model.entity.Product;
 import ru.aquamarina.model.error.Error;
@@ -214,8 +215,8 @@ public record TelegramView(OkHttpTelegramClient client, Update update, ProductSe
                 getButton(String.valueOf(form.quantity()), new DoNothing(null))
         ));
         keyboardRowList.add(new InlineKeyboardRow(
-                getButton(new QuantityMinusCmd(null)),
-                getButton(new QuantityPlusCmd(null))
+                getButton(new QuantityMinusCmd(null, product.getId())),
+                getButton(new QuantityPlusCmd(null, product.getId()))
         ));
         keyboardRowList.add(new InlineKeyboardRow(
                 getButton(new BasketCmd(null)),
@@ -308,16 +309,6 @@ public record TelegramView(OkHttpTelegramClient client, Update update, ProductSe
                 return;
             }
         }
-        List<InlineKeyboardRow> keyboardRowList = new ArrayList<>();
-        InlineKeyboardRow keyboardRow = new InlineKeyboardRow(
-                getButton(new DoOrderCmd(null)),
-                getButton(new CatalogCmd(null))
-        );
-        InlineKeyboardRow clearBasketRow = new InlineKeyboardRow(
-                getButton(new ClearBasketCmd(null))
-        );
-        keyboardRowList.add(keyboardRow);
-        keyboardRowList.add(clearBasketRow);
 
         List<ProductRowDto> products = form.rows().stream()
                 .map(basketRow -> productMapper.mapTo(basketRow, productService::getById))
@@ -326,6 +317,26 @@ public record TelegramView(OkHttpTelegramClient client, Update update, ProductSe
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .toList();
+
+        List<InlineKeyboardRow> keyboardRowList = new ArrayList<>();
+        products.forEach(productRowDto -> {
+            var keyBoardRow = new InlineKeyboardRow(
+                    getButton(productRowDto.product().getName(), new ProductAboutCmd(null, productRowDto.product().getId())),
+                    getButton("-", new QuantityMinusCmd(null, productRowDto.product().getId())),
+                    getButton("+", new QuantityPlusCmd(null, productRowDto.product().getId()))
+            );
+            keyboardRowList.add(keyBoardRow);
+        });
+        InlineKeyboardRow clearBasketRow = new InlineKeyboardRow(
+                getButton(new ClearBasketCmd(null))
+        );
+        InlineKeyboardRow keyboardRow = new InlineKeyboardRow(
+                getButton(new DoOrderCmd(null)),
+                getButton(new CatalogCmd(null))
+        );
+        keyboardRowList.add(clearBasketRow);
+        keyboardRowList.add(keyboardRow);
+
 
         String productTable = getProductTable(products);
         String messageText = "Корзина" + "\n\n" + productTable + "\n" + "Сумма: " + (double) form.totalCost() / 100;

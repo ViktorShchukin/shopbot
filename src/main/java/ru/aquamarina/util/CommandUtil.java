@@ -11,7 +11,7 @@ public class CommandUtil {
 
     private static Logger log = LoggerFactory.getLogger(CommandUtil.class);
 
-    public static Result<UUID, Error> parseProductAboutCmd(String cmd) {
+    public static Result<UUID, Error> parseCmdWithUuidArg(String cmd) {
         return stringToUuid(cmd.split("\\?")[1]);
     }
 

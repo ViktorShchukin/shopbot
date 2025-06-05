@@ -11,9 +11,11 @@ import ru.aquamarina.model.entity.User;
 import ru.aquamarina.model.error.CanNotDoOrder;
 import ru.aquamarina.model.error.Error;
 import ru.aquamarina.model.error.NotSupportedCommand;
+import ru.aquamarina.service.BasketService;
 import ru.aquamarina.util.Result;
 
 import java.util.List;
+import java.util.Objects;
 
 public class BasketState implements FsmState {
 
@@ -47,8 +49,33 @@ public class BasketState implements FsmState {
                         context.getBasketService().clearBasket(basket);
                         return Result.ok(new BasketState(user));
                     });
+            case QuantityMinusCmd qm -> context.getBasketService()
+                    .getBasketRow(user, qm.productId())
+                    .mapValue(BasketRow::getQuantity)
+                    .mapValue(quantity -> quantity == 0 ? 0 : quantity - 1)
+                    .map(quantity -> {
+                        if (quantity == 0) {
+                            return context.getBasketService().deleteFromBasket(user, qm.productId());
+                        } else {
+                            return context.getBasketService().addToBasket(user, qm.productId(), quantity);
+                        }
+                    })
+                    .map(updatedRow -> Result.<FsmState, Error>ok(new BasketState(user)));
+            case QuantityPlusCmd qp -> context.getBasketService()
+                    .getBasketRow(user, qp.productId())
+                    .mapValue(BasketRow::getQuantity)
+                    .mapValue(quantity -> quantity + 1)
+                    .map(quantity -> context.getBasketService().addToBasket(user, qp.productId(), quantity))
+                    .map(updatedRow -> Result.<FsmState, Error>ok(new BasketState(user)));
+            case ProductAboutCmd pbt -> context.getProductService().getById(pbt.productId())
+                    .map(product -> context.getBasketService()
+                            .getBasketRow(user, pbt.productId())
+                            .mapValue(basketRow -> new ProductAboutState(user, product, basketRow.getQuantity()))
+                    );
             default -> Result.error(new NotSupportedCommand());
-        };
+        }
+
+                ;
     }
 
     @Override
