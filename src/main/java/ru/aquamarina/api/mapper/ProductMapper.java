@@ -2,6 +2,7 @@ package ru.aquamarina.api.mapper;
 
 import org.mapstruct.Mapper;
 import ru.aquamarina.api.dto.ProductRowDto;
+import ru.aquamarina.config.AppMapperConfig;
 import ru.aquamarina.model.entity.BasketRow;
 import ru.aquamarina.model.entity.OrderRow;
 import ru.aquamarina.model.entity.Product;
@@ -11,7 +12,7 @@ import ru.aquamarina.util.Result;
 import java.util.UUID;
 import java.util.function.Function;
 
-@Mapper
+@Mapper(config = AppMapperConfig.class)
 public interface ProductMapper {
 
     default Result<ProductRowDto, Error> mapTo(BasketRow basketRow, Function<UUID, Result<Product, Error>> productGetter) {

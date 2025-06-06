@@ -39,14 +39,6 @@ public record TelegramView(OkHttpTelegramClient client, Update update, ProductSe
     private static final Logger log = LoggerFactory.getLogger(TelegramView.class);
     private static final ProductMapper productMapper = Mappers.getMapper(ProductMapper.class);
 
-    // | productName | quantity | totalSumByThisPosition |
-    private static final String PRODUCT_ROW_TABLE_TEMPLATE = " %s  %s  %s ";
-    private static final String NAME_OF_PRODUCT = "Название";
-    private static final String QUANTITY_OF_PRODUCT = "Кол-во";
-    private static final String TOTAL_SUM_OF_PRODUCT = "Итог";
-
-    private static final String QUANTITY_TEMPLATE = "%dx%.2f";
-    private static final String TOTAL_SUM_TEMPLATE = "%.2f";
 
     @Override
     public void drawAboutForm(AboutForm form) {
@@ -275,7 +267,7 @@ public record TelegramView(OkHttpTelegramClient client, Update update, ProductSe
                 .map(Optional::get)
                 .toList();
 
-        String productTable = getProductTable(products);
+        String productTable = TelegramUtils.getProductTable(products);
         String messageText = productTable + "\n" + "Сумма заказа: " + (double) form.totalCost() / 100 + "\n\nСпасибо за заказ.\nМы свяжемся с вами позже.";
 
         var keyBoard = InlineKeyboardMarkup.builder()
@@ -337,7 +329,7 @@ public record TelegramView(OkHttpTelegramClient client, Update update, ProductSe
         keyboardRowList.add(keyboardRow);
 
 
-        String productTable = getProductTable(products);
+        String productTable = TelegramUtils.getProductTable(products);
         String messageText = "Корзина" + "\n\n" + productTable + "\n" + "Сумма: " + (double) form.totalCost() / 100;
 
         var keyBoard = InlineKeyboardMarkup.builder()
@@ -578,79 +570,5 @@ public record TelegramView(OkHttpTelegramClient client, Update update, ProductSe
 
     }
 
-    private String getProductTableHeader() {
-        return PRODUCT_ROW_TABLE_TEMPLATE
-                .formatted(NAME_OF_PRODUCT, QUANTITY_OF_PRODUCT, TOTAL_SUM_OF_PRODUCT);
-    }
 
-    private String getProductTable(List<ProductRowDto> products) {
-        long maxProductNameLength = products.stream()
-                .map(ProductRowDto::product)
-                .map(Product::getName)
-                .mapToInt(String::length)
-                .map(i -> i + 5)
-                .max()
-                .orElseGet(() -> 0);
-
-        long maxQuantityLength = products.stream()
-                .map(this::quantityToString)
-                .mapToInt(String::length)
-                .map(i -> i + 5)
-                .max()
-                .orElseGet(() -> 0);
-
-        long maxTotalSumLength = products.stream()
-                .map(this::totalSumToString)
-                .mapToInt(String::length)
-                .map(i -> i + 5)
-                .max()
-                .orElseGet(() -> 0);
-
-        List<String> productRowStringList = products.stream()
-                .map(productRowDto ->
-                        getProductTableRow(productRowDto, maxProductNameLength, maxQuantityLength, maxTotalSumLength))
-                .map(rowStr -> rowStr.concat("\n"))
-                .toList();
-
-        String productTableHeader = getProductTableHeader() + "\n";
-        String productTable = Stream.concat(Stream.of(productTableHeader, "\n"), productRowStringList.stream())
-                .reduce("", String::concat);
-
-        return productTable;
-    }
-
-    private String getProductTableRow(ProductRowDto productRowDto, long maxName, long maxQuantity, long maxTotalSum) {
-        String quantityStr = quantityToString(productRowDto);
-        String totalSumStr = totalSumToString(productRowDto);
-        return getProductRow(
-                productRowDto.product().getName(),
-                quantityStr,
-                totalSumStr,
-                maxName,
-                maxQuantity,
-                maxTotalSum
-        );
-    }
-
-    private String getProductRow(String productName, String quantity, String totalSum, long maxName, long maxQuantity, long maxTotalSum) {
-        String nameNormalized = normalizeByPadding(productName, maxName);
-        String quantityNormalized = normalizeByPadding(quantity, maxQuantity);
-        String totalSumNormalized = normalizeByPadding(totalSum, maxTotalSum);
-        return PRODUCT_ROW_TABLE_TEMPLATE.formatted(nameNormalized, quantityNormalized, totalSumNormalized);
-    }
-
-    private String normalizeByPadding(String value, long maxLineLength) {
-        String template = "%-" + maxLineLength + "s";
-        return template.formatted(value);
-    }
-
-    private String quantityToString(ProductRowDto productRowDto) {
-        double costInRub = (double) productRowDto.product().getCost() / 100;
-        return QUANTITY_TEMPLATE.formatted(productRowDto.quantity(), costInRub);
-    }
-
-    private String totalSumToString(ProductRowDto productRowDto) {
-        double totalSumInRub = (double) productRowDto.product().getCost() * productRowDto.quantity() / 100;
-        return TOTAL_SUM_TEMPLATE.formatted(totalSumInRub);
-    }
 }
