@@ -13,7 +13,6 @@ import ru.aquamarina.model.error.Error;
 import ru.aquamarina.model.error.NotSupportedCommand;
 import ru.aquamarina.util.Result;
 
-import java.util.List;
 import java.util.Objects;
 
 public class ProductAboutState implements FsmState {

@@ -11,8 +11,6 @@ import ru.aquamarina.model.error.Error;
 import ru.aquamarina.model.error.NotSupportedCommand;
 import ru.aquamarina.util.Result;
 
-import java.util.List;
-
 public class IndexState implements FsmState {
 
     public static final String NAME = "Start";

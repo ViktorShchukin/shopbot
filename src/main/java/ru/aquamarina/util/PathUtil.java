@@ -13,7 +13,7 @@ public class PathUtil {
                 .map(sub -> sub.split("/"))
                 .flatMap(Arrays::stream)
                 .findFirst()
-                .map(sub -> new StringBuilder(currentDirectory).append(sub).append("/").toString())
+                .map(sub -> currentDirectory + sub + "/")
                 // todo not safe to call get. redo this.
                 .get();
 
@@ -32,6 +32,6 @@ public class PathUtil {
         String folderEnding = folderPath.substring(currentPath.length());
         String[] split = folderEnding.split("/");
         String folderName = split[0];
-        return new StringBuilder(currentPath).append(folderName).append("/").toString();
+        return currentPath + folderName + "/";
     }
 }

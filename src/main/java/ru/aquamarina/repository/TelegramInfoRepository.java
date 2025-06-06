@@ -6,7 +6,6 @@ import io.micronaut.data.model.query.builder.sql.Dialect;
 import io.micronaut.data.repository.PageableRepository;
 import ru.aquamarina.model.UserRole;
 import ru.aquamarina.model.entity.TelegramInfo;
-import ru.aquamarina.model.entity.User;
 
 import java.util.List;
 import java.util.Optional;

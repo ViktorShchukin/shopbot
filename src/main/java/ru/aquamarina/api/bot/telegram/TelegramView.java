@@ -19,7 +19,6 @@ import ru.aquamarina.api.dto.ProductRowDto;
 import ru.aquamarina.api.mapper.ProductMapper;
 import ru.aquamarina.fsm.form.*;
 import ru.aquamarina.model.command.*;
-import ru.aquamarina.model.entity.BasketRow;
 import ru.aquamarina.model.entity.Folder;
 import ru.aquamarina.model.entity.Product;
 import ru.aquamarina.model.error.Error;
@@ -642,7 +641,7 @@ public record TelegramView(OkHttpTelegramClient client, Update update, ProductSe
     }
 
     private String normalizeByPadding(String value, long maxLineLength) {
-        String template = new StringBuilder("%-").append(maxLineLength).append("s").toString();
+        String template = "%-" + maxLineLength + "s";
         return template.formatted(value);
     }
 

@@ -10,9 +10,6 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.aquamarina.model.UserRole;
 import ru.aquamarina.model.entity.Order;
 import ru.aquamarina.model.entity.TelegramInfo;
-import ru.aquamarina.model.entity.User;
-import ru.aquamarina.model.error.Error;
-import ru.aquamarina.util.Result;
 
 import java.util.List;
 

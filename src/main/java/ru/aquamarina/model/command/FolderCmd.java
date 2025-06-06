@@ -13,6 +13,6 @@ public record FolderCmd(User user, String path) implements Command {
 
     @Override
     public String toString() {
-        return new StringBuilder(NAME).append("?").append(path).toString();
+        return NAME + "?" + path;
     }
 }

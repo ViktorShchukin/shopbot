@@ -9,7 +9,7 @@ import java.util.UUID;
 
 public class CommandUtil {
 
-    private static Logger log = LoggerFactory.getLogger(CommandUtil.class);
+    private static final Logger log = LoggerFactory.getLogger(CommandUtil.class);
 
     public static Result<UUID, Error> parseCmdWithUuidArg(String cmd) {
         return stringToUuid(cmd.split("\\?")[1]);

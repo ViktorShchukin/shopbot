@@ -79,7 +79,7 @@ public class TelegramUtils {
     }
 
 
-    static record TelegramUserDto(Long telegramId, String firstName, String lastName, String username) {
+    record TelegramUserDto(Long telegramId, String firstName, String lastName, String username) {
     }
 
     TelegramUserDto mapToDto(org.telegram.telegrambots.meta.api.objects.User user) {

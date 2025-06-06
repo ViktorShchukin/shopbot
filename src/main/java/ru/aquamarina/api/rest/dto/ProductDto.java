@@ -1,8 +1,6 @@
 package ru.aquamarina.api.rest.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import io.micronaut.data.annotation.Id;
 import io.micronaut.serde.annotation.Serdeable;
 
 import java.util.UUID;

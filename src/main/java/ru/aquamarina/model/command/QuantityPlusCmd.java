@@ -16,6 +16,6 @@ public record QuantityPlusCmd(User user, UUID productId) implements Command {
 
     @Override
     public String toString() {
-        return new StringBuilder(NAME).append("?").append(productId).toString();
+        return NAME + "?" + productId;
     }
 }

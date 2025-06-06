@@ -4,18 +4,15 @@ import ru.aquamarina.fsm.FsmContextHolder;
 import ru.aquamarina.fsm.form.BasketForm;
 import ru.aquamarina.fsm.form.Form;
 import ru.aquamarina.model.command.*;
-import ru.aquamarina.model.entity.Basket;
 import ru.aquamarina.model.entity.BasketRow;
 import ru.aquamarina.model.entity.Product;
 import ru.aquamarina.model.entity.User;
 import ru.aquamarina.model.error.CanNotDoOrder;
 import ru.aquamarina.model.error.Error;
 import ru.aquamarina.model.error.NotSupportedCommand;
-import ru.aquamarina.service.BasketService;
 import ru.aquamarina.util.Result;
 
 import java.util.List;
-import java.util.Objects;
 
 public class BasketState implements FsmState {
 

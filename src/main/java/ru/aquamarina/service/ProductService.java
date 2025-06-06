@@ -9,11 +9,9 @@ import ru.aquamarina.model.error.IoError;
 import ru.aquamarina.model.error.NotFound;
 import ru.aquamarina.model.error.ProductNotFound;
 import ru.aquamarina.repository.ProductRepository;
-import ru.aquamarina.util.PathUtil;
 import ru.aquamarina.util.Result;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Singleton
