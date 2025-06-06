@@ -6,7 +6,6 @@ import java.util.UUID;
 
 public record ProductAboutCmd(User user, UUID productId) implements Command {
 
-    // todo think how to pass product name
     public static final String NAME = "productAbout";
 
     @Override

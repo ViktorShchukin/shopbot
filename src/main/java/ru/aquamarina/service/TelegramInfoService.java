@@ -138,4 +138,6 @@ public class TelegramInfoService {
     public List<TelegramInfo> getByUserRole(UserRole userRole) {
         return telegramInfoRepository.getByUserRole(userRole);
     }
+
+
 }

@@ -12,6 +12,7 @@ import ru.aquamarina.model.error.ExceptionWrapperError;
 import ru.aquamarina.model.error.IoError;
 import ru.aquamarina.model.error.NotFound;
 import ru.aquamarina.repository.BasketRepository;
+import ru.aquamarina.util.BasketMapper;
 import ru.aquamarina.util.Result;
 
 import java.util.List;
@@ -23,10 +24,12 @@ import java.util.UUID;
 public class BasketService {
 
     private final BasketRepository basketRepository;
+    private final BasketMapper basketMapper;
 
 
-    public BasketService(BasketRepository basketRepository) {
+    public BasketService(BasketRepository basketRepository, BasketMapper basketMapper) {
         this.basketRepository = basketRepository;
+        this.basketMapper = basketMapper;
     }
 
     public Result<Basket, Error> getByUser(User user) {
@@ -45,10 +48,7 @@ public class BasketService {
 
     @Transactional
     public Basket create(User user) {
-        // todo make creation of entity with mapper
-        Basket created = new Basket();
-        created.setId(UUID.randomUUID());
-        created.setUserId(user.getId());
+        Basket created = basketMapper.create(user.getId());
         return basketRepository.save(created);
     }
 

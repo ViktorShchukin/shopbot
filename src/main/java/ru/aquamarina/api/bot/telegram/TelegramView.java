@@ -506,7 +506,6 @@ public record TelegramView(OkHttpTelegramClient client, Update update, ProductSe
 
     @Override
     public void draw(Error error) {
-        // todo implement this
         log.error("=== error inside the app: {}", error.toString());
     }
 

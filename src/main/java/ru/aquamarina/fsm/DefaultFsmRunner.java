@@ -50,7 +50,6 @@ public class DefaultFsmRunner implements FsmRunner {
             case ForWholesalerState.NAME -> Result.ok(new ForWholesalerState(user));
             case PayAndDeliveryState.NAME -> Result.ok(new PayAndDeliveryState(user));
             case BasketState.NAME -> Result.ok(new BasketState(user));
-            // todo i did it so because it is easier than store path for catalog. and has no effect. bu in perfect should persist path
             case CatalogState.NAME -> Result.ok(new CatalogState(user, "/"));
             case IndexState.NAME -> Result.ok(new IndexState(user));
             case InitState.NAME -> Result.ok(new InitState(user));

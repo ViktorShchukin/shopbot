@@ -32,7 +32,6 @@ public class TelegramUtils {
         Result<org.telegram.telegrambots.meta.api.objects.User, Error> telegramUser = extractTelegramUser(update);
         return telegramUser
                 .mapValue(telUser -> telUser.getId())
-                // todo is it good idea just to create user. What if in future in will require more complicated initialization
                 .map(telegramInfoService::getOrCrateUserByTelegramId)
                 .map(user -> telegramUser.mapValue(this::mapToDto)
                         .map(dto -> telegramInfoService.update(

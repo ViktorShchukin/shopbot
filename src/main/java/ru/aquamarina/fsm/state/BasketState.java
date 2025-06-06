@@ -20,7 +20,6 @@ public class BasketState implements FsmState {
 
     private final User user;
     // todo make serialization to store the basket or basket id
-//    private final Basket basket;
 
     public BasketState(User user) {
         this.user = user;
