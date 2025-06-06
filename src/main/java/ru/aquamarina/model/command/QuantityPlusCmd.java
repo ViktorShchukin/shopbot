@@ -1,6 +1,5 @@
 package ru.aquamarina.model.command;
 
-import ru.aquamarina.model.entity.Product;
 import ru.aquamarina.model.entity.User;
 
 import java.util.UUID;

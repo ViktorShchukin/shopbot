@@ -8,12 +8,12 @@ public sealed interface Result<R,E> permits ResultOk, ResultError {
 
     static <R, E> Result<R,E> ok(R result) {
         Objects.requireNonNull(result);
-        return new ResultOk(result);
+        return new ResultOk<R, E>(result);
     }
 
     static <R, E> Result<R, E> error(E error) {
         Objects.requireNonNull(error);
-        return new ResultError(error);
+        return new ResultError<R, E>(error);
     }
 
     // todo think about it

@@ -107,7 +107,7 @@ public class TelegramInfoService {
             case ResultOk<User, Error> ok -> {
                 return ok;
             }
-            case ResultError error -> {
+            case ResultError<User, Error> error -> {
                 var user = userService.create(null, UserRole.CUSTOMER);
                 user.map(usr -> create(telegramId, usr.getId(), null, null, null, false));
                 // todo not save. Think how to do user.create and telegramInfo.create as transactional operation

@@ -19,11 +19,9 @@ public class TelegramUtils {
     private final Logger log = LoggerFactory.getLogger(TelegramUtils.class);
 
     private final TelegramInfoService telegramInfoService;
-    private final OkHttpTelegramClient client;
 
-    public TelegramUtils(TelegramInfoService telegramInfoService, OkHttpTelegramClient client) {
+    public TelegramUtils(TelegramInfoService telegramInfoService) {
         this.telegramInfoService = telegramInfoService;
-        this.client = client;
     }
 
     /**
