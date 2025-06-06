@@ -55,6 +55,6 @@ public class ProductInstructionState implements FsmState {
 
     @Override
     public String toString() {
-        return NAME + "?" + product.getName();
+        return NAME + "?" + product.getId().toString();
     }
 }

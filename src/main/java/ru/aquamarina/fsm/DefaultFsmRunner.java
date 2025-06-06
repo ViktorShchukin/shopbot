@@ -11,6 +11,7 @@ import ru.aquamarina.model.error.Error;
 import ru.aquamarina.model.error.UnknownState;
 import ru.aquamarina.service.OrderService;
 import ru.aquamarina.service.UserService;
+import ru.aquamarina.util.CommandUtil;
 import ru.aquamarina.util.Result;
 
 import java.util.UUID;
@@ -53,20 +54,18 @@ public class DefaultFsmRunner implements FsmRunner {
             case CatalogState.NAME -> Result.ok(new CatalogState(user, "/"));
             case IndexState.NAME -> Result.ok(new IndexState(user));
             case InitState.NAME -> Result.ok(new InitState(user));
-            case String str when str.contains(OrderState.NAME) -> {
-                UUID orderId = UUID.fromString(str.split("\\?")[1]);
-                yield orderService.findById(orderId)
-                        .map(order -> Result.ok(new OrderState(user, order)));
-            }
+            case String str when str.contains(OrderState.NAME) -> CommandUtil.parseCmdWithUuidArg(str)
+                    .map(id -> orderService.findById(id))
+                    .map(order -> Result.ok(new OrderState(user, order)));
             case String str when str.contains(ProductAboutState.NAME) -> {
                 long quantity = Long.parseLong(str.split("\\?")[2]);
-                yield fsmContextHolder.getProductService()
-                        .getByName(str.split("\\?")[1])
+                yield CommandUtil.parseCmdWithUuidArg(str)
+                        .map(id -> fsmContextHolder.getProductService().getById(id))
                         .map(product -> Result.ok(new ProductAboutState(user, product, quantity)));
             }
-            case  String str when str.contains(ProductInstructionState.NAME) -> fsmContextHolder.getProductService()
-                      .getByName(str.split("\\?")[1])
-                      .map(product -> Result.ok(new ProductInstructionState(user, product)));
+            case String str when str.contains(ProductInstructionState.NAME) -> CommandUtil.parseCmdWithUuidArg(str)
+                    .map(id -> fsmContextHolder.getProductService().getById(id))
+                    .map(product -> Result.ok(new ProductInstructionState(user, product)));
             case ErrorState.NAME -> Result.ok(new ErrorState(user));
             default -> Result.error(new UnknownState());
         };

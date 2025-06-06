@@ -73,6 +73,6 @@ public class ProductAboutState implements FsmState {
 
     @Override
     public String toString() {
-        return NAME + "?" + product.getName() + "?" + productQuantity;
+        return NAME + "?" + product.getId().toString() + "?" + productQuantity;
     }
 }
