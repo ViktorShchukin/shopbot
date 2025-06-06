@@ -19,7 +19,9 @@ public interface View {
 
     void drawBasketForm(BasketForm form);
 
-    void drawForWholesalerForm(ForWholesalerForm forWholesalerForm);
+    void drawForWholesalerForm(ForWholesalerForm form);
 
-    void drawPayAndDeliveryFormForm(PayAndDeliveryForm payAndDeliveryForm);
+    void drawPayAndDeliveryFormForm(PayAndDeliveryForm form);
+
+    void drawProductInstructionForm(ProductInstructionForm form);
 }

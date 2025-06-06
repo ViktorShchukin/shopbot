@@ -43,6 +43,11 @@ add_str =
     "Добавить"
 
 
+itemCode_str : String
+itemCode_str =
+    "Артикул"
+
+
 
 -- main
 
@@ -75,7 +80,7 @@ type alias Model =
 init : () -> ( Model, Cmd Msg )
 init _ =
     ( { products = []
-      , productToAdd = Product "" "" 0 "" ""
+      , productToAdd = Product "" "" 0 "" "" 0
       , productToUpdate = []
       }
     , getAllProduct GotProducts
@@ -97,11 +102,13 @@ type Msg
     | GotProductCostToAdd String
     | GotProductDescriptionToAdd String
     | GotProductPathToAdd String
+    | GotProductItemCodeToAdd String
       --
     | GotProductNameToUpdate Product String
     | GotProductCostToUpdate Product String
     | GotProductDescriptionToUpdate Product String
     | GotProductPathToUpdate Product String
+    | GotProductItemCodeToUpdate Product String
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -169,6 +176,14 @@ update msg model =
                 False ->
                     ( model, Cmd.none )
 
+        GotProductItemCodeToAdd str ->
+            case String.toInt str of
+                Just code ->
+                    ( { model | productToAdd = updateProductItemCode model.productToAdd code }, Cmd.none )
+
+                Nothing ->
+                    ( model, Cmd.none )
+
         GotProductNameToUpdate prod str ->
             ( gotProductNameToUpdate model prod str, Cmd.none )
 
@@ -190,6 +205,14 @@ update msg model =
                     ( gotProductPathToUpdate model prod pth, Cmd.none )
 
                 False ->
+                    ( model, Cmd.none )
+
+        GotProductItemCodeToUpdate prod str ->
+            case String.toInt str of
+                Just code ->
+                    ( gotProductItemCodeToUpdate model prod code, Cmd.none )
+
+                Nothing ->
                     ( model, Cmd.none )
 
 
@@ -339,6 +362,32 @@ gotProductPathToUpdate model prod str =
     { model | productToUpdate = productList }
 
 
+gotProductItemCodeToUpdate : Model -> Product -> Int -> Model
+gotProductItemCodeToUpdate model prod code =
+    let
+        productList =
+            case findProductById model.productToUpdate prod.id of
+                Just product ->
+                    let
+                        updated =
+                            updateProductItemCode product code
+                    in
+                    List.map
+                        (\prod1 ->
+                            if prod1.id == updated.id then
+                                updated
+
+                            else
+                                prod1
+                        )
+                        model.productToUpdate
+
+                Nothing ->
+                    List.append model.productToUpdate [ updateProductItemCode prod code ]
+    in
+    { model | productToUpdate = productList }
+
+
 findProductById : List Product -> String -> Maybe Product
 findProductById productList id =
     List.filter (\prod -> prod.id == id) productList |> List.head
@@ -369,6 +418,11 @@ updateProductPath product pth =
     { product | path = pth }
 
 
+updateProductItemCode : Product -> Int -> Product
+updateProductItemCode product code =
+    { product | itemCode = code }
+
+
 
 -- view
 
@@ -396,6 +450,7 @@ drawProductTableHeader =
         , Html.th [] [ text cost_str ]
         , Html.th [] [ text description_str ]
         , Html.th [] [ text path_str ]
+        , Html.th [] [ text itemCode_str ]
         ]
 
 
@@ -426,6 +481,14 @@ drawProductRow model product =
                 ]
                 []
             ]
+        , Html.td []
+            [ text <| String.padLeft 4 '0' <| String.fromInt product.itemCode
+            , Html.input
+                [ Html.Events.onInput <| GotProductItemCodeToUpdate product
+                , Html.Attributes.placeholder itemCode_str
+                ]
+                []
+            ]
         , Html.td [] [ Html.button [ Html.Events.onClick <| UpdateProduct product ] [ text update_str ] ]
         ]
 
@@ -440,6 +503,11 @@ drawAddProductForm model =
             [ Html.Events.onInput GotProductPathToAdd
             , Html.Attributes.placeholder path_str
             , Html.Attributes.value model.productToAdd.path
+            ]
+            []
+        , Html.input
+            [ Html.Events.onInput GotProductItemCodeToAdd
+            , Html.Attributes.placeholder itemCode_str
             ]
             []
         , Html.button [ Html.Events.onClick AddProduct ] [ text add_str ]

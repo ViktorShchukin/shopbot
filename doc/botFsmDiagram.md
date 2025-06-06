@@ -49,6 +49,7 @@ Instruction --> ProductAbout : productAbout
 
 Basket --> Index : index
 Basket --> Order : doOrder
+Basket --> Basket : clearBasket
 
 Order --> Index : index
 ```

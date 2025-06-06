@@ -70,7 +70,7 @@ public class ProductController {
             return HttpResponse.badRequest();
         }
         Result<ProductDto, Error> res = productService
-                .create(dto.getName(), dto.getCost(), dto.getDescription(), dto.getPath())
+                .create(dto.getName(), dto.getCost(), dto.getDescription(), dto.getPath(), dto.getItemCode())
                 .mapValue(productMapper::mapTo);
 
         return switch (res) {
@@ -100,7 +100,13 @@ public class ProductController {
             return HttpResponse.badRequest();
         }
         Result<ProductDto, Error> res = productService.getById(id)
-                .map(product -> productService.update(product, dto.getName(), dto.getCost(), dto.getDescription(), dto.getPath()))
+                .map(product -> productService.update(product,
+                        dto.getName(),
+                        dto.getCost(),
+                        dto.getDescription(),
+                        dto.getPath(),
+                        dto.getItemCode()
+                ))
                 .mapValue(productMapper::mapTo);
 
         return switch (res) {

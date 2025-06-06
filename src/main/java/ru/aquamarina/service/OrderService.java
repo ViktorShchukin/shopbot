@@ -12,7 +12,6 @@ import ru.aquamarina.repository.OrderRepository;
 import ru.aquamarina.util.Result;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Singleton
@@ -35,7 +34,7 @@ public class OrderService {
         );
         List<BasketRow> rows = basketService.getBasketRow(basket);
         rows.forEach(row -> orderRepository.addToOrder(order.getId(), row.getProductId(), row.getQuantity()));
-        basketService.cleanBasket(basket);
+        basketService.clearBasket(basket);
         return order;
     }
 

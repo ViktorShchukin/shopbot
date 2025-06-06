@@ -16,6 +16,7 @@ type alias Product =
     , cost : Int
     , description : String
     , path : String
+    , itemCode : Int
     }
 
 
@@ -25,21 +26,24 @@ type alias Product =
 
 productDecoder : De.Decoder Product
 productDecoder =
-    De.map5 Product
+    De.map6 Product
         (De.field "id" De.string)
         (De.field "name" De.string)
         (De.field "cost" De.int)
         (De.field "description" De.string)
         (De.field "path" De.string)
+        (De.field "itemCode" De.int)
 
 
 productEncoder : Product -> Ne.Value
 productEncoder product =
     Ne.object
-        [ ( "name", Ne.string product.name )
+        [ ( "id", Ne.string product.id )
+        , ( "name", Ne.string product.name )
         , ( "cost", Ne.int product.cost )
         , ( "description", Ne.string product.description )
         , ( "path", Ne.string product.path )
+        , ( "itemCode", Ne.int product.itemCode )
         ]
 
 
@@ -97,12 +101,8 @@ updateProduct old product msg =
         , url = productPath ++ "/" ++ product.id
         , body =
             Http.jsonBody <|
-                Ne.object
-                    [ ( "name", Ne.string name )
-                    , ( "cost", Ne.int cost )
-                    , ( "description", Ne.string description )
-                    , ( "path", Ne.string path )
-                    ]
+                productEncoder <|
+                    Product product.id name cost description path product.itemCode
         , expect = Http.expectJson msg productDecoder
         , timeout = Nothing
         , tracker = Nothing

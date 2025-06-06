@@ -22,6 +22,8 @@ public class ProductDto {
 
     private String path;
 
+    private Long itemCode;
+
     public UUID getId() {
         return id;
     }
@@ -60,5 +62,13 @@ public class ProductDto {
 
     public void setPath(String path) {
         this.path = path;
+    }
+
+    public Long getItemCode() {
+        return itemCode;
+    }
+
+    public void setItemCode(Long itemCode) {
+        this.itemCode = itemCode;
     }
 }

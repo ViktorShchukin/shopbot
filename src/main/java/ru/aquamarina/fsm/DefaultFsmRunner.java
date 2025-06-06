@@ -60,6 +60,9 @@ public class DefaultFsmRunner implements FsmRunner {
                         .getByName(str.split("\\?")[1])
                         .map(product -> Result.ok(new ProductAboutState(user, product, quantity)));
             }
+            case  String str when str.contains(ProductInstructionState.NAME) -> fsmContextHolder.getProductService()
+                      .getByName(str.split("\\?")[1])
+                      .map(product -> Result.ok(new ProductInstructionState(user, product)));
             default -> Result.error(new UnknownState());
         };
     }
