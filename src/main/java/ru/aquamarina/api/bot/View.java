@@ -24,4 +24,6 @@ public interface View {
     void drawPayAndDeliveryFormForm(PayAndDeliveryForm form);
 
     void drawProductInstructionForm(ProductInstructionForm form);
+
+    void drawErrorForm(ErrorForm form);
 }

@@ -34,6 +34,10 @@ public class DefaultFsmRunner implements FsmRunner {
     public Result<Form, Error> execute(Command command) {
         return restoreState(command.getUser())
                 .map(state -> state.doWork(fsmContextHolder, command))
+                .or(err -> {
+                    log.error("error in the state machine: {}", err);
+                    return Result.<FsmState, Error>ok(new ErrorState(command.getUser(), err));
+                })
                 .map(state -> userService.updateState(command.getUser(), state))
                 .mapValue(state -> state.getForm(fsmContextHolder));
     }
@@ -63,6 +67,7 @@ public class DefaultFsmRunner implements FsmRunner {
             case  String str when str.contains(ProductInstructionState.NAME) -> fsmContextHolder.getProductService()
                       .getByName(str.split("\\?")[1])
                       .map(product -> Result.ok(new ProductInstructionState(user, product)));
+            case ErrorState.NAME -> Result.ok(new ErrorState(user));
             default -> Result.error(new UnknownState());
         };
     }
