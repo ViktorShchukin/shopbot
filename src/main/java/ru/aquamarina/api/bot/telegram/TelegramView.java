@@ -54,7 +54,11 @@ public record TelegramView(OkHttpTelegramClient client, Update update, ProductSe
                 getButton(new IndexCmd(null))
         );
 
-        String messageText = "Я есть магазин";
+        String messageText = """
+                Это чат-бот магазина химии для бассейнов “Аквамарина» (ИП Щукина М.А.) Мы предлагаем химию для бассейна российского производителя ТМ Aqualeon. Здесь вы можете заказать средства для ухода за бассейном.
+                У нас есть пункт самовывоза в г. Ростов-на-Дону. Подробнее смотрите в разделе «Доставка и оплата».
+                Если вы находитесь в другом населенном пункте, то мы отправим вам заказ сервисом «Яндекс-доставка». При заказе более 2000р доставка бесплатная.
+                """;
 
         var keyBoard = InlineKeyboardMarkup.builder()
                 .keyboardRow(keyboardRow)
@@ -67,6 +71,7 @@ public record TelegramView(OkHttpTelegramClient client, Update update, ProductSe
                 .chatId(chatId)
                 .messageId(messageId)
                 .text(messageText)
+                .parseMode("HTML")
                 .build();
         EditMessageReplyMarkup replyMarkup = EditMessageReplyMarkup.builder()
                 .chatId(chatId)
@@ -366,7 +371,15 @@ public record TelegramView(OkHttpTelegramClient client, Update update, ProductSe
                 getButton(new IndexCmd(null))
         );
 
-        String messageText = "Оптовикам";
+        String messageText = """
+                Наша компания является региональным представителем ТМ AQUALEON на территории Ростовской области. Поэтому мы можем предоставить выгодные цены для оптовых покупателей.
+
+                Мы открыты для партнерства с магазинами и профессионалами в сфере обслуживания бассейнов.
+
+                Проконсультируем Вас по вопросам продажи и использования химии, поможем разобраться в ассортименте.
+ 
+                Напишите нашему <a href="tg://user?id=876199982">менеджеру</a> и мы предоставим вам оптовый прайс.
+                """;
 
         var keyBoard = InlineKeyboardMarkup.builder()
                 .keyboardRow(keyboardRow)
@@ -379,6 +392,7 @@ public record TelegramView(OkHttpTelegramClient client, Update update, ProductSe
                 .chatId(chatId)
                 .messageId(messageId)
                 .text(messageText)
+                .parseMode("HTML")
                 .build();
         EditMessageReplyMarkup replyMarkup = EditMessageReplyMarkup.builder()
                 .chatId(chatId)
@@ -402,7 +416,13 @@ public record TelegramView(OkHttpTelegramClient client, Update update, ProductSe
                 getButton(new IndexCmd(null))
         );
 
-        String messageText = "Оплата и доставка";
+        String messageText = """
+                <u>Самовывоз</u>: Выдача заказа производится по адресу: г. Ростов-на-Дону, ул. Доватора, 142А, рынок «Молот», павильон 22. Оплатить заказ можно наличными или банковской картой в магазине.
+                               
+                <u>Доставка</u>: Мы отправляем заказы сервисом «Яндекс-маркет-доставка». Получить заказ вы сможете в любом пункте выдачи «Яндекс-маркет», который вы укажете при оформлении заказа.
+                Доставка для вас бесплатная при заказе на сумму свыше 2000 руб.
+                Оплатить заказ вы сможете по ссылке, которую вам вышлет наш менеджер при согласовании заказа.
+                """;
 
         var keyBoard = InlineKeyboardMarkup.builder()
                 .keyboardRow(keyboardRow)
@@ -414,6 +434,7 @@ public record TelegramView(OkHttpTelegramClient client, Update update, ProductSe
         EditMessageText message = EditMessageText.builder()
                 .chatId(chatId)
                 .messageId(messageId)
+                .parseMode("HTML")
                 .text(messageText)
                 .build();
         EditMessageReplyMarkup replyMarkup = EditMessageReplyMarkup.builder()
