@@ -49,6 +49,11 @@ public class TelegramService {
 
         String productTable = TelegramUtils.getProductTable(products);
 
+        long totalCostInCents = products.stream()
+                .mapToLong(productRowDto -> productRowDto.product().getCost() * productRowDto.quantity())
+                .sum();
+        String totalCost = String.valueOf((double) totalCostInCents / 100);
+
         String clientId = userService.getUser(order.getUserId())
                 .map(telegramInfoService::getByUser)
                 .flatMap(res -> res.ok())
@@ -62,7 +67,7 @@ public class TelegramService {
                 .map(TelegramInfo::getUserName)
                 .get();
 
-        String messageText = productTable + "\n" + "[@%s](tg://user?id=%s)".formatted(clientUserName, clientId);
+        String messageText = productTable + "\nСумма: " + totalCost + "\n" + "[@%s](tg://user?id=%s)".formatted(clientUserName, clientId);
 
         SendMessage.SendMessageBuilder messageBuilder = SendMessage.builder()
                 .text(messageText)

@@ -132,7 +132,7 @@ public class TelegramUtils {
                 .toList();
 
         String productTableHeader = TelegramUtils.getProductTableHeader() + "\n";
-        String productTable = Stream.concat(Stream.of(productTableHeader, "\n"), productRowStringList.stream())
+        String productTable = productRowStringList.stream()
                 .reduce("", String::concat);
 
         return productTable;
