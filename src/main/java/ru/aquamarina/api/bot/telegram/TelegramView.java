@@ -80,10 +80,10 @@ public class TelegramView implements View {
                 getButton(new PayAndDeliveryCmd(null))
         );
         InlineKeyboardRow keyboardRow2 = new InlineKeyboardRow(
-            InlineKeyboardButton.builder()
-                    .text("Связаться с мэнеджером")
-                    .url("tg://user?id=876199982")
-                    .build()
+                InlineKeyboardButton.builder()
+                        .text("Связаться с мэнеджером")
+                        .url("tg://user?id=876199982")
+                        .build()
         );
 
         String messageText = "Привет. Чего желаете";
@@ -161,7 +161,11 @@ public class TelegramView implements View {
         InlineKeyboardRow keyboardRow = new InlineKeyboardRow(
                 getButton(new IndexCmd(null))
         );
+        InlineKeyboardRow keyboardRow1 = new InlineKeyboardRow(
+                getButton("Сделать еще один заказ", new CatalogCmd(null))
+        );
         keyboardRowList.add(keyboardRow);
+        keyboardRowList.add(keyboardRow1);
 
 
         List<ProductRowDto> products = form.rows().stream()

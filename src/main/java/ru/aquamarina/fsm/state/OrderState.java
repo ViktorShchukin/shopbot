@@ -28,6 +28,7 @@ public class OrderState implements FsmState {
         return switch (command) {
             case IndexCmd ndx -> Result.ok(new IndexState(user));
             case StartCmd start -> Result.ok(new IndexState(user));
+            case CatalogCmd ctg -> Result.ok(new CatalogState(user, "/"));
             default -> Result.error(new NotSupportedCommand());
         };
     }
