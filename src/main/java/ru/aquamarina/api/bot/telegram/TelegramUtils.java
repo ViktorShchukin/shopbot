@@ -30,13 +30,13 @@ public class TelegramUtils {
     }
 
     // | productName | quantity | totalSumByThisPosition |
-    private static final String PRODUCT_ROW_TABLE_TEMPLATE = " %s  %s  %s ";
+    private static final String PRODUCT_ROW_TABLE_TEMPLATE = "%s  %s  %s";
     private static final String NAME_OF_PRODUCT = "Название";
     private static final String QUANTITY_OF_PRODUCT = "Кол-во";
     private static final String TOTAL_SUM_OF_PRODUCT = "Итог";
 
     private static final String QUANTITY_TEMPLATE = "%dx%.2f";
-    private static final String TOTAL_SUM_TEMPLATE = "%.2f";
+    private static final String TOTAL_SUM_TEMPLATE = "%.2f руб";
 
     /**
      * @param update

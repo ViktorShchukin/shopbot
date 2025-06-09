@@ -177,7 +177,7 @@ public class TelegramView implements View {
                 .toList();
 
         String productTable = TelegramUtils.getProductTable(products);
-        String messageText = productTable + "\n" + "Сумма заказа: " + (double) form.totalCost() / 100 + "\n\nСпасибо за заказ.\nМы свяжемся с вами позже.";
+        String messageText = productTable + "\n" + "Сумма заказа: " + (double) form.totalCost() / 100 + " руб" + "\n\nСпасибо за заказ.\nМы свяжемся с вами позже.";
 
         sendMessage(form.user(), messageText, keyboardRowList);
     }
@@ -214,7 +214,7 @@ public class TelegramView implements View {
 
 
         String productTable = TelegramUtils.getProductTable(products);
-        String messageText = "Корзина" + "\n\n" + productTable + "\n" + "Сумма: " + (double) form.totalCost() / 100;
+        String messageText = "Корзина" + "\n\n" + productTable + "\n" + "Сумма: " + (double) form.totalCost() / 100 + " руб";
 
 
         rewriteMessage(form.user(), messageText, keyboardRowList);
