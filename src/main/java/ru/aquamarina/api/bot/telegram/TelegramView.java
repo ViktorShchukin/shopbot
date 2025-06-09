@@ -79,10 +79,16 @@ public class TelegramView implements View {
                 getButton(new ForWholesalerCmd(null)),
                 getButton(new PayAndDeliveryCmd(null))
         );
+        InlineKeyboardRow keyboardRow2 = new InlineKeyboardRow(
+            InlineKeyboardButton.builder()
+                    .text("Связаться с мэнеджером")
+                    .url("tg://user?id=876199982")
+                    .build()
+        );
 
         String messageText = "Привет. Чего желаете";
 
-        rewriteMessage(form.user(), messageText, List.of(keyboardRow, keyboardRow1));
+        rewriteMessage(form.user(), messageText, List.of(keyboardRow, keyboardRow1, keyboardRow2));
     }
 
     @Override
