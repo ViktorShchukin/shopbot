@@ -2,6 +2,7 @@ package ru.aquamarina.model.entity;
 
 import io.micronaut.data.annotation.Id;
 import io.micronaut.data.annotation.MappedEntity;
+import io.micronaut.data.annotation.MappedProperty;
 import io.micronaut.serde.annotation.Serdeable;
 
 import java.util.UUID;
@@ -22,6 +23,9 @@ public class Product {
     private String path;
 
     private Long itemCode;
+
+    @MappedProperty("short_name")
+    private String shortName;
 
     public UUID getId() {
         return id;
@@ -69,5 +73,13 @@ public class Product {
 
     public void setItemCode(Long itemCode) {
         this.itemCode = itemCode;
+    }
+
+    public String getShortName() {
+        return shortName;
+    }
+
+    public void setShortName(String shortName) {
+        this.shortName = shortName;
     }
 }

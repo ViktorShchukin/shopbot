@@ -29,8 +29,8 @@ public class ProductService {
         return productRepository.findAll();
     }
 
-    public Result<Product, Error> create(String name, long cost, String description, String path, Long itemCode) {
-        Product created = productUtil.create(name, cost, description, path, itemCode);
+    public Result<Product, Error> create(String name, long cost, String description, String path, Long itemCode, String shortName) {
+        Product created = productUtil.create(name, cost, description, path, itemCode, shortName);
         try {
             return Result.ok(productRepository.save(created));
         } catch (DataAccessException e) {
@@ -38,8 +38,8 @@ public class ProductService {
         }
     }
 
-    public Result<Product, Error> update(Product product, String name, long cost, String description, String path, Long itemCode) {
-        Product updated = productUtil.update(product, name, cost, description, path, itemCode);
+    public Result<Product, Error> update(Product product, String name, long cost, String description, String path, Long itemCode, String shortName) {
+        Product updated = productUtil.update(product, name, cost, description, path, itemCode, shortName);
         try {
             return Result.ok(productRepository.update(updated));
         } catch (DataAccessException e) {

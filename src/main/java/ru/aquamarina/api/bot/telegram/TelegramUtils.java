@@ -144,7 +144,7 @@ public class TelegramUtils {
         String quantityStr = quantityToString(productRowDto);
         String totalSumStr = totalSumToString(productRowDto);
         return getProductRow(
-                productRowDto.product().getName(),
+                productRowDto.product().getShortName(),
                 quantityStr,
                 totalSumStr,
                 maxName,

@@ -5552,9 +5552,9 @@ var $elm$browser$Browser$element = _Browser_element;
 var $author$project$Main$GotProducts = function (a) {
 	return {$: 'GotProducts', a: a};
 };
-var $author$project$Product$Product = F6(
-	function (id, name, cost, description, path, itemCode) {
-		return {cost: cost, description: description, id: id, itemCode: itemCode, name: name, path: path};
+var $author$project$Product$Product = F7(
+	function (id, name, cost, description, path, itemCode, shortName) {
+		return {cost: cost, description: description, id: id, itemCode: itemCode, name: name, path: path, shortName: shortName};
 	});
 var $elm$json$Json$Decode$decodeString = _Json_runOnString;
 var $elm$http$Http$BadStatus_ = F2(
@@ -6346,17 +6346,18 @@ var $elm$http$Http$get = function (r) {
 var $elm$json$Json$Decode$list = _Json_decodeList;
 var $elm$json$Json$Decode$field = _Json_decodeField;
 var $elm$json$Json$Decode$int = _Json_decodeInt;
-var $elm$json$Json$Decode$map6 = _Json_map6;
+var $elm$json$Json$Decode$map7 = _Json_map7;
 var $elm$json$Json$Decode$string = _Json_decodeString;
-var $author$project$Product$productDecoder = A7(
-	$elm$json$Json$Decode$map6,
+var $author$project$Product$productDecoder = A8(
+	$elm$json$Json$Decode$map7,
 	$author$project$Product$Product,
 	A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$string),
 	A2($elm$json$Json$Decode$field, 'name', $elm$json$Json$Decode$string),
 	A2($elm$json$Json$Decode$field, 'cost', $elm$json$Json$Decode$int),
 	A2($elm$json$Json$Decode$field, 'description', $elm$json$Json$Decode$string),
 	A2($elm$json$Json$Decode$field, 'path', $elm$json$Json$Decode$string),
-	A2($elm$json$Json$Decode$field, 'itemCode', $elm$json$Json$Decode$int));
+	A2($elm$json$Json$Decode$field, 'itemCode', $elm$json$Json$Decode$int),
+	A2($elm$json$Json$Decode$field, 'shortName', $elm$json$Json$Decode$string));
 var $author$project$Product$productPath = 'product';
 var $author$project$Product$getAllProduct = function (msg) {
 	return $elm$http$Http$get(
@@ -6371,7 +6372,7 @@ var $author$project$Product$getAllProduct = function (msg) {
 var $author$project$Main$init = function (_v0) {
 	return _Utils_Tuple2(
 		{
-			productToAdd: A6($author$project$Product$Product, '', '', 0, '', '', 0),
+			productToAdd: A7($author$project$Product$Product, '', '', 0, '', '', 0, ''),
 			productToUpdate: _List_Nil,
 			products: _List_Nil
 		},
@@ -6431,7 +6432,10 @@ var $author$project$Product$productEncoder = function (product) {
 				$elm$json$Json$Encode$string(product.path)),
 				_Utils_Tuple2(
 				'itemCode',
-				$elm$json$Json$Encode$int(product.itemCode))
+				$elm$json$Json$Encode$int(product.itemCode)),
+				_Utils_Tuple2(
+				'shortName',
+				$elm$json$Json$Encode$string(product.shortName))
 			]));
 };
 var $author$project$Product$addProduct = F2(
@@ -6647,6 +6651,39 @@ var $author$project$Main$gotProductPathToUpdate = F3(
 			model,
 			{productToUpdate: productList});
 	});
+var $author$project$Main$updateProductShortName = F2(
+	function (product, shortName) {
+		return _Utils_update(
+			product,
+			{shortName: shortName});
+	});
+var $author$project$Main$gotProductShortNameToUpdate = F3(
+	function (model, prod, str) {
+		var productList = function () {
+			var _v0 = A2($author$project$Main$findProductById, model.productToUpdate, prod.id);
+			if (_v0.$ === 'Just') {
+				var product = _v0.a;
+				var updated = A2($author$project$Main$updateProductShortName, product, str);
+				return A2(
+					$elm$core$List$map,
+					function (prod1) {
+						return _Utils_eq(prod1.id, updated.id) ? updated : prod1;
+					},
+					model.productToUpdate);
+			} else {
+				return A2(
+					$elm$core$List$append,
+					model.productToUpdate,
+					_List_fromArray(
+						[
+							A2($author$project$Main$updateProductShortName, prod, str)
+						]));
+			}
+		}();
+		return _Utils_update(
+			model,
+			{productToUpdate: productList});
+	});
 var $elm$bytes$Bytes$Encode$getWidth = function (builder) {
 	switch (builder.$) {
 		case 'I8':
@@ -6809,8 +6846,10 @@ var $author$project$Product$productToString = function (product) {
 		4,
 		$author$project$Product$productEncoder(product));
 };
+var $elm$core$String$trim = _String_trim;
 var $author$project$Product$updateProduct = F3(
 	function (old, product, msg) {
+		var shortName = (product.shortName === '') ? old.shortName : product.shortName;
 		var path = (product.path === '') ? old.path : product.path;
 		var name = (product.name === '') ? old.name : product.name;
 		var description = (product.description === '') ? old.description : product.description;
@@ -6819,7 +6858,7 @@ var $author$project$Product$updateProduct = F3(
 			{
 				body: $elm$http$Http$jsonBody(
 					$author$project$Product$productEncoder(
-						A6($author$project$Product$Product, product.id, name, cost, description, path, product.itemCode))),
+						A7($author$project$Product$Product, product.id, name, cost, description, path, product.itemCode, shortName))),
 				expect: A2($elm$http$Http$expectJson, msg, $author$project$Product$productDecoder),
 				headers: _List_Nil,
 				method: 'PUT',
@@ -6937,6 +6976,19 @@ var $author$project$Main$update = F2(
 				} else {
 					return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
 				}
+			case 'GotProductShortNameToAdd':
+				var str = msg.a;
+				return ($elm$core$String$length(
+					$elm$core$String$trim(str)) < 21) ? _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{
+							productToAdd: A2(
+								$author$project$Main$updateProductShortName,
+								model.productToAdd,
+								$elm$core$String$trim(str))
+						}),
+					$elm$core$Platform$Cmd$none) : _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
 			case 'GotProductNameToUpdate':
 				var prod = msg.a;
 				var str = msg.b;
@@ -6972,7 +7024,7 @@ var $author$project$Main$update = F2(
 				} else {
 					return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
 				}
-			default:
+			case 'GotProductItemCodeToUpdate':
 				var prod = msg.a;
 				var str = msg.b;
 				var _v11 = $elm$core$String$toInt(str);
@@ -6984,6 +7036,17 @@ var $author$project$Main$update = F2(
 				} else {
 					return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
 				}
+			default:
+				var prod = msg.a;
+				var str = msg.b;
+				return ($elm$core$String$length(
+					$elm$core$String$trim(str)) < 21) ? _Utils_Tuple2(
+					A3(
+						$author$project$Main$gotProductShortNameToUpdate,
+						model,
+						prod,
+						$elm$core$String$trim(str)),
+					$elm$core$Platform$Cmd$none) : _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
 		}
 	});
 var $elm$html$Html$div = _VirtualDom_node('div');
@@ -7002,6 +7065,9 @@ var $author$project$Main$GotProductNameToAdd = function (a) {
 };
 var $author$project$Main$GotProductPathToAdd = function (a) {
 	return {$: 'GotProductPathToAdd', a: a};
+};
+var $author$project$Main$GotProductShortNameToAdd = function (a) {
+	return {$: 'GotProductShortNameToAdd', a: a};
 };
 var $author$project$Main$add_str = 'Добавить';
 var $elm$html$Html$button = _VirtualDom_node('button');
@@ -7079,6 +7145,7 @@ var $elm$html$Html$Attributes$attribute = $elm$virtual_dom$VirtualDom$attribute;
 var $author$project$Main$role = function (value) {
 	return A2($elm$html$Html$Attributes$attribute, 'role', value);
 };
+var $author$project$Main$shortName_str = 'краткое название';
 var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
 var $elm$html$Html$Attributes$value = $elm$html$Html$Attributes$stringProperty('value');
@@ -7133,6 +7200,15 @@ var $author$project$Main$drawAddProductForm = function (model) {
 					]),
 				_List_Nil),
 				A2(
+				$elm$html$Html$input,
+				_List_fromArray(
+					[
+						$elm$html$Html$Events$onInput($author$project$Main$GotProductShortNameToAdd),
+						$elm$html$Html$Attributes$placeholder($author$project$Main$shortName_str),
+						$elm$html$Html$Attributes$value(model.productToAdd.shortName)
+					]),
+				_List_Nil),
+				A2(
 				$elm$html$Html$button,
 				_List_fromArray(
 					[
@@ -7163,6 +7239,10 @@ var $author$project$Main$GotProductNameToUpdate = F2(
 var $author$project$Main$GotProductPathToUpdate = F2(
 	function (a, b) {
 		return {$: 'GotProductPathToUpdate', a: a, b: b};
+	});
+var $author$project$Main$GotProductShortNmaeToUpdate = F2(
+	function (a, b) {
+		return {$: 'GotProductShortNmaeToUpdate', a: a, b: b};
 	});
 var $author$project$Main$UpdateProduct = function (a) {
 	return {$: 'UpdateProduct', a: a};
@@ -7296,6 +7376,32 @@ var $author$project$Main$drawProductRow = F2(
 					_List_Nil,
 					_List_fromArray(
 						[
+							$elm$html$Html$text(product.shortName),
+							A2(
+							$elm$html$Html$input,
+							_List_fromArray(
+								[
+									$elm$html$Html$Events$onInput(
+									$author$project$Main$GotProductShortNmaeToUpdate(product)),
+									$elm$html$Html$Attributes$placeholder($author$project$Main$shortName_str),
+									$elm$html$Html$Attributes$value(
+									function () {
+										var _v0 = A2($author$project$Main$findProductById, model.productToUpdate, product.id);
+										if (_v0.$ === 'Nothing') {
+											return '';
+										} else {
+											var prod = _v0.a;
+											return prod.shortName;
+										}
+									}())
+								]),
+							_List_Nil)
+						])),
+					A2(
+					$elm$html$Html$td,
+					_List_Nil,
+					_List_fromArray(
+						[
 							A2(
 							$elm$html$Html$button,
 							_List_fromArray(
@@ -7350,6 +7456,13 @@ var $author$project$Main$drawProductTableHeader = A2(
 			_List_fromArray(
 				[
 					$elm$html$Html$text($author$project$Main$itemCode_str)
+				])),
+			A2(
+			$elm$html$Html$th,
+			_List_Nil,
+			_List_fromArray(
+				[
+					$elm$html$Html$text($author$project$Main$shortName_str)
 				]))
 		]));
 var $elm$html$Html$table = _VirtualDom_node('table');

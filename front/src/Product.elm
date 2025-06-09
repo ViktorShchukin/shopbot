@@ -17,6 +17,7 @@ type alias Product =
     , description : String
     , path : String
     , itemCode : Int
+    , shortName : String
     }
 
 
@@ -26,13 +27,14 @@ type alias Product =
 
 productDecoder : De.Decoder Product
 productDecoder =
-    De.map6 Product
+    De.map7 Product
         (De.field "id" De.string)
         (De.field "name" De.string)
         (De.field "cost" De.int)
         (De.field "description" De.string)
         (De.field "path" De.string)
         (De.field "itemCode" De.int)
+        (De.field "shortName" De.string)
 
 
 productEncoder : Product -> Ne.Value
@@ -44,6 +46,7 @@ productEncoder product =
         , ( "description", Ne.string product.description )
         , ( "path", Ne.string product.path )
         , ( "itemCode", Ne.int product.itemCode )
+        , ( "shortName", Ne.string product.shortName )
         ]
 
 
@@ -94,6 +97,13 @@ updateProduct old product msg =
 
             else
                 product.path
+
+        shortName =
+            if product.shortName == "" then
+                old.shortName
+
+            else
+                product.shortName
     in
     Http.request
         { method = "PUT"
@@ -102,7 +112,7 @@ updateProduct old product msg =
         , body =
             Http.jsonBody <|
                 productEncoder <|
-                    Product product.id name cost description path product.itemCode
+                    Product product.id name cost description path product.itemCode shortName
         , expect = Http.expectJson msg productDecoder
         , timeout = Nothing
         , tracker = Nothing

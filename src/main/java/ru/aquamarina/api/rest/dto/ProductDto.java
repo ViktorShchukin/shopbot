@@ -22,6 +22,7 @@ public class ProductDto {
 
     private Long itemCode;
 
+    private String shortName;
     public UUID getId() {
         return id;
     }
@@ -68,5 +69,13 @@ public class ProductDto {
 
     public void setItemCode(Long itemCode) {
         this.itemCode = itemCode;
+    }
+
+    public String getShortName() {
+        return shortName;
+    }
+
+    public void setShortName(String shortName) {
+        this.shortName = shortName;
     }
 }
