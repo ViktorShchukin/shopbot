@@ -1,4 +1,6 @@
 package ru.aquamarina.model.error;
 
-public class UnknownCommand implements Error {
+import ru.aquamarina.model.entity.User;
+
+public record UnknownCommand(User user) implements Error {
 }

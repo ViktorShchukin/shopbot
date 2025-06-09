@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import ru.aquamarina.fsm.FsmContextHolder;
 import ru.aquamarina.fsm.form.ErrorForm;
 import ru.aquamarina.fsm.form.Form;
+import ru.aquamarina.model.command.BasketCmd;
 import ru.aquamarina.model.command.Command;
 import ru.aquamarina.model.command.IndexCmd;
 import ru.aquamarina.model.command.StartCmd;
@@ -38,6 +39,7 @@ public class ErrorState implements FsmState {
     public Result<FsmState, Error> doWork(FsmContextHolder context, Command command) {
         return switch (command) {
             case IndexCmd ndx -> Result.ok(new IndexState(user));
+            case BasketCmd bsk -> Result.ok(new BasketState(user));
             case StartCmd start -> Result.ok(new IndexState(user));
             default -> Result.error(new NotSupportedCommand());
         };

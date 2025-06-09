@@ -7,8 +7,13 @@ import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.longpolling.util.LongPollingSingleThreadUpdateConsumer;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.aquamarina.fsm.FsmRunner;
+import ru.aquamarina.fsm.form.ErrorForm;
 import ru.aquamarina.fsm.form.Form;
+import ru.aquamarina.fsm.state.ErrorState;
 import ru.aquamarina.model.error.Error;
+import ru.aquamarina.model.error.UnknownCommand;
+import ru.aquamarina.service.UserService;
+import ru.aquamarina.util.Result;
 import ru.aquamarina.util.ResultError;
 import ru.aquamarina.util.ResultOk;
 
@@ -24,12 +29,14 @@ public class Bot implements LongPollingSingleThreadUpdateConsumer {
     private final FsmRunner fsmRunner;
     private final TelegramUtils telegramUtils;
     private final TelegramView view;
+    private final UserService userService;
 
-    public Bot(TelegramMapper telegramMapper, FsmRunner fsmRunner, TelegramUtils telegramUtils, TelegramView view) {
+    public Bot(TelegramMapper telegramMapper, FsmRunner fsmRunner, TelegramUtils telegramUtils, TelegramView view, UserService userService) {
         this.telegramMapper = telegramMapper;
         this.fsmRunner = fsmRunner;
         this.telegramUtils = telegramUtils;
         this.view = view;
+        this.userService = userService;
     }
 
     @Override
@@ -57,7 +64,16 @@ public class Bot implements LongPollingSingleThreadUpdateConsumer {
 
         switch (res) {
             case ResultOk<Form, Error> ok -> ok.unwrap().draw(view);
-            case ResultError<Form, Error> err -> view.draw(err.err());
+            case ResultError<Form, Error> err -> {
+                var error = err.err();
+                if (error instanceof UnknownCommand unknownCommand) {
+                    var form = new ErrorForm(unknownCommand.user());
+                    view.drawErrorForm(form);
+                    userService.updateState(unknownCommand.user(), new ErrorState(unknownCommand.user()));
+                    return;
+                }
+                view.draw(error);
+            }
         }
     }
 

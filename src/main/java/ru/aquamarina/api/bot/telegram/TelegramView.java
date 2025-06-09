@@ -270,10 +270,11 @@ public class TelegramView implements View {
     @Override
     public void drawErrorForm(ErrorForm form) {
         InlineKeyboardRow keyboardRow = new InlineKeyboardRow(
+                getButton("Вернуться в корзину", new BasketCmd(null)),
                 getButton(new IndexCmd(null))
         );
 
-        String messageText = "Во время работы возникла ошибка\n";
+        String messageText = "Во время работы возникла ошибка\nПожалуйста помните что при вводе адреса он должен начинаться с \"г\".\nПри вводе номера телефона он должен начинаться с \"+7\"";
 
         rewriteMessage(form.user(), messageText, keyboardRow);
     }
