@@ -357,6 +357,7 @@ public class TelegramView implements View {
         SendMessage message = SendMessage.builder()
                 .chatId(telegramUserId)
                 .text(messageText)
+                .parseMode("HTML")
                 .replyMarkup(keyBoard)
                 .build();
 
@@ -394,6 +395,7 @@ public class TelegramView implements View {
         SendMessage message = SendMessage.builder()
                 .chatId(telegramUserId)
                 .text(messageText)
+                .parseMode("HTML")
                 .build();
 
         try {
@@ -445,6 +447,7 @@ public class TelegramView implements View {
                 .chatId(telegramUserId)
                 .messageId(messageId)
                 .text(messageText)
+                .parseMode("HTML")
                 .build();
         EditMessageReplyMarkup replyMarkup = EditMessageReplyMarkup.builder()
                 .chatId(telegramUserId)

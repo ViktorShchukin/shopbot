@@ -91,6 +91,7 @@ public class TelegramUtils {
     }
 
 
+    // todo move this dto
     record TelegramUserDto(Long telegramId, String firstName, String lastName, String username) {
     }
 
