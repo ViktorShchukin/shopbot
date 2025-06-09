@@ -37,7 +37,7 @@ public class ForWholesalerState implements FsmState {
 
     @Override
     public Form getForm(FsmContextHolder context) {
-        return new ForWholesalerForm();
+        return new ForWholesalerForm(user);
     }
 
     @Override

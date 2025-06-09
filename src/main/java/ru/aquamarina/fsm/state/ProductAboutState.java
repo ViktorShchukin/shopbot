@@ -67,7 +67,7 @@ public class ProductAboutState implements FsmState {
 
     @Override
     public Form getForm(FsmContextHolder context) {
-        return new ProductAboutForm(product, productQuantity);
+        return new ProductAboutForm(user, product, productQuantity);
     }
 
     @Override

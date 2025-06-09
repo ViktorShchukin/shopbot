@@ -2,9 +2,9 @@ package ru.aquamarina.model.command;
 
 import ru.aquamarina.model.entity.User;
 
-public record FolderCmd(User user, String path) implements Command {
+public record SelfPickupCmd(User user) implements Command {
 
-    public static final String NAME = "fd";
+    public final static String NAME = "selfPickup";
 
     @Override
     public User getUser() {
@@ -13,6 +13,6 @@ public record FolderCmd(User user, String path) implements Command {
 
     @Override
     public String toString() {
-        return NAME + "?" + path;
+        return NAME;
     }
 }

@@ -2,9 +2,10 @@ package ru.aquamarina.fsm.form;
 
 import ru.aquamarina.api.bot.View;
 import ru.aquamarina.model.entity.Product;
+import ru.aquamarina.model.entity.User;
 
 
-public record ProductAboutForm(Product product, long quantity) implements Form {
+public record ProductAboutForm(User user, Product product, long quantity) implements Form {
 
 
     @Override

@@ -28,15 +28,7 @@ public class BasketState implements FsmState {
     @Override
     public Result<FsmState, Error> doWork(FsmContextHolder context, Command command) {
         return switch (command) {
-            case DoOrderCmd ord -> context.getBasketService()
-                    .getByUserId(command.getUser().getId())
-                    .map(basket -> context.getOrderService().create(basket))
-                    .map(order -> {
-                        context.getTelegramService().notifySeller(order);
-                        return order;
-                    })
-                    .map(order -> Result.<FsmState, Error>ok(new OrderState(user, order)))
-                    .orElseGet(() -> Result.error(new CanNotDoOrder()));
+            case DoOrderCmd ord -> Result.ok(new DistributionModeState(user));
             case IndexCmd index -> Result.ok(new IndexState(user));
             case CatalogCmd ctg -> Result.ok(new CatalogState(user, "/"));
             case StartCmd start -> Result.ok(new IndexState(user));
@@ -89,7 +81,7 @@ public class BasketState implements FsmState {
                             .stream();
                 })
                 .reduce(0L, Long::sum);
-        return new BasketForm(rows, totalCost);
+        return new BasketForm(user, rows, totalCost);
     }
 
     @Override

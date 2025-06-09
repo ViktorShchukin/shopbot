@@ -47,7 +47,7 @@ public class OrderState implements FsmState {
                             .stream();
                 })
                 .reduce(0L, Long::sum);
-        return new OrderForm(rows, totalCost);
+        return new OrderForm(user, rows, totalCost);
     }
 
     @Override

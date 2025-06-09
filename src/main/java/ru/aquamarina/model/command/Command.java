@@ -3,7 +3,7 @@ package ru.aquamarina.model.command;
 import ru.aquamarina.model.entity.User;
 
 public sealed interface Command
-        permits AboutCmd, AddToBasketCmd, BasketCmd, CatalogCmd, ClearBasketCmd, DoNothing, DoOrderCmd, FolderCmd, ForWholesalerCmd, IndexCmd, InstructionCmd, PayAndDeliveryCmd, ProductAboutCmd, QuantityMinusCmd, QuantityPlusCmd, StartCmd {
+        permits AboutCmd, AddToBasketCmd, BasketCmd, CatalogCmd, ClearBasketCmd, DeliveryCmd, DoNothing, DoOrderCmd, FolderCmd, ForWholesalerCmd, IndexCmd, InstructionCmd, OrderAdditionalInfoAddressCmd, OrderAdditionalInfoPhoneCmd, PayAndDeliveryCmd, ProductAboutCmd, QuantityMinusCmd, QuantityPlusCmd, SelfPickupCmd, StartCmd {
 
     User getUser();
 }

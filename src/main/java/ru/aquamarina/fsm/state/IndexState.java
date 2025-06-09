@@ -37,7 +37,7 @@ public class IndexState implements FsmState {
 
     @Override
     public Form getForm(FsmContextHolder context) {
-        return new IndexForm();
+        return new IndexForm(user);
     }
 
     @Override

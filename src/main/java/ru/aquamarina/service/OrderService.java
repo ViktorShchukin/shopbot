@@ -4,6 +4,7 @@ import io.micronaut.data.exceptions.DataAccessException;
 import jakarta.inject.Singleton;
 import jakarta.transaction.Transactional;
 import ru.aquamarina.mapper.OrderTool;
+import ru.aquamarina.model.DistributionMode;
 import ru.aquamarina.model.entity.*;
 import ru.aquamarina.model.error.Error;
 import ru.aquamarina.model.error.IoError;
@@ -28,14 +29,35 @@ public class OrderService {
     }
 
     @Transactional
-    public Order create(Basket basket) {
+    public Order create(User user, String phoneNumber, String address, DistributionMode distributionMode) {
         Order order = orderRepository.save(
-                orderTool.create(basket.getUserId())
+                orderTool.create(user.getId(), phoneNumber, address, distributionMode)
         );
-        List<BasketRow> rows = basketService.getBasketRow(basket);
-        rows.forEach(row -> orderRepository.addToOrder(order.getId(), row.getProductId(), row.getQuantity()));
-        basketService.clearBasket(basket);
         return order;
+    }
+
+    @Transactional
+    public Result<Order, Error> update(Order order, String phoneNumber, String address, DistributionMode distributionMode) {
+        try {
+            Order updated = orderRepository.update(
+                    orderTool.update(order, phoneNumber, address, distributionMode)
+            );
+            return Result.ok(updated);
+        } catch (DataAccessException e) {
+            return Result.error(new IoError(e));
+        }
+    }
+
+    @Transactional
+    public Result<Order, Error> fillTheOrderAndClearBasket(Order order, Basket basket) {
+        try {
+            List<BasketRow> rows = basketService.getBasketRow(basket);
+            rows.forEach(row -> orderRepository.addToOrder(order.getId(), row.getProductId(), row.getQuantity()));
+            basketService.clearBasket(basket);
+            return Result.ok(order);
+        } catch (DataAccessException e) {
+            return Result.error(new IoError(e));
+        }
     }
 
     public List<OrderRow> getOrderRow(Order order) {

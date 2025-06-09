@@ -1,14 +1,13 @@
 package ru.aquamarina.api.bot.telegram;
 
-import org.mapstruct.factory.Mappers;
+import jakarta.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.client.okhttp.OkHttpTelegramClient;
-import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
-import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.message.Message;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
@@ -21,8 +20,11 @@ import ru.aquamarina.fsm.form.*;
 import ru.aquamarina.model.command.*;
 import ru.aquamarina.model.entity.Folder;
 import ru.aquamarina.model.entity.Product;
+import ru.aquamarina.model.entity.TelegramInfo;
+import ru.aquamarina.model.entity.User;
 import ru.aquamarina.model.error.Error;
 import ru.aquamarina.service.ProductService;
+import ru.aquamarina.service.TelegramInfoService;
 import ru.aquamarina.util.PathUtil;
 import ru.aquamarina.util.ResultError;
 import ru.aquamarina.util.ResultOk;
@@ -34,22 +36,26 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public record TelegramView(OkHttpTelegramClient client, Update update, ProductService productService) implements View {
+@Singleton
+public class TelegramView implements View {
 
     private static final Logger log = LoggerFactory.getLogger(TelegramView.class);
-    private static final ProductMapper productMapper = Mappers.getMapper(ProductMapper.class);
 
+    private final OkHttpTelegramClient client;
+    private final ProductService productService;
+    private final ProductMapper productMapper;
+    private final TelegramInfoService telegramInfoService;
+
+    public TelegramView(OkHttpTelegramClient client, ProductService productService, ProductMapper productMapper, TelegramInfoService telegramInfoService) {
+        this.client = client;
+        this.productService = productService;
+        this.productMapper = productMapper;
+        this.telegramInfoService = telegramInfoService;
+    }
 
     @Override
     public void drawAboutForm(AboutForm form) {
-        String chatId;
-        switch (TelegramUtils.extractTelegramUserId(update)) {
-            case ResultOk<Long, Error> ok -> chatId = ok.unwrap().toString();
-            case ResultError<Long, Error> err -> {
-                draw(err.err());
-                return;
-            }
-        }
+
         InlineKeyboardRow keyboardRow = new InlineKeyboardRow(
                 getButton(new IndexCmd(null))
         );
@@ -60,42 +66,15 @@ public record TelegramView(OkHttpTelegramClient client, Update update, ProductSe
                 Если вы находитесь в другом населенном пункте, то мы отправим вам заказ сервисом «Яндекс-доставка». При заказе более 2000р доставка бесплатная.
                 """;
 
-        var keyBoard = InlineKeyboardMarkup.builder()
-                .keyboardRow(keyboardRow)
-                .build();
-        Integer messageId = update.getCallbackQuery().getMessage().getMessageId();
-        AnswerCallbackQuery close = AnswerCallbackQuery.builder()
-                .callbackQueryId(update.getCallbackQuery().getId())
-                .build();
-        EditMessageText message = EditMessageText.builder()
-                .chatId(chatId)
-                .messageId(messageId)
-                .text(messageText)
-                .parseMode("HTML")
-                .build();
-        EditMessageReplyMarkup replyMarkup = EditMessageReplyMarkup.builder()
-                .chatId(chatId)
-                .messageId(messageId)
-                .replyMarkup(keyBoard)
-                .build();
-        closeQueryAndRewriteMessage(close, message, replyMarkup);
+        rewriteMessage(form.user(), messageText, keyboardRow);
     }
 
     @Override
     public void drawIndexForm(IndexForm form) {
-        String chatId;
-        switch (TelegramUtils.extractTelegramUserId(update)) {
-            case ResultOk<Long, Error> ok -> chatId = ok.unwrap().toString();
-            case ResultError<Long, Error> err -> {
-                draw(err.err());
-                return;
-            }
-        }
         InlineKeyboardRow keyboardRow = new InlineKeyboardRow(
                 getButton(new AboutCmd(null)),
                 getButton(new CatalogCmd(null))
         );
-
         InlineKeyboardRow keyboardRow1 = new InlineKeyboardRow(
                 getButton(new ForWholesalerCmd(null)),
                 getButton(new PayAndDeliveryCmd(null))
@@ -103,46 +82,11 @@ public record TelegramView(OkHttpTelegramClient client, Update update, ProductSe
 
         String messageText = "Привет. Чего желаете";
 
-        var keyBoard = InlineKeyboardMarkup.builder()
-                .keyboard(List.of(keyboardRow, keyboardRow1))
-                .build();
-        if (update.hasMessage() && update.getMessage().getText().equals("/start")) {
-            SendMessage message = SendMessage.builder()
-                    .chatId(chatId)
-                    .text(messageText)
-                    .replyMarkup(keyBoard)
-                    .build();
-            sendMessage(message);
-            return;
-        }
-
-        Integer messageId = update.getCallbackQuery().getMessage().getMessageId();
-        AnswerCallbackQuery close = AnswerCallbackQuery.builder()
-                .callbackQueryId(update.getCallbackQuery().getId())
-                .build();
-        EditMessageText message = EditMessageText.builder()
-                .chatId(chatId)
-                .messageId(messageId)
-                .text(messageText)
-                .build();
-        EditMessageReplyMarkup replyMarkup = EditMessageReplyMarkup.builder()
-                .chatId(chatId)
-                .messageId(messageId)
-                .replyMarkup(keyBoard)
-                .build();
-        closeQueryAndRewriteMessage(close, message, replyMarkup);
+        rewriteMessage(form.user(), messageText, List.of(keyboardRow, keyboardRow1));
     }
 
     @Override
     public void drawCatalogForm(CatalogForm form) {
-        String chatId;
-        switch (TelegramUtils.extractTelegramUserId(update)) {
-            case ResultOk<Long, Error> ok -> chatId = ok.unwrap().toString();
-            case ResultError<Long, Error> err -> {
-                draw(err.err());
-                return;
-            }
-        }
         List<Command> productInFolder = form.products().stream()
                 .map(product -> new ProductAboutCmd(null, product.getId()))
                 .collect(Collectors.toList());
@@ -175,36 +119,11 @@ public record TelegramView(OkHttpTelegramClient client, Update update, ProductSe
 
         String messageText = "Выберете нужный товар";
 
-        var keyBoard = InlineKeyboardMarkup.builder()
-                .keyboard(keyboardRowList)
-                .build();
-        Integer messageId = update.getCallbackQuery().getMessage().getMessageId();
-        AnswerCallbackQuery close = AnswerCallbackQuery.builder()
-                .callbackQueryId(update.getCallbackQuery().getId())
-                .build();
-        EditMessageText message = EditMessageText.builder()
-                .chatId(chatId)
-                .messageId(messageId)
-                .text(messageText)
-                .build();
-        EditMessageReplyMarkup replyMarkup = EditMessageReplyMarkup.builder()
-                .chatId(chatId)
-                .messageId(messageId)
-                .replyMarkup(keyBoard)
-                .build();
-        closeQueryAndRewriteMessage(close, message, replyMarkup);
+        rewriteMessage(form.user(), messageText, keyboardRowList);
     }
 
     @Override
     public void drawProductAboutForm(ProductAboutForm form) {
-        String chatId;
-        switch (TelegramUtils.extractTelegramUserId(update)) {
-            case ResultOk<Long, Error> ok -> chatId = ok.unwrap().toString();
-            case ResultError<Long, Error> err -> {
-                draw(err.err());
-                return;
-            }
-        }
         Product product = form.product();
         List<InlineKeyboardRow> keyboardRowList = new ArrayList<>();
         keyboardRowList.add(new InlineKeyboardRow(
@@ -227,36 +146,11 @@ public record TelegramView(OkHttpTelegramClient client, Update update, ProductSe
 
         String messageText = product.getName() + "\n" + "Цена: " + (double) product.getCost() / 100 + " руб" + "\n" + "В корзине: " + form.quantity();
 
-        var keyBoard = InlineKeyboardMarkup.builder()
-                .keyboard(keyboardRowList)
-                .build();
-        Integer messageId = update.getCallbackQuery().getMessage().getMessageId();
-        AnswerCallbackQuery close = AnswerCallbackQuery.builder()
-                .callbackQueryId(update.getCallbackQuery().getId())
-                .build();
-        EditMessageText message = EditMessageText.builder()
-                .chatId(chatId)
-                .messageId(messageId)
-                .text(messageText)
-                .build();
-        EditMessageReplyMarkup replyMarkup = EditMessageReplyMarkup.builder()
-                .chatId(chatId)
-                .messageId(messageId)
-                .replyMarkup(keyBoard)
-                .build();
-        closeQueryAndRewriteMessage(close, message, replyMarkup);
+        rewriteMessage(form.user(), messageText, keyboardRowList);
     }
 
     @Override
     public void drawOrderForm(OrderForm form) {
-        String chatId;
-        switch (TelegramUtils.extractTelegramUserId(update)) {
-            case ResultOk<Long, Error> ok -> chatId = ok.unwrap().toString();
-            case ResultError<Long, Error> err -> {
-                draw(err.err());
-                return;
-            }
-        }
         List<InlineKeyboardRow> keyboardRowList = new ArrayList<>();
         InlineKeyboardRow keyboardRow = new InlineKeyboardRow(
                 getButton(new IndexCmd(null))
@@ -275,36 +169,11 @@ public record TelegramView(OkHttpTelegramClient client, Update update, ProductSe
         String productTable = TelegramUtils.getProductTable(products);
         String messageText = productTable + "\n" + "Сумма заказа: " + (double) form.totalCost() / 100 + "\n\nСпасибо за заказ.\nМы свяжемся с вами позже.";
 
-        var keyBoard = InlineKeyboardMarkup.builder()
-                .keyboard(keyboardRowList)
-                .build();
-        Integer messageId = update.getCallbackQuery().getMessage().getMessageId();
-        AnswerCallbackQuery close = AnswerCallbackQuery.builder()
-                .callbackQueryId(update.getCallbackQuery().getId())
-                .build();
-        EditMessageText message = EditMessageText.builder()
-                .chatId(chatId)
-                .messageId(messageId)
-                .text(messageText)
-                .build();
-        EditMessageReplyMarkup replyMarkup = EditMessageReplyMarkup.builder()
-                .chatId(chatId)
-                .messageId(messageId)
-                .replyMarkup(keyBoard)
-                .build();
-        closeQueryAndRewriteMessage(close, message, replyMarkup);
+        sendMessage(form.user(), messageText, keyboardRowList);
     }
 
     @Override
     public void drawBasketForm(BasketForm form) {
-        String chatId;
-        switch (TelegramUtils.extractTelegramUserId(update)) {
-            case ResultOk<Long, Error> ok -> chatId = ok.unwrap().toString();
-            case ResultError<Long, Error> err -> {
-                draw(err.err());
-                return;
-            }
-        }
 
         List<ProductRowDto> products = form.rows().stream()
                 .map(basketRow -> productMapper.mapTo(basketRow, productService::getById))
@@ -337,36 +206,12 @@ public record TelegramView(OkHttpTelegramClient client, Update update, ProductSe
         String productTable = TelegramUtils.getProductTable(products);
         String messageText = "Корзина" + "\n\n" + productTable + "\n" + "Сумма: " + (double) form.totalCost() / 100;
 
-        var keyBoard = InlineKeyboardMarkup.builder()
-                .keyboard(keyboardRowList)
-                .build();
-        Integer messageId = update.getCallbackQuery().getMessage().getMessageId();
-        AnswerCallbackQuery close = AnswerCallbackQuery.builder()
-                .callbackQueryId(update.getCallbackQuery().getId())
-                .build();
-        EditMessageText message = EditMessageText.builder()
-                .chatId(chatId)
-                .messageId(messageId)
-                .text(messageText)
-                .build();
-        EditMessageReplyMarkup replyMarkup = EditMessageReplyMarkup.builder()
-                .chatId(chatId)
-                .messageId(messageId)
-                .replyMarkup(keyBoard)
-                .build();
-        closeQueryAndRewriteMessage(close, message, replyMarkup);
+
+        rewriteMessage(form.user(), messageText, keyboardRowList);
     }
 
     @Override
     public void drawForWholesalerForm(ForWholesalerForm form) {
-        String chatId;
-        switch (TelegramUtils.extractTelegramUserId(update)) {
-            case ResultOk<Long, Error> ok -> chatId = ok.unwrap().toString();
-            case ResultError<Long, Error> err -> {
-                draw(err.err());
-                return;
-            }
-        }
         InlineKeyboardRow keyboardRow = new InlineKeyboardRow(
                 getButton(new IndexCmd(null))
         );
@@ -377,41 +222,15 @@ public record TelegramView(OkHttpTelegramClient client, Update update, ProductSe
                 Мы открыты для партнерства с магазинами и профессионалами в сфере обслуживания бассейнов.
 
                 Проконсультируем Вас по вопросам продажи и использования химии, поможем разобраться в ассортименте.
- 
+                 
                 Напишите нашему <a href="tg://user?id=876199982">менеджеру</a> и мы предоставим вам оптовый прайс.
                 """;
 
-        var keyBoard = InlineKeyboardMarkup.builder()
-                .keyboardRow(keyboardRow)
-                .build();
-        Integer messageId = update.getCallbackQuery().getMessage().getMessageId();
-        AnswerCallbackQuery close = AnswerCallbackQuery.builder()
-                .callbackQueryId(update.getCallbackQuery().getId())
-                .build();
-        EditMessageText message = EditMessageText.builder()
-                .chatId(chatId)
-                .messageId(messageId)
-                .text(messageText)
-                .parseMode("HTML")
-                .build();
-        EditMessageReplyMarkup replyMarkup = EditMessageReplyMarkup.builder()
-                .chatId(chatId)
-                .messageId(messageId)
-                .replyMarkup(keyBoard)
-                .build();
-        closeQueryAndRewriteMessage(close, message, replyMarkup);
+        rewriteMessage(form.user(), messageText, keyboardRow);
     }
 
     @Override
     public void drawPayAndDeliveryFormForm(PayAndDeliveryForm form) {
-        String chatId;
-        switch (TelegramUtils.extractTelegramUserId(update)) {
-            case ResultOk<Long, Error> ok -> chatId = ok.unwrap().toString();
-            case ResultError<Long, Error> err -> {
-                draw(err.err());
-                return;
-            }
-        }
         InlineKeyboardRow keyboardRow = new InlineKeyboardRow(
                 getButton(new IndexCmd(null))
         );
@@ -424,97 +243,57 @@ public record TelegramView(OkHttpTelegramClient client, Update update, ProductSe
                 Оплатить заказ вы сможете по ссылке, которую вам вышлет наш менеджер при согласовании заказа.
                 """;
 
-        var keyBoard = InlineKeyboardMarkup.builder()
-                .keyboardRow(keyboardRow)
-                .build();
-        Integer messageId = update.getCallbackQuery().getMessage().getMessageId();
-        AnswerCallbackQuery close = AnswerCallbackQuery.builder()
-                .callbackQueryId(update.getCallbackQuery().getId())
-                .build();
-        EditMessageText message = EditMessageText.builder()
-                .chatId(chatId)
-                .messageId(messageId)
-                .parseMode("HTML")
-                .text(messageText)
-                .build();
-        EditMessageReplyMarkup replyMarkup = EditMessageReplyMarkup.builder()
-                .chatId(chatId)
-                .messageId(messageId)
-                .replyMarkup(keyBoard)
-                .build();
-        closeQueryAndRewriteMessage(close, message, replyMarkup);
+        rewriteMessage(form.user(), messageText, keyboardRow);
     }
 
     @Override
     public void drawProductInstructionForm(ProductInstructionForm form) {
-        String chatId;
-        switch (TelegramUtils.extractTelegramUserId(update)) {
-            case ResultOk<Long, Error> ok -> chatId = ok.unwrap().toString();
-            case ResultError<Long, Error> err -> {
-                draw(err.err());
-                return;
-            }
-        }
         InlineKeyboardRow keyboardRow = new InlineKeyboardRow(
                 getButton("Назад", new ProductAboutCmd(null, form.product().getId()))
         );
 
         String messageText = "Описание товара\n\n" + form.product().getDescription();
 
-        var keyBoard = InlineKeyboardMarkup.builder()
-                .keyboardRow(keyboardRow)
-                .build();
-        Integer messageId = update.getCallbackQuery().getMessage().getMessageId();
-        AnswerCallbackQuery close = AnswerCallbackQuery.builder()
-                .callbackQueryId(update.getCallbackQuery().getId())
-                .build();
-        EditMessageText message = EditMessageText.builder()
-                .chatId(chatId)
-                .messageId(messageId)
-                .text(messageText)
-                .build();
-        EditMessageReplyMarkup replyMarkup = EditMessageReplyMarkup.builder()
-                .chatId(chatId)
-                .messageId(messageId)
-                .replyMarkup(keyBoard)
-                .build();
-        closeQueryAndRewriteMessage(close, message, replyMarkup);
+        rewriteMessage(form.user(), messageText, keyboardRow);
     }
 
     @Override
     public void drawErrorForm(ErrorForm form) {
-        String chatId;
-        switch (TelegramUtils.extractTelegramUserId(update)) {
-            case ResultOk<Long, Error> ok -> chatId = ok.unwrap().toString();
-            case ResultError<Long, Error> err -> {
-                draw(err.err());
-                return;
-            }
-        }
         InlineKeyboardRow keyboardRow = new InlineKeyboardRow(
                 getButton(new IndexCmd(null))
         );
 
         String messageText = "Во время работы возникла ошибка\n";
 
-        var keyBoard = InlineKeyboardMarkup.builder()
-                .keyboardRow(keyboardRow)
-                .build();
-        Integer messageId = update.getCallbackQuery().getMessage().getMessageId();
-        AnswerCallbackQuery close = AnswerCallbackQuery.builder()
-                .callbackQueryId(update.getCallbackQuery().getId())
-                .build();
-        EditMessageText message = EditMessageText.builder()
-                .chatId(chatId)
-                .messageId(messageId)
-                .text(messageText)
-                .build();
-        EditMessageReplyMarkup replyMarkup = EditMessageReplyMarkup.builder()
-                .chatId(chatId)
-                .messageId(messageId)
-                .replyMarkup(keyBoard)
-                .build();
-        closeQueryAndRewriteMessage(close, message, replyMarkup);
+        rewriteMessage(form.user(), messageText, keyboardRow);
+    }
+
+    @Override
+    public void drawDistributionModeForm(DistributionModeForm form) {
+        InlineKeyboardRow keyboardRow = new InlineKeyboardRow(
+                getButton(new DeliveryCmd(null)),
+                getButton(new SelfPickupCmd(null))
+        );
+
+        String messageText = "Пожалуйста выберите способ доставки\n";
+
+        rewriteMessage(form.user(), messageText, keyboardRow);
+    }
+
+    @Override
+    public void drawOrderAdditionalInfoAddressForm(OrderAdditionalInfoAddressForm form) {
+        String messageText = "Пожалуйста введите адресс доставки.\nАдрес должен начинаться с \"г.\"\n" +
+                "Например: г. Ростов ул. Большая Садовая 438б";
+
+        sendMessage(form.user(), messageText);
+    }
+
+    @Override
+    public void drawOrderAdditionalInfoPhoneForm(OrderAdditionalInfoPhoneForm form) {
+        String messageText = "Пожалуйста введите свой номер телефона.\nНомер должен начинаться с \"+7\"\n" +
+                "Например: +79281184838";
+
+        sendMessage(form.user(), messageText);
     }
 
     @Override
@@ -546,6 +325,10 @@ public record TelegramView(OkHttpTelegramClient client, Update update, ProductSe
             case QuantityPlusCmd cmd -> "Добавить в корзину";
             case ClearBasketCmd cmd -> "Очистить корзину";
             case DoNothing cmd -> "¯\\_(ツ)_/¯";
+            case DeliveryCmd cdm -> "Доставка";
+            case SelfPickupCmd cmd -> "Самовывоз";
+            case OrderAdditionalInfoAddressCmd cmd -> "This command should not appear in user interface.";
+            case OrderAdditionalInfoPhoneCmd cmd -> "This command should not appear in user interface.";
             case StartCmd cmd -> "Restart session. This command should not appear in user interface.";
         };
         return InlineKeyboardButton.builder()
@@ -554,42 +337,145 @@ public record TelegramView(OkHttpTelegramClient client, Update update, ProductSe
                 .build();
     }
 
-    private void sendMessage(SendMessage message) {
+    private void sendMessage(User user, String messageText, List<InlineKeyboardRow> keyboardRowList) {
+        Long telegramUserId;
+        Integer messageId;
+        switch (telegramInfoService.getByUser(user)) {
+            case ResultOk<TelegramInfo, Error> ok -> {
+                telegramUserId = ok.result().getTelegramId();
+                messageId = ok.result().getLastMessageId();
+            }
+            case ResultError<TelegramInfo, Error> err -> {
+                draw(err.err());
+                return;
+            }
+        }
+        var keyBoard = InlineKeyboardMarkup.builder()
+                .keyboard(keyboardRowList)
+                .build();
+
+        SendMessage message = SendMessage.builder()
+                .chatId(telegramUserId)
+                .text(messageText)
+                .replyMarkup(keyBoard)
+                .build();
+
         try {
+            if (!(messageId == null)) {
+                DeleteMessage deleteMessage = DeleteMessage.builder()
+                        .chatId(telegramUserId)
+                        .messageId(messageId)
+                        .build();
+                client.execute(deleteMessage);
+            }
             log.trace("=== try to send message ===");
             Message res = client.execute(message);
+            telegramInfoService.update(telegramUserId, null, null, null, res.getMessageId());
             log.trace("=== send message: {} ===", res);
         } catch (TelegramApiException e) {
             log.error("Telegram error during sending message: ", e);
         }
     }
 
-    private void rewriteMessage(EditMessageText messageText, EditMessageReplyMarkup messageReplyMarkup) {
+    private void sendMessage(User user, String messageText) {
+        Long telegramUserId;
+        Integer messageId;
+        switch (telegramInfoService.getByUser(user)) {
+            case ResultOk<TelegramInfo, Error> ok -> {
+                telegramUserId = ok.result().getTelegramId();
+                messageId = ok.result().getLastMessageId();
+            }
+            case ResultError<TelegramInfo, Error> err -> {
+                draw(err.err());
+                return;
+            }
+        }
+
+        SendMessage message = SendMessage.builder()
+                .chatId(telegramUserId)
+                .text(messageText)
+                .build();
+
+        try {
+            if (!(messageId == null)) {
+                DeleteMessage deleteMessage = DeleteMessage.builder()
+                        .chatId(telegramUserId)
+                        .messageId(messageId)
+                        .build();
+                client.execute(deleteMessage);
+            }
+            log.trace("=== try to send message ===");
+            Message res = client.execute(message);
+            telegramInfoService.update(telegramUserId, null, null, null, res.getMessageId());
+            log.trace("=== send message: {} ===", res);
+        } catch (TelegramApiException e) {
+            log.error("Telegram error during sending message: ", e);
+        }
+    }
+
+    private void rewriteMessage(User user, String messageText, InlineKeyboardRow keyboardRow) {
+        var keyBoard = InlineKeyboardMarkup.builder()
+                .keyboardRow(keyboardRow)
+                .build();
+        rewriteMessage(user, messageText, keyBoard);
+    }
+
+    private void rewriteMessage(User user, String messageText, List<InlineKeyboardRow> keyboardRowList) {
+        var keyBoard = InlineKeyboardMarkup.builder()
+                .keyboard(keyboardRowList)
+                .build();
+        rewriteMessage(user, messageText, keyBoard);
+    }
+
+    private void rewriteMessage(User user, String messageText, InlineKeyboardMarkup keyboard) {
+        Long telegramUserId;
+        Integer messageId;
+        switch (telegramInfoService.getByUser(user)) {
+            case ResultOk<TelegramInfo, Error> ok -> {
+                telegramUserId = ok.result().getTelegramId();
+                messageId = ok.result().getLastMessageId();
+            }
+            case ResultError<TelegramInfo, Error> err -> {
+                draw(err.err());
+                return;
+            }
+        }
+
+        EditMessageText message = EditMessageText.builder()
+                .chatId(telegramUserId)
+                .messageId(messageId)
+                .text(messageText)
+                .build();
+        EditMessageReplyMarkup replyMarkup = EditMessageReplyMarkup.builder()
+                .chatId(telegramUserId)
+                .messageId(messageId)
+                .replyMarkup(keyboard)
+                .build();
         try {
             log.trace("Try to rewrite telegram message");
-            client.execute(messageText);
-            client.execute(messageReplyMarkup);
+            client.execute(message);
+            client.execute(replyMarkup);
         } catch (TelegramApiException e) {
             log.error("Telegram error during rewriting message: ", e);
         }
     }
 
-    private void closeQuery(AnswerCallbackQuery answerCallbackQuery) {
-        try {
-            log.trace("Try to close telegram query");
-            client.execute(answerCallbackQuery);
-        } catch (TelegramApiException e) {
-            log.error("Telegram error during closing query: ", e);
-        }
-    }
-
-    private void closeQueryAndRewriteMessage(AnswerCallbackQuery answerCallbackQuery,
-                                             EditMessageText messageText,
-                                             EditMessageReplyMarkup messageReplyMarkup) {
-        closeQuery(answerCallbackQuery);
-        rewriteMessage(messageText, messageReplyMarkup);
-
-    }
+//    private void closeQuery(AnswerCallbackQuery answerCallbackQuery) {
+//        try {
+//            log.trace("Try to close telegram query");
+//            client.execute(answerCallbackQuery);
+//        } catch (TelegramApiException e) {
+//            log.error("Telegram error during closing query: ", e);
+//        }
+//    }
+//
+//    private void closeQueryAndRewriteMessage(AnswerCallbackQuery answerCallbackQuery,
+//                                             EditMessageText messageText,
+//                                             EditMessageReplyMarkup messageReplyMarkup) {
+//        closeQuery(answerCallbackQuery);
+//        rewriteMessage(messageText, messageReplyMarkup);
+//
+//    }
 
 
 }

@@ -36,7 +36,7 @@ public class PayAndDeliveryState implements FsmState {
 
     @Override
     public Form getForm(FsmContextHolder context) {
-        return new PayAndDeliveryForm();
+        return new PayAndDeliveryForm(user);
     }
 
     @Override

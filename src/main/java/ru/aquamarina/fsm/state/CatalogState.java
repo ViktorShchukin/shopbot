@@ -70,7 +70,7 @@ public class CatalogState implements FsmState {
                 .map(folderPth -> PathUtil.getSubfolder(path, folderPth))
                 .map(this::mapToFolder)
                 .collect(Collectors.toSet());
-        return new CatalogForm(productInFolder, List.copyOf(folderInFolder), path);
+        return new CatalogForm(user, productInFolder, List.copyOf(folderInFolder), path);
     }
 
     @Override

@@ -52,7 +52,8 @@ public class TelegramUtils {
                                 dto.telegramId(),
                                 dto.firstName(),
                                 dto.lastName(),
-                                dto.username()))
+                                dto.username(),
+                                null))
                         .map(info -> Result.ok(user))
                 );
     }

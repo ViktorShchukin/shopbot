@@ -66,6 +66,15 @@ public class DefaultFsmRunner implements FsmRunner {
                     .map(id -> fsmContextHolder.getProductService().getById(id))
                     .map(product -> Result.ok(new ProductInstructionState(user, product)));
             case ErrorState.NAME -> Result.ok(new ErrorState(user));
+            case DistributionModeState.NAME -> Result.ok(new DistributionModeState(user));
+            case String str when str.contains(OrderAdditionalInfoAddressState.NAME) ->
+                    CommandUtil.parseCmdWithUuidArg(str)
+                            .map(id -> fsmContextHolder.getOrderService().findById(id))
+                            .mapValue(order -> new OrderAdditionalInfoAddressState(user, order));
+            case String str when str.contains(OrderAdditionalInfoPhoneState.NAME) ->
+                    CommandUtil.parseCmdWithUuidArg(str)
+                            .map(id -> fsmContextHolder.getOrderService().findById(id))
+                            .mapValue(order -> new OrderAdditionalInfoPhoneState(user, order));
             default -> Result.error(new UnknownState());
         };
     }

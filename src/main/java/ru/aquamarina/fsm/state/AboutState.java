@@ -36,7 +36,7 @@ public class AboutState implements FsmState {
 
     @Override
     public Form getForm(FsmContextHolder context) {
-        return new AboutForm();
+        return new AboutForm(user);
     }
 
     @Override

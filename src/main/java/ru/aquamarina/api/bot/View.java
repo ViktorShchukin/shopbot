@@ -26,4 +26,10 @@ public interface View {
     void drawProductInstructionForm(ProductInstructionForm form);
 
     void drawErrorForm(ErrorForm form);
+
+    void drawDistributionModeForm(DistributionModeForm form);
+
+    void drawOrderAdditionalInfoAddressForm(OrderAdditionalInfoAddressForm form);
+
+    void drawOrderAdditionalInfoPhoneForm(OrderAdditionalInfoPhoneForm form);
 }

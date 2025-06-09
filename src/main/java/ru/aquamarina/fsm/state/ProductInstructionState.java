@@ -50,7 +50,7 @@ public class ProductInstructionState implements FsmState {
 
     @Override
     public Form getForm(FsmContextHolder context) {
-        return new ProductInstructionForm(product);
+        return new ProductInstructionForm(user, product);
     }
 
     @Override

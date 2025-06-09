@@ -55,7 +55,8 @@ public class TelegramInfoService {
                                               String firstName,
                                               String lastName,
                                               String userName,
-                                              Boolean updated) {
+                                              Boolean updated,
+                                              Integer lastMessageId) {
         // todo get rid of try-catch block
         try {
             TelegramInfo newO = telegramInfoUtil.create(
@@ -64,7 +65,8 @@ public class TelegramInfoService {
                     firstName,
                     lastName,
                     userName,
-                    updated
+                    updated,
+                    lastMessageId
             );
             return Result.ok(telegramInfoRepository.save(newO));
         } catch (Exception e) {
@@ -76,11 +78,12 @@ public class TelegramInfoService {
     public Result<TelegramInfo, Error> update(Long telegramId,
                                               String firstName,
                                               String lastName,
-                                              String userName) {
+                                              String userName,
+                                              Integer lastMessageId) {
         try {
             return telegramInfoRepository
                     .findById(telegramId)
-                    .map(info -> telegramInfoUtil.update(info, firstName, lastName, userName))
+                    .map(info -> telegramInfoUtil.update(info, firstName, lastName, userName, lastMessageId))
                     .map(telegramInfoRepository::update)
                     .map(Result::<TelegramInfo, Error>ok)
                     .orElseGet(() -> Result.error(new NotFound("this telegram info not found")));
@@ -109,7 +112,7 @@ public class TelegramInfoService {
             }
             case ResultError<User, Error> error -> {
                 var user = userService.create(null, UserRole.CUSTOMER);
-                user.map(usr -> create(telegramId, usr.getId(), null, null, null, false));
+                user.map(usr -> create(telegramId, usr.getId(), null, null, null, false, null));
                 // todo not save. Think how to do user.create and telegramInfo.create as transactional operation
                 return user;
             }

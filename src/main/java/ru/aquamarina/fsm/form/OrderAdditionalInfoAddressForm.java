@@ -3,10 +3,9 @@ package ru.aquamarina.fsm.form;
 import ru.aquamarina.api.bot.View;
 import ru.aquamarina.model.entity.User;
 
-public record ForWholesalerForm(User user) implements Form {
-
+public record OrderAdditionalInfoAddressForm(User user) implements Form {
     @Override
     public void draw(View view) {
-        view.drawForWholesalerForm(this);
+        view.drawOrderAdditionalInfoAddressForm(this);
     }
 }

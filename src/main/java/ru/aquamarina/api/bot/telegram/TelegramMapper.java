@@ -12,8 +12,6 @@ import ru.aquamarina.model.command.IndexCmd;
 import ru.aquamarina.model.error.Error;
 import ru.aquamarina.model.error.UnknownCommand;
 
-import java.util.UUID;
-
 @Mapper(config = AppMapperConfig.class)
 public interface TelegramMapper {
 
@@ -49,6 +47,12 @@ public interface TelegramMapper {
             case ClearBasketCmd.NAME -> Result.ok(new ClearBasketCmd(user));
             case InstructionCmd.NAME -> Result.ok(new InstructionCmd(user));
             case DoNothing.NAME -> Result.ok(new DoNothing(user));
+            case DeliveryCmd.NAME -> Result.ok(new DeliveryCmd(user));
+            case SelfPickupCmd.NAME -> Result.ok(new SelfPickupCmd(user));
+            case String str when str.contains(OrderAdditionalInfoPhoneCmd.NAME) ->
+                    Result.ok(new OrderAdditionalInfoPhoneCmd(user, str));
+            case String str when str.toLowerCase().contains(OrderAdditionalInfoAddressCmd.NAME) ->
+                    Result.ok(new OrderAdditionalInfoAddressCmd(user, str));
             case null, default -> Result.error(new UnknownCommand());
         };
     }
