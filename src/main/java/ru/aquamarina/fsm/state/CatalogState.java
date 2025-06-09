@@ -53,7 +53,7 @@ public class CatalogState implements FsmState {
             case FolderCmd fld -> Result.ok(new CatalogState(user, fld.path()));
             case CatalogCmd ctg -> Result.ok(new CatalogState(user, "/"));
             case BasketCmd bsk -> Result.ok(new BasketState(user));
-            case StartCmd start -> Result.ok(new IndexState(user));
+            case StartCmd start -> Result.ok(new IndexState(user, true));
             default -> Result.error(new NotSupportedCommand());
         };
     }

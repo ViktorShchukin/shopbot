@@ -18,9 +18,15 @@ public class IndexState implements FsmState {
     private final Logger log = LoggerFactory.getLogger(IndexState.class);
 
     private final User user;
+    private boolean isRestartRequired = false;
 
     public IndexState(User user) {
         this.user = user;
+    }
+
+    public IndexState(User user, boolean isRestartRequired) {
+        this(user);
+        this.isRestartRequired = isRestartRequired;
     }
 
     @Override
@@ -30,14 +36,14 @@ public class IndexState implements FsmState {
             case ForWholesalerCmd wls -> Result.ok(new ForWholesalerState(user));
             case PayAndDeliveryCmd pad -> Result.ok(new PayAndDeliveryState(user));
             case CatalogCmd ctg -> Result.ok(new CatalogState(user, "/"));
-            case StartCmd start-> Result.ok(new IndexState(user));
+            case StartCmd start-> Result.ok(new IndexState(user, true));
             default -> Result.error(new NotSupportedCommand());
         };
     }
 
     @Override
     public Form getForm(FsmContextHolder context) {
-        return new IndexForm(user);
+        return new IndexForm(user, isRestartRequired);
     }
 
     @Override

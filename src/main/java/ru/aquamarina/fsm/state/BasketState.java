@@ -31,7 +31,7 @@ public class BasketState implements FsmState {
             case DoOrderCmd ord -> Result.ok(new DistributionModeState(user));
             case IndexCmd index -> Result.ok(new IndexState(user));
             case CatalogCmd ctg -> Result.ok(new CatalogState(user, "/"));
-            case StartCmd start -> Result.ok(new IndexState(user));
+            case StartCmd start -> Result.ok(new IndexState(user, true));
             case ClearBasketCmd clr -> context.getBasketService().getByUser(user)
                     .map(basket -> {
                         context.getBasketService().clearBasket(basket);

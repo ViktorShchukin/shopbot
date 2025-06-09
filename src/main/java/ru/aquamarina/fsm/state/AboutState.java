@@ -29,7 +29,7 @@ public class AboutState implements FsmState {
     public Result<FsmState, Error> doWork(FsmContextHolder context, Command command) {
         return switch (command) {
             case IndexCmd index -> Result.ok(new IndexState(user));
-            case StartCmd start-> Result.ok(new IndexState(user));
+            case StartCmd start-> Result.ok(new IndexState(user, true));
             default -> Result.error(new NotSupportedCommand());
         };
     }

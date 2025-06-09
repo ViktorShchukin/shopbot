@@ -43,7 +43,7 @@ public class ProductInstructionState implements FsmState {
                                 .orElseGet(() -> 0L);
                         return Result.ok(new ProductAboutState(user, prod, quantity));
                     });
-            case StartCmd start -> Result.ok(new IndexState(user));
+            case StartCmd start -> Result.ok(new IndexState(user, true));
             default -> Result.error(new NotSupportedCommand());
         };
     }

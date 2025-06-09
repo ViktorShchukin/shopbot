@@ -41,7 +41,7 @@ public class DistributionModeState implements FsmState {
                     .map(basket -> context.getOrderService().create(user, null, null, DistributionMode.SERLF_PICKUP))
                     .map(order -> Result.<FsmState, Error>ok(new OrderAdditionalInfoPhoneState(user, order)))
                     .orElseGet(() -> Result.error(new CanNotDoOrder()));
-            case StartCmd start -> Result.ok(new IndexState(user));
+            case StartCmd start -> Result.ok(new IndexState(user, true));
             default -> Result.error(new NotSupportedCommand());
         };
     }

@@ -40,7 +40,7 @@ public class ErrorState implements FsmState {
         return switch (command) {
             case IndexCmd ndx -> Result.ok(new IndexState(user));
             case BasketCmd bsk -> Result.ok(new BasketState(user));
-            case StartCmd start -> Result.ok(new IndexState(user));
+            case StartCmd start -> Result.ok(new IndexState(user, true));
             default -> Result.error(new NotSupportedCommand());
         };
     }

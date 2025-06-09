@@ -31,7 +31,7 @@ public class OrderAdditionalInfoAddressState implements FsmState {
             case OrderAdditionalInfoAddressCmd cmd -> context.getOrderService()
                     .update(order, null, cmd.address(), null)
                     .mapValue(order1 -> new OrderAdditionalInfoPhoneState(user, order));
-            case StartCmd start -> Result.ok(new IndexState(user));
+            case StartCmd start -> Result.ok(new IndexState(user, true));
             default -> Result.error(new NotSupportedCommand());
         };
     }

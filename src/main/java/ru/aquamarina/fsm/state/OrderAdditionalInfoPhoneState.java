@@ -37,7 +37,7 @@ public class OrderAdditionalInfoPhoneState implements FsmState {
                         return order;
                     })
                     .mapValue(order1 -> new OrderState(user, order));
-            case StartCmd start -> Result.ok(new IndexState(user));
+            case StartCmd start -> Result.ok(new IndexState(user, true));
             default -> Result.error(new NotSupportedCommand());
         };
     }

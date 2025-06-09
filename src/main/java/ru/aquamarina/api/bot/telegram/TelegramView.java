@@ -86,9 +86,15 @@ public class TelegramView implements View {
                         .build()
         );
 
+        List<InlineKeyboardRow> keyboardRowList = List.of(keyboardRow, keyboardRow1, keyboardRow2);
+
         String messageText = "Привет. Чего желаете";
 
-        rewriteMessage(form.user(), messageText, List.of(keyboardRow, keyboardRow1, keyboardRow2));
+        if (form.isRestartRequired()) {
+            sendMessage(form.user(), messageText, keyboardRowList);
+        } else {
+            rewriteMessage(form.user(), messageText, keyboardRowList);
+        }
     }
 
     @Override
