@@ -2,7 +2,6 @@ package ru.aquamarina.service;
 
 import io.micronaut.data.exceptions.DataAccessException;
 import jakarta.inject.Singleton;
-import jakarta.transaction.Transactional;
 import ru.aquamarina.model.entity.Basket;
 import ru.aquamarina.model.entity.BasketRow;
 import ru.aquamarina.model.entity.Product;
@@ -10,9 +9,6 @@ import ru.aquamarina.model.entity.User;
 import ru.aquamarina.model.error.Error;
 import ru.aquamarina.model.error.ExceptionWrapperError;
 import ru.aquamarina.model.error.IoError;
-import ru.aquamarina.model.error.NotFound;
-import ru.aquamarina.repository.BasketRepository;
-import ru.aquamarina.util.BasketMapper;
 import ru.aquamarina.util.Result;
 
 import java.util.List;
@@ -23,58 +19,38 @@ import java.util.UUID;
 @Singleton
 public class BasketService {
 
-    private final BasketRepository basketRepository;
-    private final BasketMapper basketMapper;
+    private final BasketServiceWithExc basketServiceWithExc;
 
-
-    public BasketService(BasketRepository basketRepository, BasketMapper basketMapper) {
-        this.basketRepository = basketRepository;
-        this.basketMapper = basketMapper;
+    public BasketService(BasketServiceWithExc basketServiceWithExc) {
+        this.basketServiceWithExc = basketServiceWithExc;
     }
 
     public Result<Basket, Error> getByUser(User user) {
         try {
-            return getByUserId(user.getId())
-                    .map(bsk -> Result.<Basket, Error>ok(bsk))
-                    .orElseGet(() -> Result.error(new NotFound("basket for this user not found")));
+            return basketServiceWithExc.getByUser(user);
         } catch (DataAccessException e) {
             return Result.error(new ExceptionWrapperError(e, "error in BasketService::getByUser"));
         }
     }
 
     public Optional<Basket> getByUserId(UUID userId) {
-        return basketRepository.findByUserId(userId);
+        return basketServiceWithExc.getByUserId(userId);
     }
 
-    @Transactional
     public Basket create(User user) {
-        Basket created = basketMapper.create(user.getId());
-        return basketRepository.save(created);
+        return basketServiceWithExc.create(user);
     }
 
-    @Transactional
     // todo make this to return result
     public void addToBasket(User user, Product product, long productQuantity) {
         // todo make create() return Result
-        addToBasket(user, product.getId(), productQuantity);
+        basketServiceWithExc.addToBasket(user, product.getId(), productQuantity);
 
     }
 
-    @Transactional
     public Result<Long, Error> addToBasket(User user, UUID productId, long productQuantity) {
         try {
-            return basketRepository.findByUserId(user.getId())
-                    .or(() -> java.util.Optional.ofNullable(create(user)))
-                    .map(basket -> {
-                        boolean isRowExist = basketRepository.existByBasketIdProductId(basket.getId(), productId);
-                        if (isRowExist) {
-                            return (long) basketRepository.updateRowQuantity(basket.getId(), productId, productQuantity);
-                        } else {
-                            return (long) basketRepository.addToBasket(basket.getId(), productId, productQuantity);
-                        }
-                    })
-                    .map(Result::<Long, Error>ok)
-                    .get();
+            return basketServiceWithExc.addToBasket(user, productId, productQuantity);
         } catch (DataAccessException e) {
             return Result.error(new IoError(e));
         } catch (NoSuchElementException e) {
@@ -84,56 +60,34 @@ public class BasketService {
         }
     }
 
-    @Transactional
     public List<BasketRow> getBasketRow(User user) {
-        var basket = basketRepository.findByUserId(user.getId())
-                .orElseGet(() -> create(user));
-        return basketRepository.getBasketRowByBasketId(basket.getId());
+        return basketServiceWithExc.getBasketRow(user);
     }
 
-    @Transactional
     public List<BasketRow> getBasketRow(Basket basket) {
-        return basketRepository.getBasketRowByBasketId(basket.getId());
+        return basketServiceWithExc.getBasketRow(basket);
     }
 
-    @Transactional
     public Result<BasketRow, Error> getBasketRow(User user, UUID productId) {
         try {
-            return getByUser(user)
-                    .map(basket -> basketRepository
-                            .findBasketRowByUserIdAndProductId(basket.getId(), productId)
-                            .map(Result::<BasketRow, Error>ok)
-                            .orElseGet(() -> Result.error(new NotFound("basket row not found BasketService::getBasketRow")))
-                    );
+            return getBasketRow(user, productId);
         } catch (DataAccessException e) {
             return Result.error(new IoError(e));
         }
 
     }
 
-    @Transactional
     public void clearBasket(Basket basket) {
-        basketRepository.deleteAllFromBasket(basket.getId());
+        basketServiceWithExc.clearBasket(basket);
     }
 
-    @Transactional
     public Result<Long, Error> deleteFromBasket(User user, Product product) {
-        return deleteFromBasket(user, product.getId());
+        return basketServiceWithExc.deleteFromBasket(user, product);
     }
 
-    @Transactional
     public Result<Long, Error> deleteFromBasket(User user, UUID productId) {
         try {
-            return basketRepository.findByUserId(user.getId())
-                    .map(basket -> {
-                        if (basketRepository.existByBasketIdProductId(basket.getId(), productId)) {
-                            var deletedQuantity = basketRepository.deleteFromBasketByProductId(basket.getId(), productId);
-                            return Result.<Long, Error>ok((long) deletedQuantity);
-                        } else {
-                            return Result.<Long, Error>ok(0L);
-                        }
-                    })
-                    .orElseGet(() -> Result.error(new NotFound("basket for this user is not exist")));
+            return basketServiceWithExc.deleteFromBasket(user, productId);
         } catch (DataAccessException e) {
             return Result.error(new IoError(e));
         }

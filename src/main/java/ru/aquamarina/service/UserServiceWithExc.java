@@ -1,0 +1,55 @@
+package ru.aquamarina.service;
+
+import jakarta.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import ru.aquamarina.fsm.state.FsmState;
+import ru.aquamarina.fsm.state.InitState;
+import ru.aquamarina.mapper.UserUtil;
+import ru.aquamarina.model.UserRole;
+import ru.aquamarina.model.entity.User;
+import ru.aquamarina.model.error.Error;
+import ru.aquamarina.repository.UserRepository;
+import ru.aquamarina.util.Result;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+public class UserServiceWithExc {
+
+    private final Logger log = LoggerFactory.getLogger(UserService.class);
+
+    private final UserRepository userRepository;
+    private final UserUtil userUtil;
+
+    public UserServiceWithExc(UserRepository userRepository, UserUtil userUtil) {
+        this.userRepository = userRepository;
+        this.userUtil = userUtil;
+    }
+
+    @Transactional
+    public Optional<User> getUser(UUID id) {
+        // todo redo to return result with UserNotFound.
+        return userRepository.findById(id);
+    }
+
+    @Transactional
+    public Result<User, Error> create(String login, UserRole userRole) {
+        User user = userUtil.create(login, InitState.NAME, userRole);
+        return Result.ok(userRepository.save(user));
+    }
+
+    @Transactional
+    public Result<FsmState, Error> updateState(User user, FsmState state) {
+        User updated = userUtil.update(user, null, state, user.getUserRole());
+        userRepository.update(updated);
+        // todo think about is it normal to return state instead of user.
+        return Result.ok(state);
+    }
+
+    @Transactional
+    public List<User> getAllByUserRole(UserRole userRole) {
+        return userRepository.findByUserRole(userRole);
+    }
+}
