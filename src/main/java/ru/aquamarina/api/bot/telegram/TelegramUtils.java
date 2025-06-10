@@ -107,7 +107,7 @@ public class TelegramUtils {
     public static String getProductTable(List<ProductRowDto> products) {
         long maxProductNameLength = products.stream()
                 .map(ProductRowDto::product)
-                .map(Product::getName)
+                .map(Product::getShortName)
                 .mapToInt(String::length)
                 .map(i -> i + 5)
                 .max()

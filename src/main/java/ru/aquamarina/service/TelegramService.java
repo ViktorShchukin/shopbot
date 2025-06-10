@@ -67,7 +67,12 @@ public class TelegramService {
                 .map(TelegramInfo::getUserName)
                 .get();
 
-        String messageText = productTable + "\nСумма: " + totalCost + "\n" + "[@%s](tg://user?id=%s)".formatted(clientUserName, clientId);
+        String messageText = productTable + "\n" +
+                "Сумма: " + totalCost + "\n" +
+                order.getPhoneNumber() + "\n" +
+                order.getAddress() + "\n" +
+                "[@%s](tg://user?id=%s) ".formatted(clientUserName, clientId) +
+                "или воспользуйтесь ссылкой https://t.me/%s".formatted(clientUserName);
 
         SendMessage.SendMessageBuilder messageBuilder = SendMessage.builder()
                 .text(messageText)
