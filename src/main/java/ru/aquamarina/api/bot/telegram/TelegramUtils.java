@@ -31,6 +31,8 @@ public class TelegramUtils {
 
     // | productName | quantity | totalSumByThisPosition |
     private static final String PRODUCT_ROW_TABLE_TEMPLATE = "%s  %s  %s";
+    private static final String PRODUCT_TABLE_TEMPLATE = "<pre>%s</pre>";
+
     private static final String NAME_OF_PRODUCT = "Название";
     private static final String QUANTITY_OF_PRODUCT = "Кол-во";
     private static final String TOTAL_SUM_OF_PRODUCT = "Итог";
@@ -109,7 +111,7 @@ public class TelegramUtils {
                 .map(ProductRowDto::product)
                 .map(Product::getShortName)
                 .mapToInt(String::length)
-                .map(i -> i + 5)
+                .map(i -> i + 1)
                 .max()
                 .orElseGet(() -> 0);
 
@@ -137,7 +139,7 @@ public class TelegramUtils {
         String productTable = productRowStringList.stream()
                 .reduce("", String::concat);
 
-        return productTable;
+        return PRODUCT_TABLE_TEMPLATE.formatted(productTable);
     }
 
     private static String getProductTableRow(ProductRowDto productRowDto, long maxName, long maxQuantity, long maxTotalSum) {
