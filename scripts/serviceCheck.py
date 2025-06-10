@@ -68,8 +68,11 @@ if __name__ == "__main__":
     log_cache = args.log_cache_path
 
     try:
+        if not check_log(log_file, log_cache)):
+              notify_telegram(bot_token, chat_id, "".join(message))
+
         resource = req.urlopen(health_url)
-        if not (check_health(resource) and check_log(log_file, log_cache)):
+        if not (check_health(resource) and :
             notify_telegram(bot_token, chat_id, "".join(message))
     except urllib.error.HTTPError as e:
         message.append(prepare_err(e))
