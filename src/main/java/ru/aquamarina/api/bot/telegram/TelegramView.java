@@ -331,7 +331,7 @@ public class TelegramView implements View {
             case ForWholesalerCmd cmd -> "Оптовикам";
             case PayAndDeliveryCmd cmd -> "Оплата и доставка";
             case AddToBasketCmd cmd -> "Добавить в корзину";
-            case BasketCmd cmd -> "Посмотреть корзину";
+            case BasketCmd cmd -> "\uD83D\uDED2Посмотреть корзину\uD83D\uDED2";
             case CatalogCmd cmd -> "Каталог товаров";
             case DoOrderCmd cmd -> "Оформить заказ";
             case FolderCmd cmd -> PathUtil.getFolderName(cmd.path());

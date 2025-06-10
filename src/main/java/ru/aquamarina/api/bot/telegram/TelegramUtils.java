@@ -37,7 +37,7 @@ public class TelegramUtils {
     private static final String QUANTITY_OF_PRODUCT = "Кол-во";
     private static final String TOTAL_SUM_OF_PRODUCT = "Итог";
 
-    private static final String QUANTITY_TEMPLATE = "%dx%.2f";
+    private static final String QUANTITY_TEMPLATE = "%d*%.2f";
     private static final String TOTAL_SUM_TEMPLATE = "%.2f руб";
 
     /**

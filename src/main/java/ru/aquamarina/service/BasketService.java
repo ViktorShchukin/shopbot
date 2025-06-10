@@ -70,7 +70,7 @@ public class BasketService {
 
     public Result<BasketRow, Error> getBasketRow(User user, UUID productId) {
         try {
-            return getBasketRow(user, productId);
+            return basketServiceWithExc.getBasketRow(user, productId);
         } catch (DataAccessException e) {
             return Result.error(new IoError(e));
         }

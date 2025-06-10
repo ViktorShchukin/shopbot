@@ -71,12 +71,12 @@ public class TelegramService {
                 "Сумма: " + totalCost + "\n" +
                 order.getPhoneNumber() + "\n" +
                 order.getAddress() + "\n" +
-                "[@%s](tg://user?id=%s) ".formatted(clientUserName, clientId) +
+                "<a href=\"tg://user?id=%s\">@%s</a> ".formatted(clientId, clientUserName) +
                 "или воспользуйтесь ссылкой https://t.me/%s".formatted(clientUserName);
 
         SendMessage.SendMessageBuilder messageBuilder = SendMessage.builder()
                 .text(messageText)
-                .parseMode("Markdown");
+                .parseMode("HTML");
 
         List<SendMessage> messages = telegramInfoService.getByUserRole(UserRole.SELLER).stream()
                 .map(TelegramInfo::getTelegramId)
