@@ -76,4 +76,4 @@ if __name__ == "__main__":
         notify_telegram(bot_token, chat_id, "".join(message))
     except BaseException as e:
         message.append(str(e))
-        notify_telegram(bot_token, chat_id, "".join(message))
+        notify_telegram(bot_token, chat_id, "ERROR: CAN NOT CONNECT TO SERVER\n".join(message))
