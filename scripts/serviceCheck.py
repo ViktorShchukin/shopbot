@@ -74,3 +74,6 @@ if __name__ == "__main__":
     except urllib.error.HTTPError as e:
         message.append(prepare_err(e))
         notify_telegram(bot_token, chat_id, "".join(message))
+    except BaseException as e:
+        message.append(str(e))
+        notify_telegram(bot_token, chat_id, "".join(message))
