@@ -1,5 +1,6 @@
 package ru.aquamarina.service;
 
+import jakarta.inject.Singleton;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +17,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+@Singleton
 public class UserServiceWithExc {
 
     private final Logger log = LoggerFactory.getLogger(UserService.class);
