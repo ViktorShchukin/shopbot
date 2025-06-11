@@ -125,7 +125,7 @@ public class TelegramUtils {
         long maxTotalSumLength = products.stream()
                 .map(TelegramUtils::totalSumToString)
                 .mapToInt(String::length)
-                .map(i -> i + 5)
+                .map(i -> i + 1)
                 .max()
                 .orElseGet(() -> 0);
 

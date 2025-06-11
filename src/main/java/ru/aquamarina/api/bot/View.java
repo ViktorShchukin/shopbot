@@ -32,4 +32,6 @@ public interface View {
     void drawOrderAdditionalInfoAddressForm(OrderAdditionalInfoAddressForm form);
 
     void drawOrderAdditionalInfoPhoneForm(OrderAdditionalInfoPhoneForm form);
+
+    void OrderAdditionalInfoPhoneInvalidForm(OrderAdditionalInfoPhoneInvalidForm form);
 }

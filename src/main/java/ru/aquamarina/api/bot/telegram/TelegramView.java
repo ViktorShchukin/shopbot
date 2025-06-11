@@ -314,6 +314,16 @@ public class TelegramView implements View {
     }
 
     @Override
+    public void OrderAdditionalInfoPhoneInvalidForm(OrderAdditionalInfoPhoneInvalidForm form) {
+        String messageText = "Пожалуйста введите свой номер телефона.\nНомер должен начинаться с \"+7\"\n" +
+                "Например: +79281184838\n\n" +
+                "Ошибка в номере телефона:\n" +
+                "Вы ввели: %s\n".formatted(form.invalidPhoneNumber()) +
+                "Номер телефона обязательно должен начинаться с \"+7\", содержать 11 цифр от 0 до 9, между цифрами допускаются только знаки пробелов и тире \"-\" ";
+        sendMessage(form.user(), messageText);
+    }
+
+    @Override
     public void draw(Error error) {
         log.error("=== error inside the app: {}", error.toString());
     }

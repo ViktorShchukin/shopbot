@@ -10,6 +10,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.aquamarina.api.bot.telegram.TelegramUtils;
 import ru.aquamarina.api.dto.ProductRowDto;
 import ru.aquamarina.api.mapper.ProductMapper;
+import ru.aquamarina.model.DistributionMode;
 import ru.aquamarina.model.UserRole;
 import ru.aquamarina.model.entity.Order;
 import ru.aquamarina.model.entity.TelegramInfo;
@@ -67,10 +68,16 @@ public class TelegramService {
                 .map(TelegramInfo::getUserName)
                 .get();
 
+        String distributionMode = switch (order.getDistributionMode()) {
+            case DistributionMode.DELIVERY -> "Доставка";
+            case DistributionMode.SERLF_PICKUP -> "Самовывоз";
+        };
+
         String messageText = productTable + "\n" +
                 "Сумма: " + totalCost + "\n" +
-                order.getPhoneNumber() + "\n" +
-                order.getAddress() + "\n" +
+                "телефон: %s\n".formatted(order.getPhoneNumber()) +
+                "адресс: %s\n".formatted(order.getAddress()) +
+                "способ доставки: %s\n".formatted(distributionMode) +
                 "<a href=\"tg://user?id=%s\">@%s</a> ".formatted(clientId, clientUserName) +
                 "или воспользуйтесь ссылкой https://t.me/%s".formatted(clientUserName);
 
