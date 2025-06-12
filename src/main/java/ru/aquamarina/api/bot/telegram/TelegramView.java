@@ -387,15 +387,19 @@ public class TelegramView implements View {
                 .parseMode("HTML")
                 .replyMarkup(keyBoard)
                 .build();
-
-        try {
-            if (!(messageId == null)) {
-                DeleteMessage deleteMessage = DeleteMessage.builder()
-                        .chatId(telegramUserId)
-                        .messageId(messageId)
-                        .build();
+        if (!(messageId == null)) {
+            DeleteMessage deleteMessage = DeleteMessage.builder()
+                    .chatId(telegramUserId)
+                    .messageId(messageId)
+                    .build();
+            try {
                 client.execute(deleteMessage);
+            } catch (TelegramApiException e) {
+                log.warn("Can not delete last message for telegramUserId: {}", telegramUserId);
             }
+        }
+        try {
+
             log.trace("=== try to send message ===");
             Message res = client.execute(message);
             telegramInfoService.update(telegramUserId, null, null, null, res.getMessageId());

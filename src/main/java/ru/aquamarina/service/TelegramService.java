@@ -66,7 +66,7 @@ public class TelegramService {
                 .map(telegramInfoService::getByUser)
                 .flatMap(res -> res.ok())
                 .map(TelegramInfo::getUserName)
-                .get();
+                .orElseGet(() -> "клиент");
 
         String distributionMode = switch (order.getDistributionMode()) {
             case DistributionMode.DELIVERY -> "Доставка";
