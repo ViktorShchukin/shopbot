@@ -61,7 +61,9 @@ public class TelegramService {
                 .map(TelegramInfo::getTelegramId)
                 .map(String::valueOf)
                 // todo get rid of get() call
-                .get();
+                .orElseGet(() -> "");
+
+
         String clientUserName = userService.getUser(order.getUserId())
                 .map(telegramInfoService::getByUser)
                 .flatMap(res -> res.ok())
