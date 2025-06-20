@@ -80,15 +80,18 @@ public class TelegramView implements View {
                 getButton(new PayAndDeliveryCmd(null))
         );
         InlineKeyboardRow keyboardRow2 = new InlineKeyboardRow(
+                getButton(new BasketCmd(null))
+        );
+        InlineKeyboardRow keyboardRow3 = new InlineKeyboardRow(
                 InlineKeyboardButton.builder()
-                        .text("Связаться с мэнеджером")
+                        .text("Связаться с менеджером")
                         .url("tg://user?id=876199982")
                         .build()
         );
 
-        List<InlineKeyboardRow> keyboardRowList = List.of(keyboardRow, keyboardRow1, keyboardRow2);
+        List<InlineKeyboardRow> keyboardRowList = List.of(keyboardRow, keyboardRow1, keyboardRow2, keyboardRow3);
 
-        String messageText = "Привет. Чего желаете";
+        String messageText = "Здравствуйте. Это бот магазина «Аквамарина». Здесь вы можете заказать химию для бассейна. Чтобы посмотреть список товаров, перейдите в каталог.";
 
         if (form.isRestartRequired()) {
             sendMessage(form.user(), messageText, keyboardRowList);
@@ -147,10 +150,11 @@ public class TelegramView implements View {
         ));
         keyboardRowList.add(new InlineKeyboardRow(
                 getButton(new BasketCmd(null)),
-                getButton(new InstructionCmd(null))
+                getButton(new DoOrderCmd(null))
         ));
         keyboardRowList.add(new InlineKeyboardRow(
-                getButton(new CatalogCmd(null))
+                getButton(new CatalogCmd(null)),
+                getButton(new InstructionCmd(null))
         ));
         keyboardRowList.add(new InlineKeyboardRow(
                 getButton(new IndexCmd(null))
@@ -300,7 +304,7 @@ public class TelegramView implements View {
     @Override
     public void drawOrderAdditionalInfoAddressForm(OrderAdditionalInfoAddressForm form) {
         String messageText = "Пожалуйста введите адресс доставки.\nАдрес должен начинаться с \"г.\"\n" +
-                "Например: г. Ростов ул. Большая Садовая 438б";
+                "Например: г. Ростов-на-Дону ул. Большая Садовая 438б";
 
         sendMessage(form.user(), messageText);
     }
@@ -341,7 +345,7 @@ public class TelegramView implements View {
             case ForWholesalerCmd cmd -> "Оптовикам";
             case PayAndDeliveryCmd cmd -> "Оплата и доставка";
             case AddToBasketCmd cmd -> "Добавить в корзину";
-            case BasketCmd cmd -> "\uD83D\uDED2Посмотреть корзину\uD83D\uDED2";
+            case BasketCmd cmd -> "\uD83D\uDED2Посмотреть корзину";
             case CatalogCmd cmd -> "Каталог товаров";
             case DoOrderCmd cmd -> "Оформить заказ";
             case FolderCmd cmd -> PathUtil.getFolderName(cmd.path());

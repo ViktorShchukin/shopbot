@@ -61,6 +61,7 @@ public class ProductAboutState implements FsmState {
             case StartCmd start -> Result.ok(new IndexState(user, true));
             case InstructionCmd inst -> Result.ok(new ProductInstructionState(user, product));
             case DoNothing don -> Result.ok(this);
+            case DoOrderCmd ord -> Result.ok(new DistributionModeState(user));
             default -> Result.error(new NotSupportedCommand());
         };
     }

@@ -36,6 +36,7 @@ public class IndexState implements FsmState {
             case ForWholesalerCmd wls -> Result.ok(new ForWholesalerState(user));
             case PayAndDeliveryCmd pad -> Result.ok(new PayAndDeliveryState(user));
             case CatalogCmd ctg -> Result.ok(new CatalogState(user, "/"));
+            case BasketCmd bsk -> Result.ok(new BasketState(user));
             case StartCmd start-> Result.ok(new IndexState(user, true));
             default -> Result.error(new NotSupportedCommand());
         };
