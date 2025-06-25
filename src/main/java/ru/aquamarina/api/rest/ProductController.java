@@ -4,6 +4,7 @@ import io.micronaut.http.HttpResponse;
 import io.micronaut.http.annotation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.aquamarina.api.rest.dto.CreateProductDto;
 import ru.aquamarina.api.rest.dto.ProductDto;
 import ru.aquamarina.model.error.Error;
 import ru.aquamarina.model.error.ExceptionWrapperError;
@@ -62,7 +63,7 @@ public class ProductController {
     }
 
     @Post
-    public HttpResponse<ProductDto> addProduct(@Body ProductDto dto) {
+    public HttpResponse<ProductDto> addProduct(@Body CreateProductDto dto) {
         if (!isValidFolderPath(dto.getPath())) {
             // todo make all response entities inherited from response interface???
             // cons are that it can not be normally deserialized??? check this
