@@ -1,0 +1,1 @@
+ALTER TABLE user_order ADD COLUMN additional_info TEXT;

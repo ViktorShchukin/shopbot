@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.aquamarina.fsm.form.Form;
 import ru.aquamarina.fsm.state.*;
+import ru.aquamarina.model.DistributionMode;
 import ru.aquamarina.model.command.Command;
 import ru.aquamarina.model.entity.User;
 import ru.aquamarina.model.error.Error;
@@ -67,14 +68,21 @@ public class DefaultFsmRunner implements FsmRunner {
                     .map(product -> Result.ok(new ProductInstructionState(user, product)));
             case ErrorState.NAME -> Result.ok(new ErrorState(user));
             case DistributionModeState.NAME -> Result.ok(new DistributionModeState(user));
-            case String str when str.contains(OrderAdditionalInfoAddressState.NAME) ->
-                    CommandUtil.parseCmdWithUuidArg(str)
-                            .map(id -> fsmContextHolder.getOrderService().findById(id))
-                            .mapValue(order -> new OrderAdditionalInfoAddressState(user, order));
-            case String str when str.contains(OrderAdditionalInfoPhoneState.NAME) ->
-                    CommandUtil.parseCmdWithUuidArg(str)
-                            .map(id -> fsmContextHolder.getOrderService().findById(id))
-                            .mapValue(order -> new OrderAdditionalInfoPhoneState(user, order));
+            // deprecated
+//            case String str when str.contains(OrderAdditionalInfoAddressState.NAME) ->
+//                    CommandUtil.parseCmdWithUuidArg(str)
+//                            .map(id -> fsmContextHolder.getOrderService().findById(id))
+//                            .mapValue(order -> new OrderAdditionalInfoAddressState(user, order));
+//            case String str when str.contains(OrderAdditionalInfoPhoneState.NAME) ->
+//                    CommandUtil.parseCmdWithUuidArg(str)
+//                            .map(id -> fsmContextHolder.getOrderService().findById(id))
+//                            .mapValue(order -> new OrderAdditionalInfoPhoneState(user, order));
+            case String str when str.contains(OrderAdditionalInfoState.NAME) -> {
+                DistributionMode mode = DistributionMode.valueOf(str.split("\\?")[2]);
+                yield  CommandUtil.parseCmdWithUuidArg(str)
+                        .map(id -> fsmContextHolder.getOrderService().findById(id))
+                        .mapValue(order -> new OrderAdditionalInfoState(user, order, mode));
+            }
             default -> Result.error(new UnknownState());
         };
     }

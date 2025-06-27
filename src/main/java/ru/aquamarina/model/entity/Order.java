@@ -25,6 +25,9 @@ public class Order {
     @MappedProperty
     private DistributionMode distributionMode;
 
+    @MappedProperty("additional_info")
+    private String additionalInfo;
+
     public UUID getId() {
         return id;
     }
@@ -63,5 +66,13 @@ public class Order {
 
     public void setDistributionMode(DistributionMode distributionMode) {
         this.distributionMode = distributionMode;
+    }
+
+    public String getAdditionalInfo() {
+        return additionalInfo;
+    }
+
+    public void setAdditionalInfo(String additionalInfo) {
+        this.additionalInfo = additionalInfo;
     }
 }

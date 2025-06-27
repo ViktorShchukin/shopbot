@@ -15,6 +15,7 @@ state ForWholesaler
 state PayAndDelivery
 state Instruction
 state DistributionMode
+state OrderAdditionalInfo
     
 entrypoint --> Init : /start
 Init --> Index
@@ -52,12 +53,10 @@ Basket --> Index : index
 Basket --> Basket : clearBasket
 Basket --> DistributionMode : doOrder
 
-DistributionMode --> OrderAdditionalInfoAddress : delivery
-DistributionMode --> OrderAdditionalInfoPhone : selfPickup
+DistributionMode --> OrderAdditionalInfo : delivery
+DistributionMode --> OrderAdditionalInfo : selfPickup
 
-OrderAdditionalInfoAddress --> OrderAdditionalInfoPhone : г.{address}
-
-OrderAdditionalInfoPhone --> Order : +7{phoneNumber}
+OrderAdditionalInfo --> Order : userInput?{input}
 
 Order --> Index : index
 ```

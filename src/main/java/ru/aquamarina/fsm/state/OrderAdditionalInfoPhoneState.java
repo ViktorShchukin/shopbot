@@ -16,6 +16,7 @@ import ru.aquamarina.util.ResultError;
 
 import java.util.regex.Pattern;
 
+@Deprecated
 public class OrderAdditionalInfoPhoneState implements FsmState {
 
     public static final String NAME = "AdditionalInfoPhone";
@@ -45,23 +46,23 @@ public class OrderAdditionalInfoPhoneState implements FsmState {
     @Override
     public Result<FsmState, Error> doWork(FsmContextHolder context, Command command) {
         return switch (command) {
-            case OrderAdditionalInfoPhoneCmd cmd -> {
-                String trimmedPhone = cmd.phoneNumber().trim();
-                var validRes = validateNumber(trimmedPhone);
-                if (validRes instanceof ResultError<String, Error> error) {
-                    yield Result.ok(new OrderAdditionalInfoPhoneState(user, order, false, trimmedPhone));
-                }
-
-                yield context.getOrderService()
-                        .update(order, trimmedPhone, null, null)
-                        .map(order1 -> context.getBasketService().getByUser(user))
-                        .map(basket -> context.getOrderService().fillTheOrderAndClearBasket(order, basket))
-                        .mapValue(order1 -> {
-                            context.getTelegramService().notifySeller(order);
-                            return order;
-                        })
-                        .mapValue(order1 -> new OrderState(user, order));
-            }
+//            case OrderAdditionalInfoPhoneCmd cmd -> {
+//                String trimmedPhone = cmd.phoneNumber().trim();
+//                var validRes = validateNumber(trimmedPhone);
+//                if (validRes instanceof ResultError<String, Error> error) {
+//                    yield Result.ok(new OrderAdditionalInfoPhoneState(user, order, false, trimmedPhone));
+//                }
+//
+//                yield context.getOrderService()
+//                        .update(order, trimmedPhone, null, null)
+//                        .map(order1 -> context.getBasketService().getByUser(user))
+//                        .map(basket -> context.getOrderService().fillTheOrderAndClearBasket(order, basket))
+//                        .mapValue(order1 -> {
+//                            context.getTelegramService().notifySeller(order);
+//                            return order;
+//                        })
+//                        .mapValue(order1 -> new OrderState(user, order));
+//            }
             case StartCmd start -> Result.ok(new IndexState(user, true));
             default -> Result.error(new NotSupportedCommand());
         };

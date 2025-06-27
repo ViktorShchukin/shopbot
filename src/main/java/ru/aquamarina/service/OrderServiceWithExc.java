@@ -27,17 +27,21 @@ public class OrderServiceWithExc {
     }
 
     @Transactional
-    public Order create(User user, String phoneNumber, String address, DistributionMode distributionMode) {
+    public Order create(User user, String phoneNumber, String address, DistributionMode distributionMode, String additionalInfo) {
         Order order = orderRepository.save(
-                orderTool.create(user.getId(), phoneNumber, address, distributionMode)
+                orderTool.create(user.getId(), phoneNumber, address, distributionMode, additionalInfo)
         );
         return order;
     }
 
     @Transactional
-    public Result<Order, Error> update(Order order, String phoneNumber, String address, DistributionMode distributionMode) {
+    public Result<Order, Error> update(Order order,
+                                       String phoneNumber,
+                                       String address,
+                                       DistributionMode distributionMode,
+                                       String additionalInfo) {
             Order updated = orderRepository.update(
-                    orderTool.update(order, phoneNumber, address, distributionMode)
+                    orderTool.update(order, phoneNumber, address, distributionMode, additionalInfo)
             );
             return Result.ok(updated);
     }

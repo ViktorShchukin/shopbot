@@ -33,5 +33,6 @@ public interface View {
 
     void drawOrderAdditionalInfoPhoneForm(OrderAdditionalInfoPhoneForm form);
 
+    @Deprecated
     void OrderAdditionalInfoPhoneInvalidForm(OrderAdditionalInfoPhoneInvalidForm form);
 }

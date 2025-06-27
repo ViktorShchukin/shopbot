@@ -20,13 +20,17 @@ public class OrderService {
         this.orderServiceWithExc = orderServiceWithExc;
     }
 
-    public Order create(User user, String phoneNumber, String address, DistributionMode distributionMode) {
-        return orderServiceWithExc.create(user, phoneNumber, address, distributionMode);
+    public Order create(User user, String phoneNumber, String address, DistributionMode distributionMode, String additionalInfo) {
+        return orderServiceWithExc.create(user, phoneNumber, address, distributionMode, additionalInfo);
     }
 
-    public Result<Order, Error> update(Order order, String phoneNumber, String address, DistributionMode distributionMode) {
+    public Result<Order, Error> update(Order order,
+                                       String phoneNumber,
+                                       String address,
+                                       DistributionMode distributionMode,
+                                       String additionalInfo) {
         try {
-            return orderServiceWithExc.update(order, phoneNumber, address, distributionMode);
+            return orderServiceWithExc.update(order, phoneNumber, address, distributionMode, additionalInfo);
         } catch (DataAccessException e) {
             return Result.error(new IoError(e));
         }

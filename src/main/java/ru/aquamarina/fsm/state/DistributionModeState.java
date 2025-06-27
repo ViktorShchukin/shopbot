@@ -33,13 +33,13 @@ public class DistributionModeState implements FsmState {
         return switch (command) {
             case DeliveryCmd dlv -> context.getBasketService()
                     .getByUserId(command.getUser().getId())
-                    .map(basket -> context.getOrderService().create(user, null, null, DistributionMode.DELIVERY))
-                    .map(order -> Result.<FsmState, Error>ok(new OrderAdditionalInfoAddressState(user, order)))
+                    .map(basket -> context.getOrderService().create(user, null, null, DistributionMode.DELIVERY, null))
+                    .map(order -> Result.<FsmState, Error>ok(new OrderAdditionalInfoState(user, order, DistributionMode.DELIVERY)))
                     .orElseGet(() -> Result.error(new CanNotDoOrder()));
             case SelfPickupCmd spu -> context.getBasketService()
                     .getByUserId(command.getUser().getId())
-                    .map(basket -> context.getOrderService().create(user, null, null, DistributionMode.SERLF_PICKUP))
-                    .map(order -> Result.<FsmState, Error>ok(new OrderAdditionalInfoPhoneState(user, order)))
+                    .map(basket -> context.getOrderService().create(user, null, null, DistributionMode.SERLF_PICKUP, null))
+                    .map(order -> Result.<FsmState, Error>ok(new OrderAdditionalInfoState(user, order, DistributionMode.SERLF_PICKUP)))
                     .orElseGet(() -> Result.error(new CanNotDoOrder()));
             case StartCmd start -> Result.ok(new IndexState(user, true));
             default -> Result.error(new NotSupportedCommand());

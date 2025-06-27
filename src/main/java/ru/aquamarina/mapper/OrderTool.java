@@ -15,9 +15,17 @@ public interface OrderTool {
 
     @Mapping(target = "id", expression = "java(java.util.UUID.randomUUID())")
     @Mapping(target = "userId", source = "userUuid")
-    Order create(UUID userUuid, String phoneNumber, String address, DistributionMode distributionMode);
+    Order create(UUID userUuid,
+                 String phoneNumber,
+                 String address,
+                 DistributionMode distributionMode,
+                 String additionalInfo);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "userId", ignore = true)
-    Order update(@MappingTarget Order order, String phoneNumber, String address, DistributionMode distributionMode);
+    Order update(@MappingTarget Order order,
+                 String phoneNumber,
+                 String address,
+                 DistributionMode distributionMode,
+                 String additionalInfo);
 }

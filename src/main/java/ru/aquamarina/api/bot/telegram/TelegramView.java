@@ -187,7 +187,9 @@ public class TelegramView implements View {
                 .toList();
 
         String productTable = TelegramUtils.getProductTable(products);
-        String messageText = productTable + "\n" + "Сумма заказа: " + (double) form.totalCost() / 100 + " руб" + "\n\nСпасибо за заказ.\nМы свяжемся с вами позже.";
+        String messageText = productTable + "\n" +
+                "Сумма заказа: " + (double) form.totalCost() / 100 + " руб"
+                + "\n\nСпасибо за заказ.\nВ ближайшее рабочее время наш менеджер свяжется с вами для подтверждения заказа.";
 
         sendMessage(form.user(), messageText, keyboardRowList);
     }
@@ -280,11 +282,11 @@ public class TelegramView implements View {
     @Override
     public void drawErrorForm(ErrorForm form) {
         InlineKeyboardRow keyboardRow = new InlineKeyboardRow(
-                getButton("Вернуться в корзину", new BasketCmd(null)),
+//                getButton("Вернуться в корзину", new BasketCmd(null)),
                 getButton(new IndexCmd(null))
         );
 
-        String messageText = "Во время работы возникла ошибка\nПожалуйста помните что при вводе адреса он должен начинаться с \"г\".\nПри вводе номера телефона он должен начинаться с \"+7\"";
+        String messageText = "Во время работы возникла ошибка.\nМы приносим извинения и просим вас сделать заказ сначала.";
 
         rewriteMessage(form.user(), messageText, keyboardRow);
     }
@@ -303,20 +305,21 @@ public class TelegramView implements View {
 
     @Override
     public void drawOrderAdditionalInfoAddressForm(OrderAdditionalInfoAddressForm form) {
-        String messageText = "Пожалуйста введите адресс доставки.\nАдрес должен начинаться с \"г.\"\n" +
-                "Например: г. Ростов-на-Дону ул. Большая Садовая 438б";
+        String messageText = "Пожалуйста введите свой номер телефона и адрес доставки одним сообщением.\n" +
+                "Например: +79281184838 г. Ростов-на-Дону ул. Большая Садовая 438б";
 
         sendMessage(form.user(), messageText);
     }
 
     @Override
     public void drawOrderAdditionalInfoPhoneForm(OrderAdditionalInfoPhoneForm form) {
-        String messageText = "Пожалуйста введите свой номер телефона.\nНомер должен начинаться с \"+7\"\n" +
+        String messageText = "Пожалуйста введите свой номер телефона и отправьте сообщение.\n\n" +
                 "Например: +79281184838";
 
         sendMessage(form.user(), messageText);
     }
 
+    @Deprecated
     @Override
     public void OrderAdditionalInfoPhoneInvalidForm(OrderAdditionalInfoPhoneInvalidForm form) {
         String messageText = "Пожалуйста введите свой номер телефона.\nНомер должен начинаться с \"+7\"\n" +
@@ -361,6 +364,7 @@ public class TelegramView implements View {
             case OrderAdditionalInfoAddressCmd cmd -> "This command should not appear in user interface.";
             case OrderAdditionalInfoPhoneCmd cmd -> "This command should not appear in user interface.";
             case StartCmd cmd -> "Restart session. This command should not appear in user interface.";
+            case UserInputCmd cmd -> "This command should not appear in user interface.";
         };
         return InlineKeyboardButton.builder()
                 .text(text)
@@ -413,6 +417,7 @@ public class TelegramView implements View {
         }
     }
 
+    // todo i has two send message methods. simplify it
     private void sendMessage(User user, String messageText) {
         Long telegramUserId;
         Integer messageId;
@@ -439,7 +444,11 @@ public class TelegramView implements View {
                         .chatId(telegramUserId)
                         .messageId(messageId)
                         .build();
-                client.execute(deleteMessage);
+                try {
+                    client.execute(deleteMessage);
+                } catch (TelegramApiException e){
+                    log.warn("Can not delete last message for telegramUserId: {}", telegramUserId);
+                }
             }
             log.trace("=== try to send message ===");
             Message res = client.execute(message);

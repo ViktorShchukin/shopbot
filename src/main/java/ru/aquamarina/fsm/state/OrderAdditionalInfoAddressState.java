@@ -11,6 +11,7 @@ import ru.aquamarina.model.error.Error;
 import ru.aquamarina.model.error.NotSupportedCommand;
 import ru.aquamarina.util.Result;
 
+@Deprecated
 public class OrderAdditionalInfoAddressState implements FsmState {
 
     public static final String NAME = "AdditionalInfoAddressState";
@@ -28,9 +29,9 @@ public class OrderAdditionalInfoAddressState implements FsmState {
     @Override
     public Result<FsmState, Error> doWork(FsmContextHolder context, Command command) {
         return switch (command) {
-            case OrderAdditionalInfoAddressCmd cmd -> context.getOrderService()
-                    .update(order, null, cmd.address(), null)
-                    .mapValue(order1 -> new OrderAdditionalInfoPhoneState(user, order));
+//            case OrderAdditionalInfoAddressCmd cmd -> context.getOrderService()
+//                    .update(order, null, cmd.address(), null)
+//                    .mapValue(order1 -> new OrderAdditionalInfoPhoneState(user, order));
             case StartCmd start -> Result.ok(new IndexState(user, true));
             default -> Result.error(new NotSupportedCommand());
         };
