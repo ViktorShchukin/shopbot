@@ -57,7 +57,7 @@ public class TelegramView implements View {
     public void drawAboutForm(AboutForm form) {
 
         InlineKeyboardRow keyboardRow = new InlineKeyboardRow(
-                getButton(new IndexCmd(null))
+                getButton("Назад", new ContactCmd(null))
         );
 
         String messageText = """
@@ -72,24 +72,17 @@ public class TelegramView implements View {
     @Override
     public void drawIndexForm(IndexForm form) {
         InlineKeyboardRow keyboardRow = new InlineKeyboardRow(
-                getButton(new AboutCmd(null)),
                 getButton(new CatalogCmd(null))
         );
         InlineKeyboardRow keyboardRow1 = new InlineKeyboardRow(
-                getButton(new ForWholesalerCmd(null)),
+                getButton(new ContactCmd(null)),
                 getButton(new PayAndDeliveryCmd(null))
         );
         InlineKeyboardRow keyboardRow2 = new InlineKeyboardRow(
                 getButton(new BasketCmd(null))
         );
-        InlineKeyboardRow keyboardRow3 = new InlineKeyboardRow(
-                InlineKeyboardButton.builder()
-                        .text("Связаться с менеджером")
-                        .url("tg://user?id=876199982")
-                        .build()
-        );
 
-        List<InlineKeyboardRow> keyboardRowList = List.of(keyboardRow, keyboardRow1, keyboardRow2, keyboardRow3);
+        List<InlineKeyboardRow> keyboardRowList = List.of(keyboardRow, keyboardRow1, keyboardRow2);
 
         String messageText = "Здравствуйте. Это бот магазина «Аквамарина». Здесь вы можете заказать химию для бассейна. Чтобы посмотреть список товаров, перейдите в каталог.";
 
@@ -98,6 +91,30 @@ public class TelegramView implements View {
         } else {
             rewriteMessage(form.user(), messageText, keyboardRowList);
         }
+    }
+
+    @Override
+    public void drawContactFrom(ContactForm form) {
+        InlineKeyboardRow keyboardRow = new InlineKeyboardRow(
+                getButton(new AboutCmd(null)),
+                getButton(new ForWholesalerCmd(null))
+        );
+        InlineKeyboardRow keyboardRow2 = new InlineKeyboardRow(
+                InlineKeyboardButton.builder()
+                        .text("Связаться с менеджером")
+                        .url("tg://user?id=876199982")
+                        .build()
+        );
+        InlineKeyboardRow keyboardRow3 = new InlineKeyboardRow(
+                getButton(new IndexCmd(null))
+        );
+
+        List<InlineKeyboardRow> keyboardRowList = List.of(keyboardRow, keyboardRow2, keyboardRow3);
+
+        String messageText = "Need new text";
+
+        rewriteMessage(form.user(), messageText, keyboardRowList);
+
     }
 
     @Override
@@ -235,7 +252,7 @@ public class TelegramView implements View {
     @Override
     public void drawForWholesalerForm(ForWholesalerForm form) {
         InlineKeyboardRow keyboardRow = new InlineKeyboardRow(
-                getButton(new IndexCmd(null))
+                getButton("Назад", new ContactCmd(null))
         );
 
         String messageText = """
@@ -365,6 +382,7 @@ public class TelegramView implements View {
             case OrderAdditionalInfoPhoneCmd cmd -> "This command should not appear in user interface.";
             case StartCmd cmd -> "Restart session. This command should not appear in user interface.";
             case UserInputCmd cmd -> "This command should not appear in user interface.";
+            case ContactCmd cmd -> "Контакты";
         };
         return InlineKeyboardButton.builder()
                 .text(text)

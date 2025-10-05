@@ -49,6 +49,7 @@ public interface TelegramMapper {
             case DoNothing.NAME -> Result.ok(new DoNothing(user));
             case DeliveryCmd.NAME -> Result.ok(new DeliveryCmd(user));
             case SelfPickupCmd.NAME -> Result.ok(new SelfPickupCmd(user));
+            case ContactCmd.NAME -> Result.ok(new ContactCmd(user));
             // deprecated commands
 //            case String str when str.contains(OrderAdditionalInfoPhoneCmd.NAME) ->
 //                    Result.ok(new OrderAdditionalInfoPhoneCmd(user, str.trim()));

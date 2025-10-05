@@ -35,4 +35,6 @@ public interface View {
 
     @Deprecated
     void OrderAdditionalInfoPhoneInvalidForm(OrderAdditionalInfoPhoneInvalidForm form);
+
+    void drawContactFrom(ContactForm form);
 }
