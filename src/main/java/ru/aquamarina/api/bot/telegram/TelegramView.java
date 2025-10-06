@@ -71,18 +71,14 @@ public class TelegramView implements View {
 
     @Override
     public void drawIndexForm(IndexForm form) {
-        InlineKeyboardRow keyboardRow = new InlineKeyboardRow(
-                getButton(new CatalogCmd(null))
-        );
+
         InlineKeyboardRow keyboardRow1 = new InlineKeyboardRow(
                 getButton(new ContactCmd(null)),
-                getButton(new PayAndDeliveryCmd(null))
-        );
-        InlineKeyboardRow keyboardRow2 = new InlineKeyboardRow(
-                getButton(new BasketCmd(null))
+                getButton(new ShopCmd(null))
         );
 
-        List<InlineKeyboardRow> keyboardRowList = List.of(keyboardRow, keyboardRow1, keyboardRow2);
+
+        List<InlineKeyboardRow> keyboardRowList = List.of(keyboardRow1);
 
         String messageText = "Здравствуйте. Это бот магазина «Аквамарина». Здесь вы можете заказать химию для бассейна. Чтобы посмотреть список товаров, перейдите в каталог.";
 
@@ -118,6 +114,29 @@ public class TelegramView implements View {
     }
 
     @Override
+    public void drawShopForm(ShopForm form) {
+        InlineKeyboardRow keyboardRow = new InlineKeyboardRow(
+                getButton(new CatalogCmd(null))
+        );
+        InlineKeyboardRow keyboardRow1 = new InlineKeyboardRow(
+                getButton(new PayAndDeliveryCmd(null))
+        );
+        InlineKeyboardRow keyboardRow2 = new InlineKeyboardRow(
+                getButton(new BasketCmd(null))
+        );
+
+        InlineKeyboardRow keyboardRow3 = new InlineKeyboardRow(
+                getButton(new IndexCmd(null))
+        );
+
+        List<InlineKeyboardRow> keyboardRowList = List.of(keyboardRow, keyboardRow1, keyboardRow2, keyboardRow3);
+
+        String messageText = "need text";
+
+        rewriteMessage(form.user(), messageText, keyboardRowList);
+    }
+
+    @Override
     public void drawCatalogForm(CatalogForm form) {
         List<Command> productInFolder = form.products().stream()
                 .map(product -> new ProductAboutCmd(null, product.getId()))
@@ -130,13 +149,13 @@ public class TelegramView implements View {
         if (form.path().equals("/")) {
             commands = List.of(
                     new BasketCmd(null),
-                    new IndexCmd(null)
+                    new ShopCmd(null)
             );
         } else {
             commands = List.of(
                     new BasketCmd(null),
                     new CatalogCmd(null),
-                    new IndexCmd(null)
+                    new ShopCmd(null)
             );
         }
 
@@ -271,7 +290,7 @@ public class TelegramView implements View {
     @Override
     public void drawPayAndDeliveryFormForm(PayAndDeliveryForm form) {
         InlineKeyboardRow keyboardRow = new InlineKeyboardRow(
-                getButton(new IndexCmd(null))
+                getButton(new ShopCmd(null))
         );
 
         String messageText = """
@@ -383,6 +402,7 @@ public class TelegramView implements View {
             case StartCmd cmd -> "Restart session. This command should not appear in user interface.";
             case UserInputCmd cmd -> "This command should not appear in user interface.";
             case ContactCmd cmd -> "Контакты";
+            case ShopCmd cmd -> "Магазин";
         };
         return InlineKeyboardButton.builder()
                 .text(text)
@@ -464,7 +484,7 @@ public class TelegramView implements View {
                         .build();
                 try {
                     client.execute(deleteMessage);
-                } catch (TelegramApiException e){
+                } catch (TelegramApiException e) {
                     log.warn("Can not delete last message for telegramUserId: {}", telegramUserId);
                 }
             }

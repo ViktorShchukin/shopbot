@@ -67,7 +67,7 @@ ProductAbout --> Instruction : instruction
 
 Instruction --> ProductAbout : productAbout
 
-Basket --> Shop : shop
+Basket --> Catalog : catalog
 Basket --> Basket : clearBasket
 Basket --> DistributionMode : doOrder
 

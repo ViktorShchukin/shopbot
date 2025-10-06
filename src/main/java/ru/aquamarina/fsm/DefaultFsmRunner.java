@@ -69,6 +69,7 @@ public class DefaultFsmRunner implements FsmRunner {
             case ErrorState.NAME -> Result.ok(new ErrorState(user));
             case DistributionModeState.NAME -> Result.ok(new DistributionModeState(user));
             case ContactState.NAME -> Result.ok(new ContactState(user));
+            case ShopState.NAME -> Result.ok(new ShopState(user));
             // deprecated
 //            case String str when str.contains(OrderAdditionalInfoAddressState.NAME) ->
 //                    CommandUtil.parseCmdWithUuidArg(str)

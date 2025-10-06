@@ -29,7 +29,7 @@ public class BasketState implements FsmState {
     public Result<FsmState, Error> doWork(FsmContextHolder context, Command command) {
         return switch (command) {
             case DoOrderCmd ord -> Result.ok(new DistributionModeState(user));
-            case IndexCmd index -> Result.ok(new IndexState(user));
+            case ShopCmd index -> Result.ok(new ShopState(user));
             case CatalogCmd ctg -> Result.ok(new CatalogState(user, "/"));
             case StartCmd start -> Result.ok(new IndexState(user, true));
             case ClearBasketCmd clr -> context.getBasketService().getByUser(user)

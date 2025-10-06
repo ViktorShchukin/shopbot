@@ -37,4 +37,6 @@ public interface View {
     void OrderAdditionalInfoPhoneInvalidForm(OrderAdditionalInfoPhoneInvalidForm form);
 
     void drawContactFrom(ContactForm form);
+
+    void drawShopForm(ShopForm form);
 }
