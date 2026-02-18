@@ -21,6 +21,7 @@ public interface TelegramMapper {
     }
 
     default Result<Command, Error> mapToCommand(Update update, User user) {
+        // todo rethink this mapper. especially about recognition of unknown command and user input
         String command = null;
         if (update.hasMessage()) {
             command = update.getMessage().getText();
@@ -52,6 +53,9 @@ public interface TelegramMapper {
             case SelfPickupCmd.NAME -> Result.ok(new SelfPickupCmd(user));
             case ContactCmd.NAME -> Result.ok(new ContactCmd(user));
             case ShopCmd.NAME -> Result.ok(new ShopCmd(user));
+            case PoolTypeCmd.NAME -> Result.ok(new PoolTypeCmd(user));
+            case CircleCmd.NAME -> Result.ok(new CircleCmd(user));
+            case RectangleCmd.NAME -> Result.ok(new RectangleCmd(user));
             // deprecated commands
 //            case String str when str.contains(OrderAdditionalInfoPhoneCmd.NAME) ->
 //                    Result.ok(new OrderAdditionalInfoPhoneCmd(user, str.trim()));

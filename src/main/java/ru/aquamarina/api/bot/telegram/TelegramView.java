@@ -4,10 +4,12 @@ import jakarta.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.client.okhttp.OkHttpTelegramClient;
+import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
+import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.message.Message;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
@@ -29,6 +31,7 @@ import ru.aquamarina.util.PathUtil;
 import ru.aquamarina.util.ResultError;
 import ru.aquamarina.util.ResultOk;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -71,6 +74,10 @@ public class TelegramView implements View {
 
     @Override
     public void drawIndexForm(IndexForm form) {
+        
+        InlineKeyboardRow keyboardRow = new InlineKeyboardRow(
+                getButton(new PoolTypeCmd(null))
+        );
 
         InlineKeyboardRow keyboardRow1 = new InlineKeyboardRow(
                 getButton(new ContactCmd(null)),
@@ -78,7 +85,7 @@ public class TelegramView implements View {
         );
 
 
-        List<InlineKeyboardRow> keyboardRowList = List.of(keyboardRow1);
+        List<InlineKeyboardRow> keyboardRowList = List.of(keyboardRow, keyboardRow1);
 
         String messageText = "Здравствуйте. Это бот магазина «Аквамарина». Здесь вы можете заказать химию для бассейна. Чтобы посмотреть список товаров, перейдите в каталог.";
 
@@ -319,7 +326,7 @@ public class TelegramView implements View {
     public void drawErrorForm(ErrorForm form) {
         InlineKeyboardRow keyboardRow = new InlineKeyboardRow(
 //                getButton("Вернуться в корзину", new BasketCmd(null)),
-                getButton(new IndexCmd(null))
+                getButton(new StartCmd(null))
         );
 
         String messageText = "Во время работы возникла ошибка.\nМы приносим извинения и просим вас сделать заказ сначала.";
@@ -367,6 +374,44 @@ public class TelegramView implements View {
     }
 
     @Override
+    public void drawPoolTypeForm(PoolTypeForm form) {
+        String messageText = "Выберите тип вашего бассейна";
+
+        InlineKeyboardRow inlineKeyboardRow = new InlineKeyboardRow(
+                getButton(new CircleCmd(null)),
+                getButton(new RectangleCmd(null))
+        );
+
+        var keyboard = List.of(inlineKeyboardRow);
+
+        sendMessage(form.user(), messageText, keyboard);
+    }
+
+    @Override
+    public void drawPoolSizeInfoForm(PoolSizeInfoForm form) {
+        String messageText = "Пожалуйста введите свой обьем бассейна и отправьте сообщение.\n\n";
+
+        sendMessage(form.user(), messageText);
+    }
+
+    @Override
+    public void drawGuideForm(GuideForm form) {
+        InputFile file = new InputFile(form.guide(), "инструкция.pdf");
+
+        sendDocument(form.user(), file);
+        sendDocument(form.user(), file);
+
+        String text = "К сообщению прикреплена инструкция по обслуживанию вашего бассейна. сохраните этот файл чтобы не потерять";
+
+        InlineKeyboardRow keyboardRow = new InlineKeyboardRow(
+                getButton(new IndexCmd(null))
+        );
+
+        sendMessage(form.user(), text, List.of(keyboardRow));
+
+    }
+
+    @Override
     public void draw(Error error) {
         log.error("=== error inside the app: {}", error.toString());
     }
@@ -399,10 +444,13 @@ public class TelegramView implements View {
             case SelfPickupCmd cmd -> "Самовывоз";
             case OrderAdditionalInfoAddressCmd cmd -> "This command should not appear in user interface.";
             case OrderAdditionalInfoPhoneCmd cmd -> "This command should not appear in user interface.";
-            case StartCmd cmd -> "Restart session. This command should not appear in user interface.";
+            case StartCmd cmd -> "Перезапустить бота";
             case UserInputCmd cmd -> "This command should not appear in user interface.";
             case ContactCmd cmd -> "Контакты";
             case ShopCmd cmd -> "Магазин";
+            case CircleCmd circleCmd -> "Круглый";
+            case RectangleCmd rectangleCmd -> "Прямоугольный";
+            case PoolTypeCmd poolTypeCmd -> "Инструкция";
         };
         return InlineKeyboardButton.builder()
                 .text(text)
@@ -542,6 +590,35 @@ public class TelegramView implements View {
             client.execute(replyMarkup);
         } catch (TelegramApiException e) {
             log.error("Telegram error during rewriting message: ", e);
+        }
+    }
+
+    private void sendDocument(User user, InputFile file) {
+        Long telegramUserId;
+        Integer messageId;
+        switch (telegramInfoService.getByUser(user)) {
+            case ResultOk<TelegramInfo, Error> ok -> {
+                telegramUserId = ok.result().getTelegramId();
+                messageId = ok.result().getLastMessageId();
+            }
+            case ResultError<TelegramInfo, Error> err -> {
+                draw(err.err());
+                return;
+            }
+        }
+
+        SendDocument message = SendDocument.builder()
+                .document(file)
+                .chatId(telegramUserId)
+                .build();
+
+        try {
+            log.trace("=== try to send message ===");
+            Message res = client.execute(message);
+            telegramInfoService.update(telegramUserId, null, null, null, res.getMessageId());
+            log.trace("=== send message: {} ===", res);
+        } catch (TelegramApiException e) {
+            log.error("Telegram error during sending message: ", e);
         }
     }
 

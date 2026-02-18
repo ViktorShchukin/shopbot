@@ -39,4 +39,10 @@ public interface View {
     void drawContactFrom(ContactForm form);
 
     void drawShopForm(ShopForm form);
+
+    void drawPoolTypeForm(PoolTypeForm form);
+
+    void drawPoolSizeInfoForm(PoolSizeInfoForm form);
+
+    void drawGuideForm(GuideForm form);
 }

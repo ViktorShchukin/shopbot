@@ -33,7 +33,12 @@
       <id>central</id>
       <url>https://repo.maven.apache.org/maven2</url>
     </repository>
+    <repository>
+      <id>jitpack.io</id>
+      <url>https://jitpack.io</url>
+    </repository>
   </repositories>
+
 
   <dependencies>
     <dependency>
@@ -149,6 +154,13 @@
       <groupId>org.mapstruct</groupId>
       <artifactId>mapstruct</artifactId>
       <version>${mapstruct.version}</version>
+    </dependency>
+
+    <!-- pdf -->
+    <dependency>
+      <groupId>com.github.ralfstuckert.pdfbox-layout</groupId>
+      <artifactId>pdfbox2-layout</artifactId>
+      <version>1.0.1</version>
     </dependency>
   </dependencies>
 
