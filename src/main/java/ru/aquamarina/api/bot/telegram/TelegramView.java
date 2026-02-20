@@ -32,6 +32,7 @@ import ru.aquamarina.util.ResultError;
 import ru.aquamarina.util.ResultOk;
 
 import java.io.File;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -74,7 +75,7 @@ public class TelegramView implements View {
 
     @Override
     public void drawIndexForm(IndexForm form) {
-        
+
         InlineKeyboardRow keyboardRow = new InlineKeyboardRow(
                 getButton(new PoolTypeCmd(null))
         );
@@ -408,6 +409,12 @@ public class TelegramView implements View {
         );
 
         sendMessage(form.user(), text, List.of(keyboardRow));
+
+        try {
+            Files.deleteIfExists(form.guide().toPath());
+        } catch (Exception e) {
+            log.error("Can't delete tmp file. This can be FATAL for server", e);
+        }
 
     }
 

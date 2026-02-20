@@ -20,14 +20,11 @@ public class PdfService {
 
     private static final Logger log = LoggerFactory.getLogger(PdfService.class);
 
-    private final ClassPathResourceLoader resourceLoader;
     private final PebbleEngine pebbleEngine;
 
     public PdfService(
-            ClassPathResourceLoader resourceLoader,
             PebbleEngine pebbleEngine
     ) {
-        this.resourceLoader = resourceLoader;
         this.pebbleEngine = pebbleEngine;
     }
 
