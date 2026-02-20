@@ -52,6 +52,7 @@ public class GuideState implements FsmState {
 
             PdfRendererBuilder builder = new PdfRendererBuilder();
             builder.useFastMode();
+            builder.useFont(new File("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"), "DejaVu Sans");
             builder.withHtmlContent(html, null);
             builder.toStream(os);
             builder.run();
