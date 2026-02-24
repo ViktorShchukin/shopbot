@@ -32,10 +32,12 @@ public class IndexState implements FsmState {
     @Override
     public Result<FsmState, Error> doWork(FsmContextHolder context, Command command) {
         return switch (command) {
-            case ContactCmd cnt -> Result.ok(new ContactState(user));
-            case ShopCmd shp -> Result.ok(new ShopState(user));
-            case PoolTypeCmd plt -> Result.ok(new PoolTypeState(user));
-            case StartCmd start-> Result.ok(new IndexState(user, true));
+//            case ContactCmd cnt -> Result.ok(new ContactState(user));
+//            case ShopCmd shp -> Result.ok(new ShopState(user));
+//            case PoolTypeCmd plt -> Result.ok(new PoolTypeState(user));
+            case CircleCmd crl -> Result.ok(new PoolSizeInfoState(user));
+            case RectangleCmd rec -> Result.ok(new PoolSizeInfoState(user));
+            case StartCmd start -> Result.ok(new IndexState(user, true));
             default -> Result.error(new NotSupportedCommand());
         };
     }

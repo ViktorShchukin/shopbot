@@ -1,5 +1,6 @@
 package ru.aquamarina.api.bot.telegram;
 
+import io.micronaut.context.MessageSource;
 import jakarta.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,12 +32,8 @@ import ru.aquamarina.util.PathUtil;
 import ru.aquamarina.util.ResultError;
 import ru.aquamarina.util.ResultOk;
 
-import java.io.File;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -44,17 +41,26 @@ import java.util.stream.Stream;
 public class TelegramView implements View {
 
     private static final Logger log = LoggerFactory.getLogger(TelegramView.class);
+    private static final Locale LOCALE_RU = Locale.of("ru");
 
     private final OkHttpTelegramClient client;
     private final ProductService productService;
     private final ProductMapper productMapper;
     private final TelegramInfoService telegramInfoService;
+    private final MessageSource messageSource;
 
-    public TelegramView(OkHttpTelegramClient client, ProductService productService, ProductMapper productMapper, TelegramInfoService telegramInfoService) {
+    public TelegramView(
+            OkHttpTelegramClient client,
+            ProductService productService,
+            ProductMapper productMapper,
+            TelegramInfoService telegramInfoService,
+            MessageSource messageSource
+    ) {
         this.client = client;
         this.productService = productService;
         this.productMapper = productMapper;
         this.telegramInfoService = telegramInfoService;
+        this.messageSource = messageSource;
     }
 
     @Override
@@ -76,25 +82,42 @@ public class TelegramView implements View {
     @Override
     public void drawIndexForm(IndexForm form) {
 
+//        InlineKeyboardRow keyboardRow = new InlineKeyboardRow(
+//                getButton(new PoolTypeCmd(null))
+//        );
+//
+//        InlineKeyboardRow keyboardRow1 = new InlineKeyboardRow(
+//                getButton(new ContactCmd(null)),
+//                getButton(new ShopCmd(null))
+//        );
+
         InlineKeyboardRow keyboardRow = new InlineKeyboardRow(
-                getButton(new PoolTypeCmd(null))
-        );
-
-        InlineKeyboardRow keyboardRow1 = new InlineKeyboardRow(
-                getButton(new ContactCmd(null)),
-                getButton(new ShopCmd(null))
+                getButton(new RectangleCmd(null)),
+                getButton(new CircleCmd(null))
         );
 
 
-        List<InlineKeyboardRow> keyboardRowList = List.of(keyboardRow, keyboardRow1);
+        List<InlineKeyboardRow> keyboardRowList = List.of(
+                keyboardRow
+//                keyboardRow1
+        );
 
-        String messageText = "Здравствуйте. Это бот магазина «Аквамарина». Здесь вы можете заказать химию для бассейна. Чтобы посмотреть список товаров, перейдите в каталог.";
+        messageSource.getMessage("index", LOCALE_RU)
+                .ifPresentOrElse(
+                        messageText -> {
+                            if (form.isRestartRequired()) {
+                                sendMessage(form.user(), messageText, keyboardRowList);
+                            } else {
+                                rewriteMessage(form.user(), messageText, keyboardRowList);
+                            }
+                        },
+                        () -> {
+                            log.error("Can't get message from message source");
+                            this.drawErrorForm(new ErrorForm(form.user()));
+                        }
+                );
 
-        if (form.isRestartRequired()) {
-            sendMessage(form.user(), messageText, keyboardRowList);
-        } else {
-            rewriteMessage(form.user(), messageText, keyboardRowList);
-        }
+
     }
 
     @Override
