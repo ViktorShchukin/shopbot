@@ -16,8 +16,9 @@ public class FsmContextHolder {
     private final TelegramService telegramService;
     private final PebbleEngine pebbleEngine;
     private final PdfService pdfServie;
+    private final PoolInfoService poolInfoService;
 
-    public FsmContextHolder(ProductService productService, OkHttpTelegramClient okHttpTelegramClient, TelegramInfoService getUserTelegramInfoService, BasketService basketService, OrderService orderService, TelegramService telegramService, PebbleEngine pebbleEngine, PdfService pdfServie) {
+    public FsmContextHolder(ProductService productService, OkHttpTelegramClient okHttpTelegramClient, TelegramInfoService getUserTelegramInfoService, BasketService basketService, OrderService orderService, TelegramService telegramService, PebbleEngine pebbleEngine, PdfService pdfServie, PoolInfoService poolInfoService) {
         this.productService = productService;
         this.telegramClient = okHttpTelegramClient;
         this.telegramInfoService = getUserTelegramInfoService;
@@ -26,6 +27,11 @@ public class FsmContextHolder {
         this.telegramService = telegramService;
         this.pebbleEngine = pebbleEngine;
         this.pdfServie = pdfServie;
+        this.poolInfoService = poolInfoService;
+    }
+
+    public PoolInfoService getPoolInfoService() {
+        return poolInfoService;
     }
 
     public OkHttpTelegramClient getTelegramClient() {

@@ -5,11 +5,15 @@ import org.slf4j.LoggerFactory;
 import ru.aquamarina.fsm.form.Form;
 import ru.aquamarina.fsm.FsmContextHolder;
 import ru.aquamarina.fsm.form.IndexForm;
+import ru.aquamarina.instruction.PoolType;
 import ru.aquamarina.model.command.*;
+import ru.aquamarina.model.entity.PoolInfo;
 import ru.aquamarina.model.entity.User;
 import ru.aquamarina.model.error.Error;
 import ru.aquamarina.model.error.NotSupportedCommand;
 import ru.aquamarina.util.Result;
+
+import java.util.UUID;
 
 public class IndexState implements FsmState {
 
@@ -35,7 +39,16 @@ public class IndexState implements FsmState {
 //            case ContactCmd cnt -> Result.ok(new ContactState(user));
 //            case ShopCmd shp -> Result.ok(new ShopState(user));
 //            case PoolTypeCmd plt -> Result.ok(new PoolTypeState(user));
-            case CircleCmd crl -> Result.ok(new PoolSizeInfoState(user));
+            case CircleCmd crl -> {
+                PoolInfo info = PoolInfo.of(
+                        UUID.randomUUID(),
+                        user.getId(),
+                        PoolType.CIRCLE
+                );
+                yield context.getPoolInfoService()
+                        .createOrUpdate(info)
+                        .mapValue(res -> new PoolDepthState(user));
+            }
             case RectangleCmd rec -> Result.ok(new PoolSizeInfoState(user));
             case StartCmd start -> Result.ok(new IndexState(user, true));
             default -> Result.error(new NotSupportedCommand());

@@ -45,4 +45,8 @@ public interface View {
     void drawPoolSizeInfoForm(PoolSizeInfoForm form);
 
     void drawGuideForm(GuideForm form);
+
+    void drawPoolDepthForm(PoolDepthForm form);
+
+    void drawPoolDiameterForm(PoolDiameterForm form);
 }

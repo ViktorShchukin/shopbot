@@ -1,0 +1,24 @@
+package ru.aquamarina.mapper;
+
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
+import ru.aquamarina.config.AppMapperConfig;
+import ru.aquamarina.model.entity.PoolInfo;
+
+@Mapper(config = AppMapperConfig.class)
+public interface PoolInfoTool {
+
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "userId", ignore = true)
+    @Mapping(target = "poolType", ignore = true)
+    PoolInfo update(
+            @MappingTarget PoolInfo poolInfo,
+            Long poolDepth,
+            Long poolLength,
+            Long poolWidth,
+            Long poolDiameter,
+            Long poolVolume
+    );
+}
