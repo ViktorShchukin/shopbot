@@ -75,6 +75,8 @@ public class DefaultFsmRunner implements FsmRunner {
             case GuideState.NAME ->  Result.ok(new GuideState(user));
             case PoolDepthState.NAME -> Result.ok(new PoolDepthState(user));
             case PoolDiameterState.NAME ->  Result.ok(new PoolDiameterState(user));
+            case PoolWidthState.NAME -> Result.ok(new PoolWidthState(user));
+            case PoolLengthState.NAME -> Result.ok(new PoolLengthState(user));
             // deprecated
 //            case String str when str.contains(OrderAdditionalInfoAddressState.NAME) ->
 //                    CommandUtil.parseCmdWithUuidArg(str)

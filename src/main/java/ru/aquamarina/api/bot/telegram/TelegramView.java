@@ -488,6 +488,34 @@ public class TelegramView implements View {
                 );
     }
 
+    @Override
+    public void drawPoolWidthForm(PoolWidthForm form) {
+        messageSource.getMessage("poolWidth", LOCALE_RU)
+                .ifPresentOrElse(
+                        messageText -> {
+                            sendMessage(form.user(), messageText);
+                        },
+                        () -> {
+                            log.error("Can't get message from message source");
+                            this.drawErrorForm(new ErrorForm(form.user()));
+                        }
+                );
+    }
+
+    @Override
+    public void drawPoolLenghtForm(PoolLenghtForm form) {
+        messageSource.getMessage("poolLength", LOCALE_RU)
+                .ifPresentOrElse(
+                        messageText -> {
+                            sendMessage(form.user(), messageText);
+                        },
+                        () -> {
+                            log.error("Can't get message from message source");
+                            this.drawErrorForm(new ErrorForm(form.user()));
+                        }
+                );
+    }
+
     private InlineKeyboardButton getButton(String buttonText, Command command) {
         return InlineKeyboardButton.builder()
                 .text(buttonText)

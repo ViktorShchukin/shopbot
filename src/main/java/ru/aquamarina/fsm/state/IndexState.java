@@ -49,7 +49,16 @@ public class IndexState implements FsmState {
                         .createOrUpdate(info)
                         .mapValue(res -> new PoolDepthState(user));
             }
-            case RectangleCmd rec -> Result.ok(new PoolSizeInfoState(user));
+            case RectangleCmd rec -> {
+                PoolInfo info = PoolInfo.of(
+                        UUID.randomUUID(),
+                        user.getId(),
+                        PoolType.RECTANGLE
+                );
+                yield context.getPoolInfoService()
+                        .createOrUpdate(info)
+                        .mapValue(res -> new PoolDepthState(user));
+            }
             case StartCmd start -> Result.ok(new IndexState(user, true));
             default -> Result.error(new NotSupportedCommand());
         };

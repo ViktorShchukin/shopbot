@@ -5,7 +5,8 @@ import org.slf4j.LoggerFactory;
 import ru.aquamarina.fsm.FsmContextHolder;
 import ru.aquamarina.fsm.form.Form;
 import ru.aquamarina.fsm.form.InvalidInputForLongForm;
-import ru.aquamarina.fsm.form.PoolDepthForm;
+import ru.aquamarina.fsm.form.PoolDiameterForm;
+import ru.aquamarina.fsm.form.PoolWidthForm;
 import ru.aquamarina.model.command.Command;
 import ru.aquamarina.model.command.StartCmd;
 import ru.aquamarina.model.command.UserInputCmd;
@@ -17,9 +18,8 @@ import ru.aquamarina.model.error.validation.StringParseError;
 import ru.aquamarina.util.Result;
 import ru.aquamarina.util.UserInputUtil;
 
-public class PoolDepthState implements FsmState {
-
-    public static final String NAME = "PoolDepth";
+public class PoolWidthState implements FsmState{
+    public static final String NAME = "PoolWidth";
 
     private final Logger log = LoggerFactory.getLogger(IndexState.class);
 
@@ -27,7 +27,7 @@ public class PoolDepthState implements FsmState {
     private boolean isInvalidInput = false;
     private boolean isInputInRange = true;
 
-    public PoolDepthState(User user) {
+    public PoolWidthState(User user) {
         this.user = user;
     }
 
@@ -38,18 +38,14 @@ public class PoolDepthState implements FsmState {
                     .map(UserInputUtil::validateAboveZero)
                     .map(value -> context.getPoolInfoService()
                             .update(user.getId(),
+                                    null,
+                                    null,
                                     value,
-                                    null,
-                                    null,
                                     null,
                                     null
                             )
                     )
-                    .mapValue(res -> switch (res.getPoolType()) {
-                        case CIRCLE -> (FsmState) new PoolDiameterState(user);
-                        case RECTANGLE -> (FsmState) new PoolWidthState(user);
-
-                    })
+                    .mapValue(res -> (FsmState) new PoolLengthState(user))
                     .or(error -> {
                         return switch (error) {
                             case NotAllowedValue err -> {
@@ -74,7 +70,7 @@ public class PoolDepthState implements FsmState {
         if (isInvalidInput || !isInputInRange) {
             return new InvalidInputForLongForm(user);
         }
-        return new PoolDepthForm(user);
+        return new PoolWidthForm(user);
     }
 
     @Override
