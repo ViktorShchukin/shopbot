@@ -2,7 +2,7 @@ package ru.aquamarina.fsm.form;
 
 import ru.aquamarina.api.bot.View;
 
-public sealed interface Form permits AboutForm, BasketForm, CatalogForm, ContactForm, DistributionModeForm, ErrorForm, ForWholesalerForm, GuideForm, IndexForm, OrderAdditionalInfoAddressForm, OrderAdditionalInfoPhoneForm, OrderAdditionalInfoPhoneInvalidForm, OrderForm, PayAndDeliveryForm, PoolDepthForm, PoolDiameterForm, PoolSizeInfoForm, PoolTypeForm, ProductAboutForm, ProductInstructionForm, ShopForm {
+public sealed interface Form permits AboutForm, BasketForm, CatalogForm, ContactForm, DistributionModeForm, ErrorForm, ForWholesalerForm, GuideForm, IndexForm, InvalidInputForLongForm, OrderAdditionalInfoAddressForm, OrderAdditionalInfoPhoneForm, OrderAdditionalInfoPhoneInvalidForm, OrderForm, PayAndDeliveryForm, PoolDepthForm, PoolDiameterForm, PoolSizeInfoForm, PoolTypeForm, ProductAboutForm, ProductInstructionForm, ShopForm {
 
     void draw(View view);
 }

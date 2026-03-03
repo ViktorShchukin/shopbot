@@ -49,4 +49,6 @@ public interface View {
     void drawPoolDepthForm(PoolDepthForm form);
 
     void drawPoolDiameterForm(PoolDiameterForm form);
+
+    void drawInvalidInputForLongForm(InvalidInputForLongForm form);
 }
