@@ -5,7 +5,6 @@ import org.slf4j.LoggerFactory;
 import ru.aquamarina.fsm.FsmContextHolder;
 import ru.aquamarina.fsm.form.Form;
 import ru.aquamarina.fsm.form.InvalidInputForLongForm;
-import ru.aquamarina.fsm.form.PoolDiameterForm;
 import ru.aquamarina.fsm.form.PoolLenghtForm;
 import ru.aquamarina.model.command.Command;
 import ru.aquamarina.model.command.StartCmd;
@@ -45,7 +44,7 @@ public class PoolLengthState implements FsmState {
                                     null
                             )
                     )
-                    .mapValue(res -> (FsmState) new GuideState(user))
+                    .mapValue(res -> (FsmState) new GuideTypeState(user))
                     .or(error -> {
                         return switch (error) {
                             case NotAllowedValue err -> {

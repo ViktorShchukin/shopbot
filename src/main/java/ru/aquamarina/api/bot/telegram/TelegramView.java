@@ -20,6 +20,7 @@ import ru.aquamarina.api.bot.View;
 import ru.aquamarina.api.dto.ProductRowDto;
 import ru.aquamarina.api.mapper.ProductMapper;
 import ru.aquamarina.fsm.form.*;
+import ru.aquamarina.instruction.GuideType;
 import ru.aquamarina.model.command.*;
 import ru.aquamarina.model.entity.Folder;
 import ru.aquamarina.model.entity.Product;
@@ -423,7 +424,6 @@ public class TelegramView implements View {
         InputFile file = new InputFile(form.guide(), "инструкция.pdf");
 
         sendDocument(form.user(), file);
-        sendDocument(form.user(), file);
 
         String text = "К сообщению прикреплена инструкция по обслуживанию вашего бассейна. сохраните этот файл чтобы не потерять";
 
@@ -451,7 +451,7 @@ public class TelegramView implements View {
         messageSource.getMessage("poolDepth", LOCALE_RU)
                 .ifPresentOrElse(
                         messageText -> {
-                                sendMessage(form.user(), messageText);
+                            sendMessage(form.user(), messageText);
                         },
                         () -> {
                             log.error("Can't get message from message source");
@@ -465,7 +465,7 @@ public class TelegramView implements View {
         messageSource.getMessage("poolDiameter", LOCALE_RU)
                 .ifPresentOrElse(
                         messageText -> {
-                                sendMessage(form.user(), messageText);
+                            sendMessage(form.user(), messageText);
                         },
                         () -> {
                             log.error("Can't get message from message source");
@@ -516,6 +516,30 @@ public class TelegramView implements View {
                 );
     }
 
+    @Override
+    public void drawGuideTypeForm(GuideTypeForm form) {
+        List<InlineKeyboardRow> keyboardRowList = new ArrayList<>(GuideType.values().length);
+        for (GuideType type : GuideType.values()) {
+            keyboardRowList.add(
+                    new InlineKeyboardRow(
+                            getButton(new GuideTypeCommand(null, type))
+                    )
+            );
+        }
+
+
+        messageSource.getMessage("guideType", LOCALE_RU)
+                .ifPresentOrElse(
+                        messageText -> {
+                            sendMessage(form.user(), messageText, keyboardRowList);
+                        },
+                        () -> {
+                            log.error("Can't get message from message source");
+                            this.drawErrorForm(new ErrorForm(form.user()));
+                        }
+                );
+    }
+
     private InlineKeyboardButton getButton(String buttonText, Command command) {
         return InlineKeyboardButton.builder()
                 .text(buttonText)
@@ -551,6 +575,10 @@ public class TelegramView implements View {
             case CircleCmd circleCmd -> "Круглый";
             case RectangleCmd rectangleCmd -> "Прямоугольный";
             case PoolTypeCmd poolTypeCmd -> "Инструкция";
+            case GuideTypeCommand gtp -> switch (gtp.guideType()) {
+                case STEP_BY_STEP -> "Уход за бассейном. Пошаговая инструкция.";
+                case BEGINNING_OF_SEASON -> "Запуск бассейна в начале сезона";
+            };
         };
         return InlineKeyboardButton.builder()
                 .text(text)
@@ -713,9 +741,20 @@ public class TelegramView implements View {
                 .build();
 
         try {
+            if (!(messageId == null)) {
+                DeleteMessage deleteMessage = DeleteMessage.builder()
+                        .chatId(telegramUserId)
+                        .messageId(messageId)
+                        .build();
+                try {
+                    client.execute(deleteMessage);
+                } catch (TelegramApiException e) {
+                    log.warn("Can not delete last message for telegramUserId: {}", telegramUserId);
+                }
+            }
             log.trace("=== try to send message ===");
             Message res = client.execute(message);
-            telegramInfoService.update(telegramUserId, null, null, null, res.getMessageId());
+            telegramInfoService.update(telegramUserId, null, null, null, null);
             log.trace("=== send message: {} ===", res);
         } catch (TelegramApiException e) {
             log.error("Telegram error during sending message: ", e);

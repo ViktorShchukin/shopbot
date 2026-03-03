@@ -1,14 +1,12 @@
 package ru.aquamarina.fsm.state;
 
-import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
-import io.pebbletemplates.pebble.PebbleEngine;
-import io.pebbletemplates.pebble.template.PebbleTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.aquamarina.fsm.FsmContextHolder;
 import ru.aquamarina.fsm.form.ErrorForm;
 import ru.aquamarina.fsm.form.Form;
 import ru.aquamarina.fsm.form.GuideForm;
+import ru.aquamarina.instruction.GuideType;
 import ru.aquamarina.model.command.Command;
 import ru.aquamarina.model.command.IndexCmd;
 import ru.aquamarina.model.command.StartCmd;
@@ -28,9 +26,11 @@ public class GuideState implements FsmState {
     private final Logger log = LoggerFactory.getLogger(GuideState.class);
 
     private final User user;
+    private final GuideType guideType;
 
-    public GuideState(User user) {
+    public GuideState(User user, GuideType guideType) {
         this.user = user;
+        this.guideType = guideType;
     }
 
     @Override

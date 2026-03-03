@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.aquamarina.fsm.form.Form;
 import ru.aquamarina.fsm.state.*;
+import ru.aquamarina.instruction.GuideType;
 import ru.aquamarina.model.DistributionMode;
 import ru.aquamarina.model.command.Command;
 import ru.aquamarina.model.entity.User;
@@ -14,8 +15,6 @@ import ru.aquamarina.service.OrderService;
 import ru.aquamarina.service.UserService;
 import ru.aquamarina.util.CommandUtil;
 import ru.aquamarina.util.Result;
-
-import java.util.UUID;
 
 @Singleton
 public class DefaultFsmRunner implements FsmRunner {
@@ -72,11 +71,12 @@ public class DefaultFsmRunner implements FsmRunner {
             case ShopState.NAME -> Result.ok(new ShopState(user));
             case PoolSizeInfoState.NAME -> Result.ok(new PoolSizeInfoState(user));
             case PoolTypeState.NAME -> Result.ok(new PoolTypeState(user));
-            case GuideState.NAME ->  Result.ok(new GuideState(user));
+            case GuideState.NAME ->  Result.ok(new GuideState(user, GuideType.STEP_BY_STEP));
             case PoolDepthState.NAME -> Result.ok(new PoolDepthState(user));
             case PoolDiameterState.NAME ->  Result.ok(new PoolDiameterState(user));
             case PoolWidthState.NAME -> Result.ok(new PoolWidthState(user));
             case PoolLengthState.NAME -> Result.ok(new PoolLengthState(user));
+            case GuideTypeState.NAME -> Result.ok(new GuideTypeState(user));
             // deprecated
 //            case String str when str.contains(OrderAdditionalInfoAddressState.NAME) ->
 //                    CommandUtil.parseCmdWithUuidArg(str)
