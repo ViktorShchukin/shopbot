@@ -6,7 +6,7 @@ import ru.aquamarina.fsm.FsmContextHolder;
 import ru.aquamarina.fsm.form.ErrorForm;
 import ru.aquamarina.fsm.form.Form;
 import ru.aquamarina.fsm.form.GuideForm;
-import ru.aquamarina.instruction.GuideType;
+import ru.aquamarina.guide.GuideType;
 import ru.aquamarina.model.command.Command;
 import ru.aquamarina.model.command.IndexCmd;
 import ru.aquamarina.model.command.StartCmd;
@@ -44,7 +44,7 @@ public class GuideState implements FsmState {
 
     @Override
     public Form getForm(FsmContextHolder context) {
-        return switch (context.getPdfService().getPdf()){
+        return switch (context.getPdfService().getPdf(user)){
             case ResultOk<File, Error> res -> new GuideForm(user, res.result());
             case ResultError<File, Error> err -> new ErrorForm(user);
         };

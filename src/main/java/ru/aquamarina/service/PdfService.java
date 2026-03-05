@@ -1,19 +1,22 @@
 package ru.aquamarina.service;
 
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
-import io.micronaut.core.io.scan.ClassPathResourceLoader;
 import io.pebbletemplates.pebble.PebbleEngine;
 import io.pebbletemplates.pebble.template.PebbleTemplate;
 import jakarta.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.aquamarina.fsm.form.ErrorForm;
-import ru.aquamarina.fsm.form.GuideForm;
+import ru.aquamarina.guide.PoolGuideCalculator;
+import ru.aquamarina.guide.dto.PoolGuideDto;
+import ru.aquamarina.model.entity.PoolInfo;
+import ru.aquamarina.model.entity.User;
 import ru.aquamarina.model.error.Error;
 import ru.aquamarina.model.error.ExceptionWrapperError;
 import ru.aquamarina.util.Result;
 
 import java.io.*;
+import java.util.HashMap;
+import java.util.Map;
 
 @Singleton
 public class PdfService {
@@ -21,18 +24,41 @@ public class PdfService {
     private static final Logger log = LoggerFactory.getLogger(PdfService.class);
 
     private final PebbleEngine pebbleEngine;
+    private final PoolInfoService poolInfoService;
 
     public PdfService(
-            PebbleEngine pebbleEngine
-    ) {
+            PebbleEngine pebbleEngine,
+            PoolInfoService poolInfoService) {
         this.pebbleEngine = pebbleEngine;
+        this.poolInfoService = poolInfoService;
     }
 
-    public Result<File, Error> getPdf() {
+    public Result<File, Error> getPdf(User user) {
+        return poolInfoService.getPoolInfoByUserId(user.getId())
+                .mapValue(PoolGuideCalculator::of)
+                .mapValue(PoolGuideCalculator::evaluate)
+                .map(this::generateHtml)
+                .map(this::generatePdf);
+    }
+
+    private Result<String, Error> generateHtml(PoolGuideDto guideDto) {
+        Map<String, Object> context = new HashMap<>();
+        context.put("poolGuideDto", guideDto);
+
         try (Writer writer = new StringWriter()) {
             PebbleTemplate template = pebbleEngine.getTemplate("static/templates/instruction.html");
-            template.evaluate(writer);
+            template.evaluate(writer, context);
             String html = writer.toString();
+
+            return Result.ok(html);
+        } catch (Exception e) {
+            log.error("error during html generation", e);
+            return Result.error(new ExceptionWrapperError(e, "can't generate html from tempalte"));
+        }
+    }
+
+    private Result<File, Error> generatePdf(String html) {
+        try {
             File tmpFile = File.createTempFile("pool-instruction", ".pdf");
 
             try (OutputStream os = new FileOutputStream(tmpFile)) {
@@ -48,7 +74,6 @@ public class PdfService {
                 builder.toStream(os);
                 builder.run();
             }
-
             return Result.ok(tmpFile);
         } catch (Exception e) {
             log.error("error during pdf generation", e);

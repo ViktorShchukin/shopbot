@@ -2,7 +2,7 @@ package ru.aquamarina.service;
 
 import jakarta.inject.Singleton;
 import jakarta.transaction.Transactional;
-import ru.aquamarina.instruction.PoolType;
+import ru.aquamarina.guide.PoolType;
 import ru.aquamarina.mapper.PoolInfoTool;
 import ru.aquamarina.model.entity.PoolInfo;
 import ru.aquamarina.model.error.Error;
@@ -54,9 +54,8 @@ public class PoolInfoServiceWithExc {
             Long poolDiameter,
             Long poolVolume
     ) {
-        return pollInfoRepository
-                .findByUserId(userId)
-                .map(value ->
+        return getPoolInfoByUserId(userId)
+                .mapValue(value ->
                         poolInfoTool.update(
                                 value,
                                 poolType,
@@ -67,9 +66,7 @@ public class PoolInfoServiceWithExc {
                                 poolVolume
                         )
                 )
-                .map(pollInfoRepository::update)
-                .map(Result::<PoolInfo, Error>ok)
-                .orElseGet(() -> Result.error(new NotFound("this poolInfo not found")));
+                .mapValue(pollInfoRepository::update);
     }
 
     public Result<PoolInfo, Error> create(PoolInfo poolInfo) {
@@ -87,5 +84,11 @@ public class PoolInfoServiceWithExc {
                         return Result.error(error);
                     }
                 });
+    }
+
+    public Result<PoolInfo, Error> getPoolInfoByUserId(UUID userId) {
+        return pollInfoRepository.findByUserId(userId)
+                .map(Result::<PoolInfo, Error>ok)
+                .orElseGet(() -> Result.error(new NotFound("this poolInfo not found")));
     }
 }

@@ -2,7 +2,6 @@ package ru.aquamarina.service;
 
 import io.micronaut.data.exceptions.DataAccessException;
 import jakarta.inject.Singleton;
-import ru.aquamarina.instruction.PoolType;
 import ru.aquamarina.model.entity.PoolInfo;
 import ru.aquamarina.model.error.Error;
 import ru.aquamarina.model.error.IoError;
@@ -54,6 +53,14 @@ public class PoolInfoService {
         try {
             return poolInfoService.createOrUpdate(info);
         } catch (DataAccessException e) {
+            return Result.error(new IoError(e));
+        }
+    }
+
+    public Result<PoolInfo, Error> getPoolInfoByUserId(UUID userId) {
+        try{
+            return poolInfoService.getPoolInfoByUserId(userId);
+        } catch (DataAccessException e){
             return Result.error(new IoError(e));
         }
     }

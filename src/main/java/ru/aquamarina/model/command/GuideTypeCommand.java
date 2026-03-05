@@ -1,6 +1,6 @@
 package ru.aquamarina.model.command;
 
-import ru.aquamarina.instruction.GuideType;
+import ru.aquamarina.guide.GuideType;
 import ru.aquamarina.model.entity.User;
 
 public record GuideTypeCommand(User user, GuideType guideType) implements Command {

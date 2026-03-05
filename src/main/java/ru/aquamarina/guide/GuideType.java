@@ -1,4 +1,4 @@
-package ru.aquamarina.instruction;
+package ru.aquamarina.guide;
 
 public enum GuideType {
     BEGINNING_OF_SEASON, //Запуск бассейна в начале сезона

@@ -2,7 +2,7 @@ package ru.aquamarina.model.entity;
 
 import io.micronaut.data.annotation.Id;
 import io.micronaut.data.annotation.MappedEntity;
-import ru.aquamarina.instruction.PoolType;
+import ru.aquamarina.guide.PoolType;
 
 import java.util.UUID;
 

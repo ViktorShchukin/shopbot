@@ -5,7 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.aquamarina.fsm.form.Form;
 import ru.aquamarina.fsm.state.*;
-import ru.aquamarina.instruction.GuideType;
+import ru.aquamarina.guide.GuideType;
 import ru.aquamarina.model.DistributionMode;
 import ru.aquamarina.model.command.Command;
 import ru.aquamarina.model.entity.User;

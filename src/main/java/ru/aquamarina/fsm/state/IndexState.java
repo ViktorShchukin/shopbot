@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory;
 import ru.aquamarina.fsm.form.Form;
 import ru.aquamarina.fsm.FsmContextHolder;
 import ru.aquamarina.fsm.form.IndexForm;
-import ru.aquamarina.instruction.PoolType;
+import ru.aquamarina.guide.PoolType;
 import ru.aquamarina.model.command.*;
 import ru.aquamarina.model.entity.PoolInfo;
 import ru.aquamarina.model.entity.User;

@@ -4,7 +4,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import ru.aquamarina.config.AppMapperConfig;
-import ru.aquamarina.instruction.PoolType;
+import ru.aquamarina.guide.PoolType;
 import ru.aquamarina.model.entity.PoolInfo;
 
 @Mapper(config = AppMapperConfig.class)

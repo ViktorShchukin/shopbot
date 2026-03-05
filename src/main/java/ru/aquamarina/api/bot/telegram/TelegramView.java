@@ -20,7 +20,7 @@ import ru.aquamarina.api.bot.View;
 import ru.aquamarina.api.dto.ProductRowDto;
 import ru.aquamarina.api.mapper.ProductMapper;
 import ru.aquamarina.fsm.form.*;
-import ru.aquamarina.instruction.GuideType;
+import ru.aquamarina.guide.GuideType;
 import ru.aquamarina.model.command.*;
 import ru.aquamarina.model.entity.Folder;
 import ru.aquamarina.model.entity.Product;

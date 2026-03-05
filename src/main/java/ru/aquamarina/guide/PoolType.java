@@ -1,4 +1,4 @@
-package ru.aquamarina.instruction;
+package ru.aquamarina.guide;
 
 public enum PoolType {
     RECTANGLE,
