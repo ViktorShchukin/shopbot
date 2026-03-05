@@ -8,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.aquamarina.guide.PoolGuideCalculator;
 import ru.aquamarina.guide.dto.PoolGuideDto;
-import ru.aquamarina.model.entity.PoolInfo;
 import ru.aquamarina.model.entity.User;
 import ru.aquamarina.model.error.Error;
 import ru.aquamarina.model.error.ExceptionWrapperError;
@@ -46,7 +45,7 @@ public class PdfService {
         context.put("poolGuideDto", guideDto);
 
         try (Writer writer = new StringWriter()) {
-            PebbleTemplate template = pebbleEngine.getTemplate("static/templates/instruction.html");
+            PebbleTemplate template = pebbleEngine.getTemplate("static/templates/guide.html");
             template.evaluate(writer, context);
             String html = writer.toString();
 
