@@ -428,11 +428,14 @@ public class TelegramView implements View {
         InlineKeyboardRow keyboardRow = new InlineKeyboardRow(
                 getButton(new GuideTypeCmd(null))
         );
+        InlineKeyboardRow keyboardRow1 = new InlineKeyboardRow(
+                getButton("Изменить параметры бассейна", new IndexCmd(null))
+        );
 
         messageSource.getMessage("guide", LOCALE_RU)
                 .ifPresentOrElse(
                         messageText -> {
-                            sendMessage(form.user(), messageText, List.of(keyboardRow));
+                            sendMessage(form.user(), messageText, List.of(keyboardRow, keyboardRow1));
                         },
                         () -> {
                             log.error("Can't get message from message source");
