@@ -6,6 +6,10 @@ public record PoolGuideDto(
         Long phPlus,
         Long algicide,
         Long chlorineGran,
-        Long chlorinePill
+        Long chlorinePill,
+        Long slowChlorineSmallPill,
+        Long slowChlorineBigPill,
+        Long coagulatLiquid,
+        Long coagulatPill
 ) {
 }

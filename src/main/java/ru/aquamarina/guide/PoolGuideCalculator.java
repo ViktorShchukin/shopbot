@@ -6,6 +6,7 @@ import ru.aquamarina.util.MathUtil;
 
 public class PoolGuideCalculator {
 
+    ////// all constants are count in grams, milliliters and pills
     public static final Long PH_MINUS_02_PER_CUBIC_METER = 15L;
     public static final Long PH_PLUS_02_PER_CUBIC_METER = 20L;
     public static final Long PH_ROUND_PRECISION = 10L;
@@ -17,7 +18,14 @@ public class PoolGuideCalculator {
     public static final Long CHLORINE_GRAN_ROUND_PRECISION = 50L;
 
     public static final Double CHLORINE_PILL_PER_CUBIC_METER = 0.5;
-    public static final Long CHLORINE_PILL_ROUND_PRECISION = 1L;
+    public static final Long PILL_ROUND_PRECISION = 1L;
+
+    public static final Double SLOW_CHLORINE_SMALL_PER_CUBIC_METER = 0.5;
+    public static final Double SLOW_CHLORINE_BIG_PER_CUBIC_METER = 0.05;
+
+    public static final Long COAGULAT_LIQUID_PER_CUBIC_METER = 5L;
+    public static final Double COAGULAT_PILL_PER_CUBIC_METER = 0.25;
+    public static final Long COAGULAT_LIQUID_ROUND_PRECISION = 10L;
 
     /**
      * in m^3
@@ -44,14 +52,46 @@ public class PoolGuideCalculator {
                 getPhPlusAmount(),
                 getAlgicideAmount(),
                 getClorineGran(),
-                getChlorinePill()
+                getChlorinePill(),
+                getSlowChlorineSmall(),
+                getSlowChlorineBig(),
+                getCoagulatLiquid(),
+                getCoagulatPill()
+        );
+    }
+
+    private Long getCoagulatLiquid() {
+        return MathUtil.round(
+                poolVolume * COAGULAT_LIQUID_PER_CUBIC_METER,
+                COAGULAT_LIQUID_ROUND_PRECISION
+        );
+    }
+
+    private Long getCoagulatPill() {
+        return MathUtil.round(
+                poolVolume * COAGULAT_PILL_PER_CUBIC_METER,
+                PILL_ROUND_PRECISION
+        );
+    }
+
+    public Long getSlowChlorineBig() {
+        return MathUtil.round(
+                poolVolume * SLOW_CHLORINE_BIG_PER_CUBIC_METER,
+                PILL_ROUND_PRECISION
+        );
+    }
+
+    public Long getSlowChlorineSmall() {
+        return MathUtil.round(
+                poolVolume * SLOW_CHLORINE_SMALL_PER_CUBIC_METER,
+                PILL_ROUND_PRECISION
         );
     }
 
     public Long getChlorinePill() {
         return MathUtil.round(
                 poolVolume * CHLORINE_PILL_PER_CUBIC_METER,
-                CHLORINE_PILL_ROUND_PRECISION
+                PILL_ROUND_PRECISION
         );
     }
 
