@@ -6,7 +6,7 @@ import ru.aquamarina.fsm.FsmContextHolder;
 import ru.aquamarina.fsm.form.Form;
 import ru.aquamarina.fsm.form.GuideTypeForm;
 import ru.aquamarina.model.command.Command;
-import ru.aquamarina.model.command.GuideTypeCommand;
+import ru.aquamarina.model.command.GuideCmd;
 import ru.aquamarina.model.command.StartCmd;
 import ru.aquamarina.model.entity.User;
 import ru.aquamarina.model.error.Error;
@@ -27,7 +27,7 @@ public class GuideTypeState implements FsmState {
     @Override
     public Result<FsmState, Error> doWork(FsmContextHolder context, Command command) {
         return switch (command) {
-            case GuideTypeCommand gtp -> Result.ok(new GuideState(user, gtp.guideType()));
+            case GuideCmd gtp -> Result.ok(new GuideState(user, gtp.guideType()));
             case StartCmd start -> Result.ok(new IndexState(user, true));
             default -> Result.error(new NotSupportedCommand());
         };

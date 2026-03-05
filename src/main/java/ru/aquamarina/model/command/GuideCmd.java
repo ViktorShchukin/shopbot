@@ -3,8 +3,8 @@ package ru.aquamarina.model.command;
 import ru.aquamarina.guide.GuideType;
 import ru.aquamarina.model.entity.User;
 
-public record GuideTypeCommand(User user, GuideType guideType) implements Command {
-    public static final String NAME = "gt";
+public record GuideCmd(User user, GuideType guideType) implements Command {
+    public static final String NAME = "guide";
 
     @Override
     public User getUser() {

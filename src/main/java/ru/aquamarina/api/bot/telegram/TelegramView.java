@@ -425,13 +425,20 @@ public class TelegramView implements View {
 
         sendDocument(form.user(), file);
 
-        String text = "К сообщению прикреплена инструкция по обслуживанию вашего бассейна. сохраните этот файл чтобы не потерять";
-
         InlineKeyboardRow keyboardRow = new InlineKeyboardRow(
-                getButton(new IndexCmd(null))
+                getButton(new GuideTypeCmd(null))
         );
 
-        sendMessage(form.user(), text, List.of(keyboardRow));
+        messageSource.getMessage("guide", LOCALE_RU)
+                .ifPresentOrElse(
+                        messageText -> {
+                            sendMessage(form.user(), messageText, List.of(keyboardRow));
+                        },
+                        () -> {
+                            log.error("Can't get message from message source");
+                            this.drawErrorForm(new ErrorForm(form.user()));
+                        }
+                );
 
         try {
             Files.deleteIfExists(form.guide().toPath());
@@ -522,7 +529,7 @@ public class TelegramView implements View {
         for (GuideType type : GuideType.values()) {
             keyboardRowList.add(
                     new InlineKeyboardRow(
-                            getButton(new GuideTypeCommand(null, type))
+                            getButton(new GuideCmd(null, type))
                     )
             );
         }
@@ -575,10 +582,11 @@ public class TelegramView implements View {
             case CircleCmd circleCmd -> "Круглый";
             case RectangleCmd rectangleCmd -> "Прямоугольный";
             case PoolTypeCmd poolTypeCmd -> "Инструкция";
-            case GuideTypeCommand gtp -> switch (gtp.guideType()) {
+            case GuideCmd gtp -> switch (gtp.guideType()) {
                 case STEP_BY_STEP -> "Уход за бассейном. Пошаговая инструкция.";
                 case BEGINNING_OF_SEASON -> "Запуск бассейна в начале сезона";
             };
+            case GuideTypeCmd cmd -> "Решить другую проблему";
         };
         return InlineKeyboardButton.builder()
                 .text(text)
