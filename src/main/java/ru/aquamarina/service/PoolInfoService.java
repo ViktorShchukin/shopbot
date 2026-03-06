@@ -28,11 +28,11 @@ public class PoolInfoService {
 
     public Result<PoolInfo, Error> update(
             UUID userId,
-            Long poolDepth,
-            Long poolLength,
-            Long poolWidth,
-            Long poolDiameter,
-            Long poolVolume
+            Double poolDepth,
+            Double poolLength,
+            Double poolWidth,
+            Double poolDiameter,
+            Double poolVolume
     ) {
         try {
             var res = poolInfoService.update(

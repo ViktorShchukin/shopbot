@@ -12,4 +12,11 @@ public class UserInputUtil {
                 ? Result.ok(value)
                 : Result.error(new NotAllowedValue());
     }
+
+    public static Result<Double, Error> centimeterToMeter(
+            Long value
+    ) {
+        double delimeter = 100d;
+        return Result.ok(value / delimeter);
+    }
 }

@@ -35,6 +35,7 @@ public class PoolDiameterState implements FsmState {
         return switch (command) {
             case UserInputCmd input -> input.asLong()
                     .map(UserInputUtil::validateAboveZero)
+                    .map(UserInputUtil::centimeterToMeter)
                     .map(value -> context.getPoolInfoService()
                             .update(user.getId(),
                                     null,

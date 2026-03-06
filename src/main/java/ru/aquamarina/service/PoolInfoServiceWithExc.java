@@ -28,11 +28,11 @@ public class PoolInfoServiceWithExc {
 
     public Result<PoolInfo, Error> update(
             UUID userId,
-            Long poolDepth,
-            Long poolLength,
-            Long poolWidth,
-            Long poolDiameter,
-            Long poolVolume
+            Double poolDepth,
+            Double poolLength,
+            Double poolWidth,
+            Double poolDiameter,
+            Double poolVolume
     ) {
         return update(
                 userId,
@@ -48,11 +48,11 @@ public class PoolInfoServiceWithExc {
     public Result<PoolInfo, Error> update(
             UUID userId,
             PoolType poolType,
-            Long poolDepth,
-            Long poolLength,
-            Long poolWidth,
-            Long poolDiameter,
-            Long poolVolume
+            Double poolDepth,
+            Double poolLength,
+            Double poolWidth,
+            Double poolDiameter,
+            Double poolVolume
     ) {
         return getPoolInfoByUserId(userId)
                 .mapValue(value ->
@@ -76,7 +76,7 @@ public class PoolInfoServiceWithExc {
     }
 
     public Result<PoolInfo, Error> createOrUpdate(PoolInfo info) {
-        return update(info.getUserId(), info.getPoolType(), 0L, 0L, 0L, 0L, 0L)
+        return update(info.getUserId(), info.getPoolType(), 0.0, 0.0, 0.0, 0.0, 0.0)
                 .or(error -> {
                     if(error instanceof NotFound){
                         return create(info);

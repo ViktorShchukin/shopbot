@@ -15,10 +15,10 @@ public interface PoolInfoTool {
     PoolInfo update(
             @MappingTarget PoolInfo poolInfo,
             PoolType poolType,
-            Long poolDepth,
-            Long poolLength,
-            Long poolWidth,
-            Long poolDiameter,
-            Long poolVolume
+            Double poolDepth,
+            Double poolLength,
+            Double poolWidth,
+            Double poolDiameter,
+            Double poolVolume
     );
 }

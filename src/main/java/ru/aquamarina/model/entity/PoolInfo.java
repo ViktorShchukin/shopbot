@@ -12,13 +12,13 @@ public class PoolInfo {
     private UUID id;
     private UUID userId;
     private PoolType poolType;
-    private Long poolDepth;
-    private Long poolLength;
-    private Long poolWidth;
-    private Long poolDiameter;
-    private Long poolVolume;
+    private Double poolDepth;
+    private Double poolLength;
+    private Double poolWidth;
+    private Double poolDiameter;
+    private Double poolVolume;
 
-    public PoolInfo(UUID id, UUID userId, PoolType poolType, Long poolDepth, Long poolLength, Long poolWidth, Long poolDiameter, Long poolVolume) {
+    public PoolInfo(UUID id, UUID userId, PoolType poolType, Double poolDepth, Double poolLength, Double poolWidth, Double poolDiameter, Double poolVolume) {
         this.id = id;
         this.userId = userId;
         this.poolType = poolType;
@@ -34,11 +34,11 @@ public class PoolInfo {
                 id,
                 userId,
                 poolType,
-                0L,
-                0L,
-                0L,
-                0L,
-                0L
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
         );
     }
 
@@ -66,43 +66,43 @@ public class PoolInfo {
         this.poolType = poolType;
     }
 
-    public Long getPoolDepth() {
+    public Double getPoolDepth() {
         return poolDepth;
     }
 
-    public void setPoolDepth(Long poolDepth) {
+    public void setPoolDepth(Double poolDepth) {
         this.poolDepth = poolDepth;
     }
 
-    public Long getPoolLength() {
+    public Double getPoolLength() {
         return poolLength;
     }
 
-    public void setPoolLength(Long poolLength) {
+    public void setPoolLength(Double poolLength) {
         this.poolLength = poolLength;
     }
 
-    public Long getPoolWidth() {
+    public Double getPoolWidth() {
         return poolWidth;
     }
 
-    public void setPoolWidth(Long poolWidth) {
+    public void setPoolWidth(Double poolWidth) {
         this.poolWidth = poolWidth;
     }
 
-    public Long getPoolDiameter() {
+    public Double getPoolDiameter() {
         return poolDiameter;
     }
 
-    public void setPoolDiameter(Long poolDiameter) {
+    public void setPoolDiameter(Double poolDiameter) {
         this.poolDiameter = poolDiameter;
     }
 
-    public Long getPoolVolume() {
+    public Double getPoolVolume() {
         return poolVolume;
     }
 
-    public void setPoolVolume(Long poolVolume) {
+    public void setPoolVolume(Double poolVolume) {
         this.poolVolume = poolVolume;
     }
 }
