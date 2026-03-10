@@ -3,8 +3,11 @@ package ru.aquamarina.fsm.state;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.aquamarina.fsm.FsmContextHolder;
+import ru.aquamarina.fsm.form.ErrorForm;
 import ru.aquamarina.fsm.form.Form;
 import ru.aquamarina.fsm.form.GuideTypeForm;
+import ru.aquamarina.fsm.form.PoolTypeForm;
+import ru.aquamarina.guide.PoolGuideCalculator;
 import ru.aquamarina.model.command.Command;
 import ru.aquamarina.model.command.GuideCmd;
 import ru.aquamarina.model.command.StartCmd;
@@ -12,6 +15,8 @@ import ru.aquamarina.model.entity.User;
 import ru.aquamarina.model.error.Error;
 import ru.aquamarina.model.error.NotSupportedCommand;
 import ru.aquamarina.util.Result;
+import ru.aquamarina.util.ResultError;
+import ru.aquamarina.util.ResultOk;
 
 public class GuideTypeState implements FsmState {
     public static final String NAME = "GuideType";
@@ -35,7 +40,14 @@ public class GuideTypeState implements FsmState {
 
     @Override
     public Form getForm(FsmContextHolder context) {
-        return new GuideTypeForm(user);
+        Result<Form, Error> res = context.getPoolInfoService()
+                .getPoolInfoByUserId(user.getId())
+                .mapValue(poolInfo -> new GuideTypeForm(user, PoolGuideCalculator.of(poolInfo).getPoolVolume()));
+
+        return switch (res) {
+            case ResultOk<Form, Error> ok -> ok.result();
+            case ResultError<Form, Error> err -> new ErrorForm(user);
+        };
     }
 
     @Override

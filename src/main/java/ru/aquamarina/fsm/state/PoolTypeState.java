@@ -28,7 +28,7 @@ public class PoolTypeState implements FsmState {
         return switch (command) {
             case CircleCmd crl -> Result.ok(new PoolSizeInfoState(user));
             case RectangleCmd rec -> Result.ok(new PoolSizeInfoState(user));
-            case StartCmd start-> Result.ok(new IndexState(user, true));
+            case StartCmd start -> Result.ok(new IndexState(user, true));
             default -> Result.error(new NotSupportedCommand());
         };
     }

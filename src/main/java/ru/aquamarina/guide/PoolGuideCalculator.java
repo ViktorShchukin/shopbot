@@ -123,6 +123,10 @@ public class PoolGuideCalculator {
         );
     }
 
+    public Double getPoolVolume() {
+        return poolVolume;
+    }
+
     private static Double evaluateCircleVolume(PoolInfo poolInfo) {
         return poolInfo.getPoolDepth() * Math.PI * poolInfo.getPoolDiameter() * poolInfo.getPoolDiameter() / 4;
     }

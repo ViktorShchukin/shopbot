@@ -537,8 +537,9 @@ public class TelegramView implements View {
             );
         }
 
+        String poolValue = "%.2f".formatted(form.poolValue());
 
-        messageSource.getMessage("guideType", LOCALE_RU)
+        messageSource.getMessage("guideType", LOCALE_RU, poolValue)
                 .ifPresentOrElse(
                         messageText -> {
                             sendMessage(form.user(), messageText, keyboardRowList);
