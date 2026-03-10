@@ -421,7 +421,7 @@ public class TelegramView implements View {
 
     @Override
     public void drawGuideForm(GuideForm form) {
-        InputFile file = new InputFile(form.guide(), "инструкция.pdf");
+        InputFile file = new InputFile(form.guide(), "Инструкция_для_обслуживания_бассейна.pdf");
 
         sendDocument(form.user(), file);
 
