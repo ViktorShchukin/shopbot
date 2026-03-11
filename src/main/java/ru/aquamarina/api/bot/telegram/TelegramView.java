@@ -458,10 +458,14 @@ public class TelegramView implements View {
 
     @Override
     public void drawPoolDepthForm(PoolDepthForm form) {
+        InlineKeyboardRow keyboardRow = new InlineKeyboardRow(
+                getButton("Начать заново", new StartCmd(null))
+        );
+
         messageSource.getMessage("poolDepth", LOCALE_RU)
                 .ifPresentOrElse(
                         messageText -> {
-                            sendMessage(form.user(), messageText);
+                            sendMessage(form.user(), messageText, List.of(keyboardRow));
                         },
                         () -> {
                             log.error("Can't get message from message source");
@@ -472,10 +476,13 @@ public class TelegramView implements View {
 
     @Override
     public void drawPoolDiameterForm(PoolDiameterForm form) {
+        InlineKeyboardRow keyboardRow = new InlineKeyboardRow(
+                getButton("Начать заново", new StartCmd(null))
+        );
         messageSource.getMessage("poolDiameter", LOCALE_RU)
                 .ifPresentOrElse(
                         messageText -> {
-                            sendMessage(form.user(), messageText);
+                            sendMessage(form.user(), messageText, List.of(keyboardRow));
                         },
                         () -> {
                             log.error("Can't get message from message source");
@@ -486,10 +493,13 @@ public class TelegramView implements View {
 
     @Override
     public void drawInvalidInputForLongForm(InvalidInputForLongForm form) {
+        InlineKeyboardRow keyboardRow = new InlineKeyboardRow(
+                getButton("Начать заново", new StartCmd(null))
+        );
         messageSource.getMessage("invalidInputForLong", LOCALE_RU)
                 .ifPresentOrElse(
                         messageText -> {
-                            sendMessage(form.user(), messageText);
+                            sendMessage(form.user(), messageText, List.of(keyboardRow));
                         },
                         () -> {
                             log.error("Can't get message from message source");
@@ -500,10 +510,13 @@ public class TelegramView implements View {
 
     @Override
     public void drawPoolWidthForm(PoolWidthForm form) {
+        InlineKeyboardRow keyboardRow = new InlineKeyboardRow(
+                getButton("Начать заново", new StartCmd(null))
+        );
         messageSource.getMessage("poolWidth", LOCALE_RU)
                 .ifPresentOrElse(
                         messageText -> {
-                            sendMessage(form.user(), messageText);
+                            sendMessage(form.user(), messageText, List.of(keyboardRow));
                         },
                         () -> {
                             log.error("Can't get message from message source");
@@ -514,10 +527,13 @@ public class TelegramView implements View {
 
     @Override
     public void drawPoolLenghtForm(PoolLenghtForm form) {
+        InlineKeyboardRow keyboardRow = new InlineKeyboardRow(
+                getButton("Начать заново", new StartCmd(null))
+        );
         messageSource.getMessage("poolLength", LOCALE_RU)
                 .ifPresentOrElse(
                         messageText -> {
-                            sendMessage(form.user(), messageText);
+                            sendMessage(form.user(), messageText, List.of(keyboardRow));
                         },
                         () -> {
                             log.error("Can't get message from message source");
