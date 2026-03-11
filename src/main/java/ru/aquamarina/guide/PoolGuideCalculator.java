@@ -15,7 +15,7 @@ public class PoolGuideCalculator {
     public static final Long ALGICIDE_ROUND_PREDISION = 10L;
 
     public static final Long CHLORINE_GRAN_PER_CUBIC_METER = 10L;
-    public static final Long CHLORINE_GRAN_ROUND_PRECISION = 50L;
+    public static final Long CHLORINE_GRAN_ROUND_PRECISION = 10L;
 
     public static final Double CHLORINE_PILL_PER_CUBIC_METER = 0.5;
     public static final Long PILL_ROUND_PRECISION = 1L;
