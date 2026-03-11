@@ -4,6 +4,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import ru.aquamarina.config.AppMapperConfig;
+import ru.aquamarina.guide.FilterType;
 import ru.aquamarina.guide.PoolType;
 import ru.aquamarina.model.entity.PoolInfo;
 
@@ -14,6 +15,7 @@ public interface PoolInfoTool {
     @Mapping(target = "userId", ignore = true)
     PoolInfo update(
             @MappingTarget PoolInfo poolInfo,
+            FilterType filterType,
             PoolType poolType,
             Double poolDepth,
             Double poolLength,

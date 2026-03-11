@@ -2,6 +2,8 @@ package ru.aquamarina.service;
 
 import io.micronaut.data.exceptions.DataAccessException;
 import jakarta.inject.Singleton;
+import ru.aquamarina.fsm.state.FsmState;
+import ru.aquamarina.guide.FilterType;
 import ru.aquamarina.model.entity.PoolInfo;
 import ru.aquamarina.model.error.Error;
 import ru.aquamarina.model.error.IoError;
@@ -63,5 +65,23 @@ public class PoolInfoService {
         } catch (DataAccessException e){
             return Result.error(new IoError(e));
         }
+    }
+
+    public Result<PoolInfo, Error> updateFilterType(UUID userId,FilterType filterType) {
+        try {
+            return poolInfoService.update(
+                    userId,
+                    filterType,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null
+            );
+        } catch (DataAccessException e){
+            return Result.error(new IoError(e));
+        }
+
     }
 }

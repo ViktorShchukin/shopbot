@@ -2,6 +2,7 @@ package ru.aquamarina.model.entity;
 
 import io.micronaut.data.annotation.Id;
 import io.micronaut.data.annotation.MappedEntity;
+import ru.aquamarina.guide.FilterType;
 import ru.aquamarina.guide.PoolType;
 
 import java.util.UUID;
@@ -12,16 +13,18 @@ public class PoolInfo {
     private UUID id;
     private UUID userId;
     private PoolType poolType;
+    private FilterType filterType;
     private Double poolDepth;
     private Double poolLength;
     private Double poolWidth;
     private Double poolDiameter;
     private Double poolVolume;
 
-    public PoolInfo(UUID id, UUID userId, PoolType poolType, Double poolDepth, Double poolLength, Double poolWidth, Double poolDiameter, Double poolVolume) {
+    public PoolInfo(UUID id, UUID userId, PoolType poolType, FilterType filterType, Double poolDepth, Double poolLength, Double poolWidth, Double poolDiameter, Double poolVolume) {
         this.id = id;
         this.userId = userId;
         this.poolType = poolType;
+        this.filterType = filterType;
         this.poolDepth = poolDepth;
         this.poolLength = poolLength;
         this.poolWidth = poolWidth;
@@ -34,12 +37,21 @@ public class PoolInfo {
                 id,
                 userId,
                 poolType,
+                FilterType.NO_FILTER,
                 0.0,
                 0.0,
                 0.0,
                 0.0,
                 0.0
         );
+    }
+
+    public FilterType getFilterType() {
+        return filterType;
+    }
+
+    public void setFilterType(FilterType filterType) {
+        this.filterType = filterType;
     }
 
     public UUID getId() {

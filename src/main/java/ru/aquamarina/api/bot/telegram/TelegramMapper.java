@@ -4,6 +4,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.aquamarina.config.AppMapperConfig;
+import ru.aquamarina.guide.FilterType;
 import ru.aquamarina.guide.GuideType;
 import ru.aquamarina.model.command.*;
 import ru.aquamarina.model.entity.User;
@@ -59,6 +60,8 @@ public interface TelegramMapper {
             case GuideTypeCmd.NAME -> Result.ok(new GuideTypeCmd(user));
             case String str when str.contains(GuideCmd.NAME) ->
                     Result.ok(new GuideCmd(user, GuideType.valueOf(str.split("\\?")[1])));
+            case String str when str.contains(FilterTypeCmd.NAME) ->
+                Result.ok(new FilterTypeCmd(user, FilterType.valueOf(str.split("\\?")[1])));
             // deprecated commands
 //            case String str when str.contains(OrderAdditionalInfoPhoneCmd.NAME) ->
 //                    Result.ok(new OrderAdditionalInfoPhoneCmd(user, str.trim()));

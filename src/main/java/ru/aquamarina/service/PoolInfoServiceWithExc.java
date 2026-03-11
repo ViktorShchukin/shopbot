@@ -2,6 +2,7 @@ package ru.aquamarina.service;
 
 import jakarta.inject.Singleton;
 import jakarta.transaction.Transactional;
+import ru.aquamarina.guide.FilterType;
 import ru.aquamarina.guide.PoolType;
 import ru.aquamarina.mapper.PoolInfoTool;
 import ru.aquamarina.model.entity.PoolInfo;
@@ -54,10 +55,33 @@ public class PoolInfoServiceWithExc {
             Double poolDiameter,
             Double poolVolume
     ) {
+        return update(
+                userId,
+                null,
+                poolType,
+                poolDepth,
+                poolLength,
+                poolWidth,
+                poolDiameter,
+                poolVolume
+        );
+    }
+
+    public Result<PoolInfo, Error> update(
+            UUID userId,
+            FilterType filterType,
+            PoolType poolType,
+            Double poolDepth,
+            Double poolLength,
+            Double poolWidth,
+            Double poolDiameter,
+            Double poolVolume
+    ) {
         return getPoolInfoByUserId(userId)
                 .mapValue(value ->
                         poolInfoTool.update(
                                 value,
+                                filterType,
                                 poolType,
                                 poolDepth,
                                 poolLength,

@@ -47,7 +47,7 @@ public class IndexState implements FsmState {
                 );
                 yield context.getPoolInfoService()
                         .createOrUpdate(info)
-                        .mapValue(res -> new PoolDepthState(user));
+                        .mapValue(res -> new FilterTypeState(user));
             }
             case RectangleCmd rec -> {
                 PoolInfo info = PoolInfo.of(
@@ -57,7 +57,7 @@ public class IndexState implements FsmState {
                 );
                 yield context.getPoolInfoService()
                         .createOrUpdate(info)
-                        .mapValue(res -> new PoolDepthState(user));
+                        .mapValue(res -> new FilterTypeState(user));
             }
             case StartCmd start -> Result.ok(new IndexState(user, true));
             default -> Result.error(new NotSupportedCommand());

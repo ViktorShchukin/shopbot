@@ -57,4 +57,6 @@ public interface View {
     void drawPoolLenghtForm(PoolLenghtForm form);
 
     void drawGuideTypeForm(GuideTypeForm form);
+
+    void drawFilterTypeForm(FilterTypeForm form);
 }

@@ -20,6 +20,7 @@ import ru.aquamarina.api.bot.View;
 import ru.aquamarina.api.dto.ProductRowDto;
 import ru.aquamarina.api.mapper.ProductMapper;
 import ru.aquamarina.fsm.form.*;
+import ru.aquamarina.guide.FilterType;
 import ru.aquamarina.guide.GuideType;
 import ru.aquamarina.model.command.*;
 import ru.aquamarina.model.entity.Folder;
@@ -567,6 +568,30 @@ public class TelegramView implements View {
                 );
     }
 
+    @Override
+    public void drawFilterTypeForm(FilterTypeForm form) {
+        List<InlineKeyboardRow> keyboardRowList = new ArrayList<>(FilterType.values().length);
+        for (FilterType type : FilterType.values()) {
+            keyboardRowList.add(
+                    new InlineKeyboardRow(
+                            getButton(new FilterTypeCmd(null, type))
+                    )
+            );
+        }
+
+
+        messageSource.getMessage("filterType", LOCALE_RU)
+                .ifPresentOrElse(
+                        messageText -> {
+                            sendMessage(form.user(), messageText, keyboardRowList);
+                        },
+                        () -> {
+                            log.error("Can't get message from message source");
+                            this.drawErrorForm(new ErrorForm(form.user()));
+                        }
+                );
+    }
+
     private InlineKeyboardButton getButton(String buttonText, Command command) {
         return InlineKeyboardButton.builder()
                 .text(buttonText)
@@ -605,6 +630,11 @@ public class TelegramView implements View {
             case GuideCmd gtp -> switch (gtp.guideType()) {
                 case STEP_BY_STEP -> "Уход за бассейном. Пошаговая инструкция.";
                 case BEGINNING_OF_SEASON -> "Запуск бассейна в начале сезона";
+            };
+            case FilterTypeCmd flt -> switch (flt.filterType()) {
+                case SAND -> "Песочный фильтр насос";
+                case CARTRIDGE -> "Картриджный фильтр насос";
+                case NO_FILTER -> "Фильтр отсутствует";
             };
             case GuideTypeCmd cmd -> "Решить другую проблему";
         };
