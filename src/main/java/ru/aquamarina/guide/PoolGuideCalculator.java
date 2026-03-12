@@ -31,9 +31,11 @@ public class PoolGuideCalculator {
      * in m^3
      */
     private final Double poolVolume;
+    private final PoolInfo poolInfo;
 
-    public PoolGuideCalculator(Double poolVolume) {
+    public PoolGuideCalculator(Double poolVolume, PoolInfo poolInfo) {
         this.poolVolume = poolVolume;
+        this.poolInfo = poolInfo;
     }
 
     public static PoolGuideCalculator of(PoolInfo poolInfo) {
@@ -42,7 +44,7 @@ public class PoolGuideCalculator {
             case RECTANGLE -> evaluateRectangle(poolInfo);
         };
 
-        return new PoolGuideCalculator(res);
+        return new PoolGuideCalculator(res, poolInfo);
     }
 
     public PoolGuideDto evaluate() {
@@ -56,7 +58,8 @@ public class PoolGuideCalculator {
                 getSlowChlorineSmall(),
                 getSlowChlorineBig(),
                 getCoagulatLiquid(),
-                getCoagulatPill()
+                getCoagulatPill(),
+                poolInfo.getFilterType()
         );
     }
 
