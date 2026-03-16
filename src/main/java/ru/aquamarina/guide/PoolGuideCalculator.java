@@ -43,7 +43,7 @@ public class PoolGuideCalculator {
             case CIRCLE -> evaluateCircleVolume(poolInfo);
             case RECTANGLE -> evaluateRectangle(poolInfo);
         };
-
+        res *= 0.85; // coefficient for pool size. see doc/meeting/2026-03-12-meet-summary.md  7th point.
         return new PoolGuideCalculator(res, poolInfo);
     }
 
