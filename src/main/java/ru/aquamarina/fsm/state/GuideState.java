@@ -47,7 +47,7 @@ public class GuideState implements FsmState {
     @Override
     public Form getForm(FsmContextHolder context) {
         return switch (context.getPdfService().getPdf(user)){
-            case ResultOk<File, Error> res -> new GuideForm(user, res.result());
+            case ResultOk<File, Error> res -> new GuideForm(user, res.result(), guideType);
             case ResultError<File, Error> err -> new ErrorForm(user);
         };
     }
