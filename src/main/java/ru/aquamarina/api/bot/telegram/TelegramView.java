@@ -553,6 +553,11 @@ public class TelegramView implements View {
                     )
             );
         }
+        keyboardRowList.add(
+                new InlineKeyboardRow(
+                        getButton("Изменить параметры бассейна", new StartCmd(null))
+                )
+        );
 
         String poolValue = "%.2f".formatted(form.poolValue());
 
