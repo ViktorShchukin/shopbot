@@ -46,24 +46,19 @@ public class PoolDepthState implements FsmState {
                                     null
                             )
                     )
-                    .mapValue(res -> switch (res.getPoolType()) {
-                        case CIRCLE -> (FsmState) new PoolDiameterState(user);
-                        case RECTANGLE -> (FsmState) new PoolWidthState(user);
-
-                    })
-                    .or(error -> {
-                        return switch (error) {
-                            case NotAllowedValue err -> {
-                                isInputInRange = false;
-                                yield Result.ok(this);
+                    .mapValue(res -> (FsmState) new FilterTypeState(user))
+                    .or(error -> switch (error) {
+                                case NotAllowedValue err -> {
+                                    isInputInRange = false;
+                                    yield Result.ok(this);
+                                }
+                                case StringParseError err -> {
+                                    isInvalidInput = true;
+                                    yield Result.ok(this);
+                                }
+                                default -> Result.error(error);
                             }
-                            case StringParseError err -> {
-                                isInvalidInput = true;
-                                yield Result.ok(this);
-                            }
-                            default -> Result.error(error);
-                        };
-                    });
+                    );
             case StartCmd start -> Result.ok(new IndexState(user, true));
             default -> Result.error(new NotSupportedCommand());
         };

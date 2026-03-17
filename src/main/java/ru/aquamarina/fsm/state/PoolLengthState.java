@@ -45,20 +45,19 @@ public class PoolLengthState implements FsmState {
                                     null
                             )
                     )
-                    .mapValue(res -> (FsmState) new GuideTypeState(user))
-                    .or(error -> {
-                        return switch (error) {
-                            case NotAllowedValue err -> {
-                                isInputInRange = false;
-                                yield Result.ok(this);
+                    .mapValue(res -> (FsmState) new PoolWidthState(user))
+                    .or(error -> switch (error) {
+                                case NotAllowedValue err -> {
+                                    isInputInRange = false;
+                                    yield Result.ok(this);
+                                }
+                                case StringParseError err -> {
+                                    isInvalidInput = true;
+                                    yield Result.ok(this);
+                                }
+                                default -> Result.error(error);
                             }
-                            case StringParseError err -> {
-                                isInvalidInput = true;
-                                yield Result.ok(this);
-                            }
-                            default -> Result.error(error);
-                        };
-                    });
+                    );
             case StartCmd start -> Result.ok(new IndexState(user, true));
             default -> Result.error(new NotSupportedCommand());
         };

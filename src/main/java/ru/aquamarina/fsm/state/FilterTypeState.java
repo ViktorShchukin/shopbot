@@ -29,7 +29,7 @@ public class FilterTypeState implements FsmState {
         return switch (command) {
             case FilterTypeCmd cmd -> context.getPoolInfoService()
                     .updateFilterType(user.getId(), cmd.filterType())
-                    .map(res -> Result.ok(new PoolDepthState(user)));
+                    .map(res -> Result.ok(new GuideTypeState(user)));
             case StartCmd start -> Result.ok(new IndexState(user, true));
             default -> Result.error(new NotSupportedCommand());
         };

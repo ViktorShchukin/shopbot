@@ -45,7 +45,7 @@ public class PoolDiameterState implements FsmState {
                                     null
                             )
                     )
-                    .mapValue(res -> (FsmState) new GuideTypeState(user))
+                    .mapValue(res -> (FsmState) new PoolDepthState(user))
                     .or(error -> {
                         return switch (error) {
                             case NotAllowedValue err -> {

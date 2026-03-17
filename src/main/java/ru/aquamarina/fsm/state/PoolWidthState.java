@@ -18,7 +18,7 @@ import ru.aquamarina.model.error.validation.StringParseError;
 import ru.aquamarina.util.Result;
 import ru.aquamarina.util.UserInputUtil;
 
-public class PoolWidthState implements FsmState{
+public class PoolWidthState implements FsmState {
     public static final String NAME = "PoolWidth";
 
     private final Logger log = LoggerFactory.getLogger(IndexState.class);
@@ -46,20 +46,19 @@ public class PoolWidthState implements FsmState{
                                     null
                             )
                     )
-                    .mapValue(res -> (FsmState) new PoolLengthState(user))
-                    .or(error -> {
-                        return switch (error) {
-                            case NotAllowedValue err -> {
-                                isInputInRange = false;
-                                yield Result.ok(this);
+                    .mapValue(res -> (FsmState) new PoolDepthState(user))
+                    .or(error -> switch (error) {
+                                case NotAllowedValue err -> {
+                                    isInputInRange = false;
+                                    yield Result.ok(this);
+                                }
+                                case StringParseError err -> {
+                                    isInvalidInput = true;
+                                    yield Result.ok(this);
+                                }
+                                default -> Result.error(error);
                             }
-                            case StringParseError err -> {
-                                isInvalidInput = true;
-                                yield Result.ok(this);
-                            }
-                            default -> Result.error(error);
-                        };
-                    });
+                    );
             case StartCmd start -> Result.ok(new IndexState(user, true));
             default -> Result.error(new NotSupportedCommand());
         };
