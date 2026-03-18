@@ -62,6 +62,7 @@ public interface TelegramMapper {
                     Result.ok(new GuideCmd(user, GuideType.valueOf(str.split("\\?")[1])));
             case String str when str.contains(FilterTypeCmd.NAME) ->
                 Result.ok(new FilterTypeCmd(user, FilterType.valueOf(str.split("\\?")[1])));
+            case BackCmd.NAME -> Result.ok(new BackCmd(user));
             // deprecated commands
 //            case String str when str.contains(OrderAdditionalInfoPhoneCmd.NAME) ->
 //                    Result.ok(new OrderAdditionalInfoPhoneCmd(user, str.trim()));

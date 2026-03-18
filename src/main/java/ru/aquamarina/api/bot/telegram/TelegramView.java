@@ -124,10 +124,7 @@ public class TelegramView implements View {
 
     @Override
     public void drawContactFrom(ContactForm form) {
-        InlineKeyboardRow keyboardRow = new InlineKeyboardRow(
-                getButton(new AboutCmd(null)),
-                getButton(new ForWholesalerCmd(null))
-        );
+
         InlineKeyboardRow keyboardRow2 = new InlineKeyboardRow(
                 InlineKeyboardButton.builder()
                         .text("Связаться с менеджером")
@@ -135,14 +132,22 @@ public class TelegramView implements View {
                         .build()
         );
         InlineKeyboardRow keyboardRow3 = new InlineKeyboardRow(
-                getButton(new IndexCmd(null))
+                getButton(new BackCmd(null))
         );
 
-        List<InlineKeyboardRow> keyboardRowList = List.of(keyboardRow, keyboardRow2, keyboardRow3);
+        List<InlineKeyboardRow> keyboardRowList = List.of(keyboardRow2, keyboardRow3);
 
-        String messageText = "Need new text";
+        messageSource.getMessage("contact", LOCALE_RU)
+                .ifPresentOrElse(
+                        messageText -> {
+                            sendMessage(form.user(), messageText, keyboardRowList);
+                        },
+                        () -> {
+                            log.error("Can't get message from message source");
+                            this.drawErrorForm(new ErrorForm(form.user()));
+                        }
+                );
 
-        rewriteMessage(form.user(), messageText, keyboardRowList);
 
     }
 
@@ -431,23 +436,7 @@ public class TelegramView implements View {
 
         sendDocument(form.user(), file);
 
-        InlineKeyboardRow keyboardRow = new InlineKeyboardRow(
-                getButton(new GuideTypeCmd(null))
-        );
-        InlineKeyboardRow keyboardRow1 = new InlineKeyboardRow(
-                getButton("Изменить параметры бассейна", new IndexCmd(null))
-        );
-
-        messageSource.getMessage("guide", LOCALE_RU)
-                .ifPresentOrElse(
-                        messageText -> {
-                            sendMessage(form.user(), messageText, List.of(keyboardRow, keyboardRow1));
-                        },
-                        () -> {
-                            log.error("Can't get message from message source");
-                            this.drawErrorForm(new ErrorForm(form.user()));
-                        }
-                );
+        this.drawGuideWithoutFileForm(new GuideWithoutFileForm(form.user()));
 
         try {
             Files.deleteIfExists(form.guide().toPath());
@@ -455,6 +444,32 @@ public class TelegramView implements View {
             log.error("Can't delete tmp file. This can be FATAL for server", e);
         }
 
+    }
+
+    @Override
+    public void drawGuideWithoutFileForm(GuideWithoutFileForm form) {
+        var keyboard = List.of(
+                new InlineKeyboardRow(
+                        getButton(new GuideTypeCmd(null))
+                ),
+                new InlineKeyboardRow(
+                        getButton(new ContactCmd(null))
+                ),
+                new InlineKeyboardRow(
+                        getButton("Изменить параметры бассейна", new IndexCmd(null))
+                )
+        );
+
+        messageSource.getMessage("guide", LOCALE_RU)
+                .ifPresentOrElse(
+                        messageText -> {
+                            sendMessage(form.user(), messageText, keyboard);
+                        },
+                        () -> {
+                            log.error("Can't get message from message source");
+                            this.drawErrorForm(new ErrorForm(form.user()));
+                        }
+                );
     }
 
     @Override
@@ -647,6 +662,7 @@ public class TelegramView implements View {
                 case NO_FILTER -> "Фильтр отсутствует";
             };
             case GuideTypeCmd cmd -> "Решить другую проблему";
+            case BackCmd cmd -> "Назад";
         };
         return InlineKeyboardButton.builder()
                 .text(text)

@@ -6,11 +6,9 @@ import ru.aquamarina.fsm.FsmContextHolder;
 import ru.aquamarina.fsm.form.ErrorForm;
 import ru.aquamarina.fsm.form.Form;
 import ru.aquamarina.fsm.form.GuideForm;
+import ru.aquamarina.fsm.form.GuideWithoutFileForm;
 import ru.aquamarina.guide.GuideType;
-import ru.aquamarina.model.command.Command;
-import ru.aquamarina.model.command.GuideTypeCmd;
-import ru.aquamarina.model.command.IndexCmd;
-import ru.aquamarina.model.command.StartCmd;
+import ru.aquamarina.model.command.*;
 import ru.aquamarina.model.entity.User;
 import ru.aquamarina.model.error.Error;
 import ru.aquamarina.model.error.NotSupportedCommand;
@@ -28,15 +26,18 @@ public class GuideState implements FsmState {
 
     private final User user;
     private final GuideType guideType;
+    private final boolean needGuideFile;
 
-    public GuideState(User user, GuideType guideType) {
+    public GuideState(User user, GuideType guideType, boolean needGuideFile) {
         this.user = user;
         this.guideType = guideType;
+        this.needGuideFile = needGuideFile;
     }
 
     @Override
     public Result<FsmState, Error> doWork(FsmContextHolder context, Command command) {
         return switch (command) {
+            case ContactCmd cmd -> Result.ok(new ContactState(user));
             case IndexCmd ndx -> Result.ok(new IndexState(user));
             case GuideTypeCmd gd -> Result.ok(new GuideTypeState(user));
             case StartCmd start -> Result.ok(new IndexState(user, true));
@@ -46,6 +47,9 @@ public class GuideState implements FsmState {
 
     @Override
     public Form getForm(FsmContextHolder context) {
+        if (!needGuideFile){
+            return new GuideWithoutFileForm(user);
+        }
         return switch (context.getPdfService().getPdf(user)){
             case ResultOk<File, Error> res -> new GuideForm(user, res.result(), guideType);
             case ResultError<File, Error> err -> new ErrorForm(user);

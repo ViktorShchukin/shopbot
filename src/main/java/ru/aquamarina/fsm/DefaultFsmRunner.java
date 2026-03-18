@@ -71,7 +71,7 @@ public class DefaultFsmRunner implements FsmRunner {
             case ShopState.NAME -> Result.ok(new ShopState(user));
             case PoolSizeInfoState.NAME -> Result.ok(new PoolSizeInfoState(user));
             case PoolTypeState.NAME -> Result.ok(new PoolTypeState(user));
-            case GuideState.NAME ->  Result.ok(new GuideState(user, GuideType.STEP_BY_STEP));
+            case GuideState.NAME ->  Result.ok(new GuideState(user, GuideType.STEP_BY_STEP, true));
             case PoolDepthState.NAME -> Result.ok(new PoolDepthState(user));
             case PoolDiameterState.NAME ->  Result.ok(new PoolDiameterState(user));
             case PoolWidthState.NAME -> Result.ok(new PoolWidthState(user));

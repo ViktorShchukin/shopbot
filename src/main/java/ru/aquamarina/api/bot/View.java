@@ -59,4 +59,6 @@ public interface View {
     void drawGuideTypeForm(GuideTypeForm form);
 
     void drawFilterTypeForm(FilterTypeForm form);
+
+    void drawGuideWithoutFileForm(GuideWithoutFileForm form);
 }
