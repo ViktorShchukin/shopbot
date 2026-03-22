@@ -52,9 +52,11 @@
             <a href="https://ozon.ru/t/7i0AgpJ">РН плюс</a>
         </li>
         <li>
-            <a href="https://ozon.ru/t/QoscUdm">Коагулянт жидкий</a>
-            или
-            <a href="https://ozon.ru/t/Qosc5N8">коагулянт в таблетках</a>.
+            {% if poolGuideDto.filterType.name == "SAND" %}
+                <a href="https://ozon.ru/t/Qosc5N8">Коагулянт в таблетках</a>
+            {% else %}
+                <a href="https://ozon.ru/t/QoscUdm">Коагулянт жидкий</a>
+            {% endif %}
         </li>
     </ol>
     <p>
