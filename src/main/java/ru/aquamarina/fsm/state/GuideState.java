@@ -50,7 +50,7 @@ public class GuideState implements FsmState {
         if (!needGuideFile){
             return new GuideWithoutFileForm(user);
         }
-        return switch (context.getPdfService().getPdf(user)){
+        return switch (context.getPdfService().getPdf(user, guideType)){
             case ResultOk<File, Error> res -> new GuideForm(user, res.result(), guideType);
             case ResultError<File, Error> err -> new ErrorForm(user);
         };

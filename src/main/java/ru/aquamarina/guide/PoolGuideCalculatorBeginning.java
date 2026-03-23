@@ -4,28 +4,11 @@ import ru.aquamarina.guide.dto.PoolGuideDto;
 import ru.aquamarina.model.entity.PoolInfo;
 import ru.aquamarina.util.MathUtil;
 
-public class PoolGuideCalculator {
+public class PoolGuideCalculatorBeginning implements IPoolGuideCalculator {
 
-    ////// all constants are count in grams, milliliters and pills
-    public static final Long PH_MINUS_02_PER_CUBIC_METER = 15L;
-    public static final Long PH_PLUS_02_PER_CUBIC_METER = 20L;
-    public static final Long PH_ROUND_PRECISION = 10L;
-
-    public static final Long ALGICIDE_PER_CUBIC_METER = 10L;
-    public static final Long ALGICIDE_ROUND_PREDISION = 10L;
-
-    public static final Long CHLORINE_GRAN_PER_CUBIC_METER = 10L;
-    public static final Long CHLORINE_GRAN_ROUND_PRECISION = 10L;
-
-    public static final Double CHLORINE_PILL_PER_CUBIC_METER = 0.5;
-    public static final Long PILL_ROUND_PRECISION = 1L;
-
-    public static final Double SLOW_CHLORINE_SMALL_PER_CUBIC_METER = 0.5;
-    public static final Double SLOW_CHLORINE_BIG_PER_CUBIC_METER = 0.05;
-
-    public static final Long COAGULAT_LIQUID_PER_CUBIC_METER = 5L;
-    public static final Double COAGULAT_PILL_PER_CUBIC_METER = 0.25;
-    public static final Long COAGULAT_LIQUID_ROUND_PRECISION = 10L;
+    public static Long ALGICIDE_PER_CUBIC_METER_BEGINNING = 20L;
+    public static Long CHLORINE_GRAN_PER_CUBIC_METER_BEGINNING = 20L;
+    public static Long CHLORINE_PILL_PER_CUBIC_METER_BEGINNING = 1L;
 
     /**
      * in m^3
@@ -33,27 +16,28 @@ public class PoolGuideCalculator {
     private final Double poolVolume;
     private final PoolInfo poolInfo;
 
-    public PoolGuideCalculator(Double poolVolume, PoolInfo poolInfo) {
+    public PoolGuideCalculatorBeginning(Double poolVolume, PoolInfo poolInfo) {
         this.poolVolume = poolVolume;
         this.poolInfo = poolInfo;
     }
 
-    public static PoolGuideCalculator of(PoolInfo poolInfo) {
+    public static PoolGuideCalculatorBeginning of(PoolInfo poolInfo) {
         Double res = switch (poolInfo.getPoolType()) {
-            case CIRCLE -> evaluateCircleVolume(poolInfo);
-            case RECTANGLE -> evaluateRectangle(poolInfo);
+            case CIRCLE -> IPoolGuideCalculator.evaluateCircleVolume(poolInfo);
+            case RECTANGLE -> IPoolGuideCalculator.evaluateRectangleVolume(poolInfo);
         };
         res *= 0.85; // coefficient for pool size. see doc/meeting/2026-03-12-meet-summary.md  7th point.
-        return new PoolGuideCalculator(res, poolInfo);
+        return new PoolGuideCalculatorBeginning(res, poolInfo);
     }
 
+    @Override
     public PoolGuideDto evaluate() {
         return new PoolGuideDto(
                 poolVolume,
                 getPhMinusAmount(),
                 getPhPlusAmount(),
                 getAlgicideAmount(),
-                getClorineGran(),
+                getChlorineGran(),
                 getChlorinePill(),
                 getSlowChlorineSmall(),
                 getSlowChlorineBig(),
@@ -63,20 +47,23 @@ public class PoolGuideCalculator {
         );
     }
 
-    private Long getCoagulatLiquid() {
+    @Override
+    public Long getCoagulatLiquid() {
         return MathUtil.round(
                 poolVolume * COAGULAT_LIQUID_PER_CUBIC_METER,
                 COAGULAT_LIQUID_ROUND_PRECISION
         );
     }
 
-    private Long getCoagulatPill() {
+    @Override
+    public Long getCoagulatPill() {
         return MathUtil.round(
                 poolVolume * COAGULAT_PILL_PER_CUBIC_METER,
                 PILL_ROUND_PRECISION
         );
     }
 
+    @Override
     public Long getSlowChlorineBig() {
         return MathUtil.round(
                 poolVolume * SLOW_CHLORINE_BIG_PER_CUBIC_METER,
@@ -84,6 +71,7 @@ public class PoolGuideCalculator {
         );
     }
 
+    @Override
     public Long getSlowChlorineSmall() {
         return MathUtil.round(
                 poolVolume * SLOW_CHLORINE_SMALL_PER_CUBIC_METER,
@@ -91,27 +79,31 @@ public class PoolGuideCalculator {
         );
     }
 
+    @Override
     public Long getChlorinePill() {
         return MathUtil.round(
-                poolVolume * CHLORINE_PILL_PER_CUBIC_METER,
+                poolVolume * CHLORINE_PILL_PER_CUBIC_METER_BEGINNING,
                 PILL_ROUND_PRECISION
         );
     }
 
-    public Long getClorineGran() {
+    @Override
+    public Long getChlorineGran() {
         return MathUtil.round(
-                poolVolume * CHLORINE_GRAN_PER_CUBIC_METER,
+                poolVolume * CHLORINE_GRAN_PER_CUBIC_METER_BEGINNING,
                 CHLORINE_GRAN_ROUND_PRECISION
         );
     }
 
+    @Override
     public Long getAlgicideAmount() {
         return MathUtil.round(
-                poolVolume * ALGICIDE_PER_CUBIC_METER,
+                poolVolume * ALGICIDE_PER_CUBIC_METER_BEGINNING,
                 ALGICIDE_ROUND_PREDISION
         );
     }
 
+    @Override
     public Long getPhMinusAmount() {
         return MathUtil.round(
                 poolVolume * PH_MINUS_02_PER_CUBIC_METER,
@@ -119,6 +111,7 @@ public class PoolGuideCalculator {
         );
     }
 
+    @Override
     public Long getPhPlusAmount() {
         return MathUtil.round(
                 poolVolume * PH_PLUS_02_PER_CUBIC_METER,
@@ -126,15 +119,9 @@ public class PoolGuideCalculator {
         );
     }
 
+    @Override
     public Double getPoolVolume() {
         return poolVolume;
     }
 
-    private static Double evaluateCircleVolume(PoolInfo poolInfo) {
-        return poolInfo.getPoolDepth() * Math.PI * poolInfo.getPoolDiameter() * poolInfo.getPoolDiameter() / 4;
-    }
-
-    private static Double evaluateRectangle(PoolInfo poolInfo) {
-        return (double) (poolInfo.getPoolDepth() * poolInfo.getPoolLength() * poolInfo.getPoolWidth());
-    }
 }

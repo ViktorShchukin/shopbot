@@ -6,7 +6,7 @@ import ru.aquamarina.fsm.FsmContextHolder;
 import ru.aquamarina.fsm.form.ErrorForm;
 import ru.aquamarina.fsm.form.Form;
 import ru.aquamarina.fsm.form.GuideTypeForm;
-import ru.aquamarina.guide.PoolGuideCalculator;
+import ru.aquamarina.guide.PoolGuideCalculatorDefault;
 import ru.aquamarina.model.command.Command;
 import ru.aquamarina.model.command.GuideCmd;
 import ru.aquamarina.model.command.StartCmd;
@@ -41,7 +41,7 @@ public class GuideTypeState implements FsmState {
     public Form getForm(FsmContextHolder context) {
         Result<Form, Error> res = context.getPoolInfoService()
                 .getPoolInfoByUserId(user.getId())
-                .mapValue(poolInfo -> new GuideTypeForm(user, PoolGuideCalculator.of(poolInfo).getPoolVolume()));
+                .mapValue(poolInfo -> new GuideTypeForm(user, PoolGuideCalculatorDefault.of(poolInfo).getPoolVolume()));
 
         return switch (res) {
             case ResultOk<Form, Error> ok -> ok.result();

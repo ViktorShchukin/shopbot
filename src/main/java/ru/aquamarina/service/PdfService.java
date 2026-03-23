@@ -6,7 +6,8 @@ import io.pebbletemplates.pebble.template.PebbleTemplate;
 import jakarta.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.aquamarina.guide.PoolGuideCalculator;
+import ru.aquamarina.guide.IPoolGuideCalculator;
+import ru.aquamarina.guide.GuideType;
 import ru.aquamarina.guide.dto.PoolGuideDto;
 import ru.aquamarina.model.entity.User;
 import ru.aquamarina.model.error.Error;
@@ -32,10 +33,10 @@ public class PdfService {
         this.poolInfoService = poolInfoService;
     }
 
-    public Result<File, Error> getPdf(User user) {
+    public Result<File, Error> getPdf(User user, GuideType guideType) {
         return poolInfoService.getPoolInfoByUserId(user.getId())
-                .mapValue(PoolGuideCalculator::of)
-                .mapValue(PoolGuideCalculator::evaluate)
+                .mapValue(guideType::getCalculator)
+                .mapValue(IPoolGuideCalculator::evaluate)
                 .map(this::generateHtml)
                 .map(this::generatePdf);
     }
