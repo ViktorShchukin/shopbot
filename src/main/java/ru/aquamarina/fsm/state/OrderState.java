@@ -27,7 +27,8 @@ public class OrderState implements FsmState {
     public Result<FsmState, Error> doWork(FsmContextHolder context, Command command) {
         return switch (command) {
             case IndexCmd ndx -> Result.ok(new IndexState(user));
-            case StartCmd start -> Result.ok(new IndexState(user));
+            case StartCmd start -> Result.ok(new IndexState(user, true));
+            case CatalogCmd ctg -> Result.ok(new CatalogState(user, "/"));
             default -> Result.error(new NotSupportedCommand());
         };
     }
@@ -47,7 +48,7 @@ public class OrderState implements FsmState {
                             .stream();
                 })
                 .reduce(0L, Long::sum);
-        return new OrderForm(rows, totalCost);
+        return new OrderForm(user, rows, totalCost);
     }
 
     @Override

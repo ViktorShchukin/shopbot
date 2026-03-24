@@ -1,6 +1,5 @@
 package ru.aquamarina.model.command;
 
-import ru.aquamarina.model.entity.Product;
 import ru.aquamarina.model.entity.User;
 
 import java.util.UUID;
@@ -16,6 +15,6 @@ public record QuantityPlusCmd(User user, UUID productId) implements Command {
 
     @Override
     public String toString() {
-        return new StringBuilder(NAME).append("?").append(productId).toString();
+        return NAME + "?" + productId;
     }
 }

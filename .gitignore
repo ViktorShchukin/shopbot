@@ -17,6 +17,7 @@ out/
 
 ### Elm ###
 */elm-stuff
+src/main/resources/static/elm.js
 
 ### Python ###
 __pycache__

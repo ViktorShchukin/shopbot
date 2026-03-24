@@ -4,7 +4,7 @@ import ru.aquamarina.model.entity.User;
 
 public record FolderCmd(User user, String path) implements Command {
 
-    public static final String NAME = "f";
+    public static final String NAME = "fd";
 
     @Override
     public User getUser() {
@@ -13,6 +13,6 @@ public record FolderCmd(User user, String path) implements Command {
 
     @Override
     public String toString() {
-        return new StringBuilder(NAME).append("?").append(path).toString();
+        return NAME + "?" + path;
     }
 }

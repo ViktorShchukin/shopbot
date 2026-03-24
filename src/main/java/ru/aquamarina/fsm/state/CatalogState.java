@@ -37,7 +37,7 @@ public class CatalogState implements FsmState {
     @Override
     public Result<FsmState, Error> doWork(FsmContextHolder context, Command command) {
         return switch (command) {
-            case IndexCmd ndx -> Result.ok(new IndexState(user));
+            case ShopCmd ndx -> Result.ok(new ShopState(user));
             case ProductAboutCmd pbt -> context.getProductService()
                     .getById(pbt.productId())
                     .map(product -> {
@@ -53,7 +53,7 @@ public class CatalogState implements FsmState {
             case FolderCmd fld -> Result.ok(new CatalogState(user, fld.path()));
             case CatalogCmd ctg -> Result.ok(new CatalogState(user, "/"));
             case BasketCmd bsk -> Result.ok(new BasketState(user));
-            case StartCmd start -> Result.ok(new IndexState(user));
+            case StartCmd start -> Result.ok(new IndexState(user, true));
             default -> Result.error(new NotSupportedCommand());
         };
     }
@@ -70,7 +70,7 @@ public class CatalogState implements FsmState {
                 .map(folderPth -> PathUtil.getSubfolder(path, folderPth))
                 .map(this::mapToFolder)
                 .collect(Collectors.toSet());
-        return new CatalogForm(productInFolder, List.copyOf(folderInFolder), path);
+        return new CatalogForm(user, productInFolder, List.copyOf(folderInFolder), path);
     }
 
     @Override

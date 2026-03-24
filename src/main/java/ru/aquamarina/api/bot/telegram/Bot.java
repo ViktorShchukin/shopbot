@@ -4,14 +4,16 @@ import io.micronaut.context.annotation.Property;
 import jakarta.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.telegram.telegrambots.client.okhttp.OkHttpTelegramClient;
 import org.telegram.telegrambots.longpolling.util.LongPollingSingleThreadUpdateConsumer;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import ru.aquamarina.api.bot.View;
 import ru.aquamarina.fsm.FsmRunner;
+import ru.aquamarina.fsm.form.ErrorForm;
 import ru.aquamarina.fsm.form.Form;
+import ru.aquamarina.fsm.state.ErrorState;
 import ru.aquamarina.model.error.Error;
-import ru.aquamarina.service.ProductService;
+import ru.aquamarina.model.error.UnknownCommand;
+import ru.aquamarina.service.UserService;
+import ru.aquamarina.util.Result;
 import ru.aquamarina.util.ResultError;
 import ru.aquamarina.util.ResultOk;
 
@@ -26,15 +28,15 @@ public class Bot implements LongPollingSingleThreadUpdateConsumer {
     private final TelegramMapper telegramMapper;
     private final FsmRunner fsmRunner;
     private final TelegramUtils telegramUtils;
-    private final OkHttpTelegramClient client;
-    private final ProductService productService;
+    private final TelegramView view;
+    private final UserService userService;
 
-    public Bot(TelegramMapper telegramMapper, FsmRunner fsmRunner, TelegramUtils telegramUtils, OkHttpTelegramClient client, ProductService productService) {
+    public Bot(TelegramMapper telegramMapper, FsmRunner fsmRunner, TelegramUtils telegramUtils, TelegramView view, UserService userService) {
         this.telegramMapper = telegramMapper;
         this.fsmRunner = fsmRunner;
         this.telegramUtils = telegramUtils;
-        this.client = client;
-        this.productService = productService;
+        this.view = view;
+        this.userService = userService;
     }
 
     @Override
@@ -55,7 +57,6 @@ public class Bot implements LongPollingSingleThreadUpdateConsumer {
     }
 
     private void evaluateUpdate(Update update) {
-        View view = new TelegramView(client, update, productService);
 
         var res = telegramUtils.getUser(update)
                 .map(user -> telegramMapper.mapToCommand(update, user))
@@ -63,7 +64,16 @@ public class Bot implements LongPollingSingleThreadUpdateConsumer {
 
         switch (res) {
             case ResultOk<Form, Error> ok -> ok.unwrap().draw(view);
-            case ResultError<Form, Error> err -> view.draw(err.err());
+            case ResultError<Form, Error> err -> {
+                var error = err.err();
+                if (error instanceof UnknownCommand unknownCommand) {
+                    var form = new ErrorForm(unknownCommand.user());
+                    view.drawErrorForm(form);
+                    userService.updateState(unknownCommand.user(), new ErrorState(unknownCommand.user()));
+                    return;
+                }
+                view.draw(error);
+            }
         }
     }
 

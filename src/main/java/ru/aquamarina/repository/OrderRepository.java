@@ -4,8 +4,6 @@ import io.micronaut.data.annotation.Query;
 import io.micronaut.data.jdbc.annotation.JdbcRepository;
 import io.micronaut.data.model.query.builder.sql.Dialect;
 import io.micronaut.data.repository.PageableRepository;
-import ru.aquamarina.model.entity.Basket;
-import ru.aquamarina.model.entity.BasketRow;
 import ru.aquamarina.model.entity.Order;
 import ru.aquamarina.model.entity.OrderRow;
 

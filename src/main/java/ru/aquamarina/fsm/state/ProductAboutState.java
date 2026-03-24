@@ -13,7 +13,6 @@ import ru.aquamarina.model.error.Error;
 import ru.aquamarina.model.error.NotSupportedCommand;
 import ru.aquamarina.util.Result;
 
-import java.util.List;
 import java.util.Objects;
 
 public class ProductAboutState implements FsmState {
@@ -59,20 +58,21 @@ public class ProductAboutState implements FsmState {
             case BasketCmd bsk -> Result.ok(new BasketState(command.getUser()));
             case IndexCmd ndx -> Result.ok(new IndexState(user));
             case CatalogCmd ctg -> Result.ok(new CatalogState(user, product.getPath()));
-            case StartCmd start -> Result.ok(new IndexState(user));
+            case StartCmd start -> Result.ok(new IndexState(user, true));
             case InstructionCmd inst -> Result.ok(new ProductInstructionState(user, product));
             case DoNothing don -> Result.ok(this);
+            case DoOrderCmd ord -> Result.ok(new DistributionModeState(user));
             default -> Result.error(new NotSupportedCommand());
         };
     }
 
     @Override
     public Form getForm(FsmContextHolder context) {
-        return new ProductAboutForm(product, productQuantity);
+        return new ProductAboutForm(user, product, productQuantity);
     }
 
     @Override
     public String toString() {
-        return NAME + "?" + product.getName() + "?" + productQuantity;
+        return NAME + "?" + product.getId().toString() + "?" + productQuantity;
     }
 }

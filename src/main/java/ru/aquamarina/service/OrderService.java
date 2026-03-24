@@ -2,13 +2,10 @@ package ru.aquamarina.service;
 
 import io.micronaut.data.exceptions.DataAccessException;
 import jakarta.inject.Singleton;
-import jakarta.transaction.Transactional;
-import ru.aquamarina.mapper.OrderTool;
+import ru.aquamarina.model.DistributionMode;
 import ru.aquamarina.model.entity.*;
 import ru.aquamarina.model.error.Error;
 import ru.aquamarina.model.error.IoError;
-import ru.aquamarina.model.error.NotFound;
-import ru.aquamarina.repository.OrderRepository;
 import ru.aquamarina.util.Result;
 
 import java.util.List;
@@ -17,36 +14,43 @@ import java.util.UUID;
 @Singleton
 public class OrderService {
 
-    private final OrderRepository orderRepository;
-    private final BasketService basketService;
-    private final OrderTool orderTool;
+    private final OrderServiceWithExc orderServiceWithExc;
 
-    public OrderService(OrderRepository orderRepository, BasketService basketService, OrderTool orderTool) {
-        this.orderRepository = orderRepository;
-        this.basketService = basketService;
-        this.orderTool = orderTool;
+    public OrderService(OrderServiceWithExc orderServiceWithExc) {
+        this.orderServiceWithExc = orderServiceWithExc;
     }
 
-    @Transactional
-    public Order create(Basket basket) {
-        Order order = orderRepository.save(
-                orderTool.create(basket.getUserId())
-        );
-        List<BasketRow> rows = basketService.getBasketRow(basket);
-        rows.forEach(row -> orderRepository.addToOrder(order.getId(), row.getProductId(), row.getQuantity()));
-        basketService.clearBasket(basket);
-        return order;
+    public Order create(User user, String phoneNumber, String address, DistributionMode distributionMode, String additionalInfo) {
+        return orderServiceWithExc.create(user, phoneNumber, address, distributionMode, additionalInfo);
+    }
+
+    public Result<Order, Error> update(Order order,
+                                       String phoneNumber,
+                                       String address,
+                                       DistributionMode distributionMode,
+                                       String additionalInfo) {
+        try {
+            return orderServiceWithExc.update(order, phoneNumber, address, distributionMode, additionalInfo);
+        } catch (DataAccessException e) {
+            return Result.error(new IoError(e));
+        }
+    }
+
+    public Result<Order, Error> fillTheOrderAndClearBasket(Order order, Basket basket) {
+        try {
+            return orderServiceWithExc.fillTheOrderAndClearBasket(order, basket);
+        } catch (DataAccessException e) {
+            return Result.error(new IoError(e));
+        }
     }
 
     public List<OrderRow> getOrderRow(Order order) {
-        return orderRepository.getBasketRowByBasketId(order.getId());
+        return orderServiceWithExc.getOrderRow(order);
     }
 
     public Result<Order, Error> findById(UUID orderId) {
         try {
-            return orderRepository.findById(orderId)
-                    .map(Result::<Order, Error>ok)
-                    .orElseGet(() -> Result.error(new NotFound("Order not found")));
+            return orderServiceWithExc.findById(orderId);
         } catch (DataAccessException e) {
             return Result.error(new IoError(e));
         }

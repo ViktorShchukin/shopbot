@@ -19,7 +19,8 @@ public interface TelegramInfoUtil {
                         String firstName,
                         String lastName,
                         String userName,
-                        Boolean updated);
+                        Boolean updated,
+                        Integer lastMessageId);
 
     @Mapping(target = "telegramId", ignore = true)
     @Mapping(target = "userId", ignore = true)
@@ -27,5 +28,6 @@ public interface TelegramInfoUtil {
     TelegramInfo update(@MappingTarget TelegramInfo telegramInfo,
                         String firstName,
                         String lastName,
-                        String userName);
+                        String userName,
+                        Integer lastMessageId);
 }

@@ -1,8 +1,9 @@
 package ru.aquamarina.fsm.form;
 
 import ru.aquamarina.api.bot.View;
+import ru.aquamarina.model.entity.User;
 
-public record ForWholesalerForm() implements Form {
+public record ForWholesalerForm(User user) implements Form {
 
     @Override
     public void draw(View view) {

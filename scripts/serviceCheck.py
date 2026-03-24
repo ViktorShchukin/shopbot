@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import urllib.error 
+import urllib.error
 import urllib.request as req
 import datetime as dt
 import json
@@ -16,8 +16,10 @@ now = dt.datetime.now().isoformat()
 date_str = now + "\n"
 message = [date_str]
 
+
 def is_status_ok(status: str) -> bool:
     return status == NORMAL_STATUS
+
 
 def check_health(content) -> bool:
     res = True
@@ -37,8 +39,9 @@ def check_health(content) -> bool:
     else:
         res = res and False
         message.append("ALERT: database is not runnig\n")
-    
-    return res 
+
+    return res
+
 
 def check_log(log_path, log_cache_path) -> bool:
     res = True
@@ -47,16 +50,19 @@ def check_log(log_path, log_cache_path) -> bool:
         for line in file:
             if ("ERROR" in line) and (line not in cache_lines):
                 res = res and False
-                message.append("ALERT: find error in log file: {0}\n\t-->{1}".format(log_path, line))
+                message.append(
+                    "ALERT: find error in log file: {0}\n\t-->{1}".format(log_path, line))
                 cache.write(line)
     return res
+
 
 def prepare_err(exc: urllib.error.HTTPError) -> str:
     return "ERROR: http error during shopbot health check.\nresponse code: {0.code}\nreason: {0.reason}".format(exc)
 
+
 if __name__ == "__main__":
 
-    parser = arg.ArgumentParser(description="Send message to tlegram")
+    parser = arg.ArgumentParser(description="Send message to telegram")
     parser.add_argument("bot_token", type=str)
     parser.add_argument("chat_id", type=int)
     parser.add_argument("log_file_path", type=str)
@@ -68,9 +74,16 @@ if __name__ == "__main__":
     log_cache = args.log_cache_path
 
     try:
+        if not check_log(log_file, log_cache):
+            notify_telegram(bot_token, chat_id, "".join(message))
+
         resource = req.urlopen(health_url)
-        if not (check_health(resource) and check_log(log_file, log_cache)):
+        if not check_health(resource):
             notify_telegram(bot_token, chat_id, "".join(message))
     except urllib.error.HTTPError as e:
         message.append(prepare_err(e))
         notify_telegram(bot_token, chat_id, "".join(message))
+    except BaseException as e:
+        message.append(str(e))
+        notify_telegram(bot_token, chat_id,
+                        "ERROR: CAN NOT CONNECT TO SERVER\n".join(message))

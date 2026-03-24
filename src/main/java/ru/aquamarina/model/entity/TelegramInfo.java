@@ -28,6 +28,9 @@ public class TelegramInfo {
     @MappedProperty("updated")
     private Boolean isUpdated;
 
+    @MappedProperty("last_message_id")
+    private Integer lastMessageId;
+
     public Long getTelegramId() {
         return telegramId;
     }
@@ -74,5 +77,13 @@ public class TelegramInfo {
 
     public void setUpdated(Boolean updated) {
         isUpdated = updated;
+    }
+
+    public Integer getLastMessageId() {
+        return lastMessageId;
+    }
+
+    public void setLastMessageId(Integer lastMessageId) {
+        this.lastMessageId = lastMessageId;
     }
 }

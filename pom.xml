@@ -10,7 +10,7 @@
   <parent>
     <groupId>io.micronaut.platform</groupId>
     <artifactId>micronaut-parent</artifactId>
-    <version>4.7.6</version>
+    <version>4.10.8</version>
   </parent>
   <properties>
     <packaging>jar</packaging>
@@ -26,6 +26,8 @@
 
     <telegram.version>8.0.0</telegram.version>
     <mapstruct.version>1.6.3</mapstruct.version>
+    <pebble.version>4.1.1</pebble.version>
+    <openhtml.version>1.0.10</openhtml.version>
   </properties>
 
   <repositories>
@@ -33,7 +35,12 @@
       <id>central</id>
       <url>https://repo.maven.apache.org/maven2</url>
     </repository>
+    <repository>
+      <id>jitpack.io</id>
+      <url>https://jitpack.io</url>
+    </repository>
   </repositories>
+
 
   <dependencies>
     <dependency>
@@ -41,11 +48,6 @@
       <artifactId>micronaut-http-server-netty</artifactId>
       <scope>compile</scope>
     </dependency>
-<!--    <dependency>-->
-<!--      <groupId>io.micronaut.chatbots</groupId>-->
-<!--      <artifactId>micronaut-chatbots-telegram-http</artifactId>-->
-<!--      <scope>compile</scope>-->
-<!--    </dependency>-->
     <dependency>
       <groupId>io.micronaut.data</groupId>
       <artifactId>micronaut-data-jdbc</artifactId>
@@ -149,6 +151,35 @@
       <groupId>org.mapstruct</groupId>
       <artifactId>mapstruct</artifactId>
       <version>${mapstruct.version}</version>
+    </dependency>
+
+    <!-- template engine -->
+    <dependency>
+      <groupId>io.pebbletemplates</groupId>
+      <artifactId>pebble</artifactId>
+      <version>${pebble.version}</version>
+    </dependency>
+
+    <!-- pdf -->
+    <dependency>
+      <!-- ALWAYS required, usually included transitively. -->
+      <groupId>com.openhtmltopdf</groupId>
+      <artifactId>openhtmltopdf-core</artifactId>
+      <version>${openhtml.version}</version>
+    </dependency>
+
+    <dependency>
+      <!-- Required for PDF output. -->
+      <groupId>com.openhtmltopdf</groupId>
+      <artifactId>openhtmltopdf-pdfbox</artifactId>
+      <version>${openhtml.version}</version>
+    </dependency>
+
+    <dependency>
+      <!-- Optional, leave out if you do not need logging via slf4j. -->
+      <groupId>com.openhtmltopdf</groupId>
+      <artifactId>openhtmltopdf-slf4j</artifactId>
+      <version>${openhtml.version}</version>
     </dependency>
   </dependencies>
 

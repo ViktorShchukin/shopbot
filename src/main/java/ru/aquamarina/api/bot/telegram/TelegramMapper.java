@@ -4,6 +4,8 @@ import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.aquamarina.config.AppMapperConfig;
+import ru.aquamarina.guide.FilterType;
+import ru.aquamarina.guide.GuideType;
 import ru.aquamarina.model.command.*;
 import ru.aquamarina.model.entity.User;
 import ru.aquamarina.util.CommandUtil;
@@ -11,8 +13,6 @@ import ru.aquamarina.util.Result;
 import ru.aquamarina.model.command.IndexCmd;
 import ru.aquamarina.model.error.Error;
 import ru.aquamarina.model.error.UnknownCommand;
-
-import java.util.UUID;
 
 @Mapper(config = AppMapperConfig.class)
 public interface TelegramMapper {
@@ -22,6 +22,7 @@ public interface TelegramMapper {
     }
 
     default Result<Command, Error> mapToCommand(Update update, User user) {
+        // todo rethink this mapper. especially about recognition of unknown command and user input
         String command = null;
         if (update.hasMessage()) {
             command = update.getMessage().getText();
@@ -49,7 +50,26 @@ public interface TelegramMapper {
             case ClearBasketCmd.NAME -> Result.ok(new ClearBasketCmd(user));
             case InstructionCmd.NAME -> Result.ok(new InstructionCmd(user));
             case DoNothing.NAME -> Result.ok(new DoNothing(user));
-            case null, default -> Result.error(new UnknownCommand());
+            case DeliveryCmd.NAME -> Result.ok(new DeliveryCmd(user));
+            case SelfPickupCmd.NAME -> Result.ok(new SelfPickupCmd(user));
+            case ContactCmd.NAME -> Result.ok(new ContactCmd(user));
+            case ShopCmd.NAME -> Result.ok(new ShopCmd(user));
+            case PoolTypeCmd.NAME -> Result.ok(new PoolTypeCmd(user));
+            case CircleCmd.NAME -> Result.ok(new CircleCmd(user));
+            case RectangleCmd.NAME -> Result.ok(new RectangleCmd(user));
+            case GuideTypeCmd.NAME -> Result.ok(new GuideTypeCmd(user));
+            case String str when str.contains(GuideCmd.NAME) ->
+                    Result.ok(new GuideCmd(user, GuideType.valueOf(str.split("\\?")[1])));
+            case String str when str.contains(FilterTypeCmd.NAME) ->
+                Result.ok(new FilterTypeCmd(user, FilterType.valueOf(str.split("\\?")[1])));
+            case BackCmd.NAME -> Result.ok(new BackCmd(user));
+            // deprecated commands
+//            case String str when str.contains(OrderAdditionalInfoPhoneCmd.NAME) ->
+//                    Result.ok(new OrderAdditionalInfoPhoneCmd(user, str.trim()));
+//            case String str when str.toLowerCase().contains(OrderAdditionalInfoAddressCmd.NAME) ->
+//                    Result.ok(new OrderAdditionalInfoAddressCmd(user, str.trim()));
+            case null -> Result.error(new UnknownCommand(user));
+            default -> Result.ok(new UserInputCmd(user, command));
         };
     }
 }

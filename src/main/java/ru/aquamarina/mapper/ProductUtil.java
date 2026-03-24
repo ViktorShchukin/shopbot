@@ -10,8 +10,8 @@ import ru.aquamarina.model.entity.Product;
 public interface ProductUtil {
 
     @Mapping(target = "id", expression = "java(java.util.UUID.randomUUID())")
-    Product create(String name, long cost, String description, String path, Long itemCode);
+    Product create(String name, long cost, String description, String path, Long itemCode, String shortName);
 
     @Mapping(target = "id", ignore = true)
-    Product update(@MappingTarget Product product, String name, long cost, String description, String path, Long itemCode);
+    Product update(@MappingTarget Product product, String name, long cost, String description, String path, Long itemCode, String shortName);
 }

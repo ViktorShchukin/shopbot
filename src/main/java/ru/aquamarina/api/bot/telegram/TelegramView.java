@@ -1,14 +1,16 @@
 package ru.aquamarina.api.bot.telegram;
 
-import org.mapstruct.factory.Mappers;
+import io.micronaut.context.MessageSource;
+import jakarta.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.client.okhttp.OkHttpTelegramClient;
-import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
+import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
-import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.message.Message;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
@@ -18,135 +20,162 @@ import ru.aquamarina.api.bot.View;
 import ru.aquamarina.api.dto.ProductRowDto;
 import ru.aquamarina.api.mapper.ProductMapper;
 import ru.aquamarina.fsm.form.*;
+import ru.aquamarina.guide.FilterType;
+import ru.aquamarina.guide.GuideType;
 import ru.aquamarina.model.command.*;
-import ru.aquamarina.model.entity.BasketRow;
 import ru.aquamarina.model.entity.Folder;
 import ru.aquamarina.model.entity.Product;
+import ru.aquamarina.model.entity.TelegramInfo;
+import ru.aquamarina.model.entity.User;
 import ru.aquamarina.model.error.Error;
 import ru.aquamarina.service.ProductService;
+import ru.aquamarina.service.TelegramInfoService;
 import ru.aquamarina.util.PathUtil;
 import ru.aquamarina.util.ResultError;
 import ru.aquamarina.util.ResultOk;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.nio.file.Files;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public record TelegramView(OkHttpTelegramClient client, Update update, ProductService productService) implements View {
+@Singleton
+public class TelegramView implements View {
 
     private static final Logger log = LoggerFactory.getLogger(TelegramView.class);
-    private static final ProductMapper productMapper = Mappers.getMapper(ProductMapper.class);
+    private static final Locale LOCALE_RU = Locale.of("ru");
 
-    // | productName | quantity | totalSumByThisPosition |
-    private static final String PRODUCT_ROW_TABLE_TEMPLATE = " %s  %s  %s ";
-    private static final String NAME_OF_PRODUCT = "Название";
-    private static final String QUANTITY_OF_PRODUCT = "Кол-во";
-    private static final String TOTAL_SUM_OF_PRODUCT = "Итог";
+    private final OkHttpTelegramClient client;
+    private final ProductService productService;
+    private final ProductMapper productMapper;
+    private final TelegramInfoService telegramInfoService;
+    private final MessageSource messageSource;
 
-    private static final String QUANTITY_TEMPLATE = "%dx%.2f";
-    private static final String TOTAL_SUM_TEMPLATE = "%.2f";
+    public TelegramView(
+            OkHttpTelegramClient client,
+            ProductService productService,
+            ProductMapper productMapper,
+            TelegramInfoService telegramInfoService,
+            MessageSource messageSource
+    ) {
+        this.client = client;
+        this.productService = productService;
+        this.productMapper = productMapper;
+        this.telegramInfoService = telegramInfoService;
+        this.messageSource = messageSource;
+    }
 
     @Override
     public void drawAboutForm(AboutForm form) {
-        String chatId;
-        switch (TelegramUtils.extractTelegramUserId(update)) {
-            case ResultOk<Long, Error> ok -> chatId = ok.unwrap().toString();
-            case ResultError<Long, Error> err -> {
-                draw(err.err());
-                return;
-            }
-        }
+
         InlineKeyboardRow keyboardRow = new InlineKeyboardRow(
-                getButton(new IndexCmd(null))
+                getButton("Назад", new ContactCmd(null))
         );
 
-        String messageText = "Я есть магазин";
+        String messageText = """
+                Это чат-бот магазина химии для бассейнов “Аквамарина» (ИП Щукина М.А.) Мы предлагаем химию для бассейна российского производителя ТМ Aqualeon. Здесь вы можете заказать средства для ухода за бассейном.
+                У нас есть пункт самовывоза в г. Ростов-на-Дону. Подробнее смотрите в разделе «Доставка и оплата».
+                Если вы находитесь в другом населенном пункте, то мы отправим вам заказ сервисом «Яндекс-доставка». При заказе более 2000р доставка бесплатная.
+                """;
 
-        var keyBoard = InlineKeyboardMarkup.builder()
-                .keyboardRow(keyboardRow)
-                .build();
-        Integer messageId = update.getCallbackQuery().getMessage().getMessageId();
-        AnswerCallbackQuery close = AnswerCallbackQuery.builder()
-                .callbackQueryId(update.getCallbackQuery().getId())
-                .build();
-        EditMessageText message = EditMessageText.builder()
-                .chatId(chatId)
-                .messageId(messageId)
-                .text(messageText)
-                .build();
-        EditMessageReplyMarkup replyMarkup = EditMessageReplyMarkup.builder()
-                .chatId(chatId)
-                .messageId(messageId)
-                .replyMarkup(keyBoard)
-                .build();
-        closeQueryAndRewriteMessage(close, message, replyMarkup);
+        rewriteMessage(form.user(), messageText, keyboardRow);
     }
 
     @Override
     public void drawIndexForm(IndexForm form) {
-        String chatId;
-        switch (TelegramUtils.extractTelegramUserId(update)) {
-            case ResultOk<Long, Error> ok -> chatId = ok.unwrap().toString();
-            case ResultError<Long, Error> err -> {
-                draw(err.err());
-                return;
-            }
-        }
+
+//        InlineKeyboardRow keyboardRow = new InlineKeyboardRow(
+//                getButton(new PoolTypeCmd(null))
+//        );
+//
+//        InlineKeyboardRow keyboardRow1 = new InlineKeyboardRow(
+//                getButton(new ContactCmd(null)),
+//                getButton(new ShopCmd(null))
+//        );
+
         InlineKeyboardRow keyboardRow = new InlineKeyboardRow(
-                getButton(new AboutCmd(null)),
+                getButton(new RectangleCmd(null)),
+                getButton(new CircleCmd(null))
+        );
+
+
+        List<InlineKeyboardRow> keyboardRowList = List.of(
+                keyboardRow
+//                keyboardRow1
+        );
+
+        messageSource.getMessage("index", LOCALE_RU)
+                .ifPresentOrElse(
+                        messageText -> {
+                            if (form.isRestartRequired()) {
+                                sendMessage(form.user(), messageText, keyboardRowList);
+                            } else {
+                                rewriteMessage(form.user(), messageText, keyboardRowList);
+                            }
+                        },
+                        () -> {
+                            log.error("Can't get message from message source");
+                            this.drawErrorForm(new ErrorForm(form.user()));
+                        }
+                );
+
+
+    }
+
+    @Override
+    public void drawContactFrom(ContactForm form) {
+
+        InlineKeyboardRow keyboardRow2 = new InlineKeyboardRow(
+                InlineKeyboardButton.builder()
+                        .text("Связаться с менеджером")
+                        .url("tg://user?id=876199982")
+                        .build()
+        );
+        InlineKeyboardRow keyboardRow3 = new InlineKeyboardRow(
+                getButton(new BackCmd(null))
+        );
+
+        List<InlineKeyboardRow> keyboardRowList = List.of(keyboardRow2, keyboardRow3);
+
+        messageSource.getMessage("contact", LOCALE_RU)
+                .ifPresentOrElse(
+                        messageText -> {
+                            sendMessage(form.user(), messageText, keyboardRowList);
+                        },
+                        () -> {
+                            log.error("Can't get message from message source");
+                            this.drawErrorForm(new ErrorForm(form.user()));
+                        }
+                );
+
+
+    }
+
+    @Override
+    public void drawShopForm(ShopForm form) {
+        InlineKeyboardRow keyboardRow = new InlineKeyboardRow(
                 getButton(new CatalogCmd(null))
         );
-
         InlineKeyboardRow keyboardRow1 = new InlineKeyboardRow(
-                getButton(new ForWholesalerCmd(null)),
                 getButton(new PayAndDeliveryCmd(null))
         );
+        InlineKeyboardRow keyboardRow2 = new InlineKeyboardRow(
+                getButton(new BasketCmd(null))
+        );
 
-        String messageText = "Привет. Чего желаете";
+        InlineKeyboardRow keyboardRow3 = new InlineKeyboardRow(
+                getButton(new IndexCmd(null))
+        );
 
-        var keyBoard = InlineKeyboardMarkup.builder()
-                .keyboard(List.of(keyboardRow, keyboardRow1))
-                .build();
-        if (update.hasMessage() && update.getMessage().getText().equals("/start")) {
-            SendMessage message = SendMessage.builder()
-                    .chatId(chatId)
-                    .text(messageText)
-                    .replyMarkup(keyBoard)
-                    .build();
-            sendMessage(message);
-            return;
-        }
+        List<InlineKeyboardRow> keyboardRowList = List.of(keyboardRow, keyboardRow1, keyboardRow2, keyboardRow3);
 
-        Integer messageId = update.getCallbackQuery().getMessage().getMessageId();
-        AnswerCallbackQuery close = AnswerCallbackQuery.builder()
-                .callbackQueryId(update.getCallbackQuery().getId())
-                .build();
-        EditMessageText message = EditMessageText.builder()
-                .chatId(chatId)
-                .messageId(messageId)
-                .text(messageText)
-                .build();
-        EditMessageReplyMarkup replyMarkup = EditMessageReplyMarkup.builder()
-                .chatId(chatId)
-                .messageId(messageId)
-                .replyMarkup(keyBoard)
-                .build();
-        closeQueryAndRewriteMessage(close, message, replyMarkup);
+        String messageText = "need text";
+
+        rewriteMessage(form.user(), messageText, keyboardRowList);
     }
 
     @Override
     public void drawCatalogForm(CatalogForm form) {
-        String chatId;
-        switch (TelegramUtils.extractTelegramUserId(update)) {
-            case ResultOk<Long, Error> ok -> chatId = ok.unwrap().toString();
-            case ResultError<Long, Error> err -> {
-                draw(err.err());
-                return;
-            }
-        }
         List<Command> productInFolder = form.products().stream()
                 .map(product -> new ProductAboutCmd(null, product.getId()))
                 .collect(Collectors.toList());
@@ -158,13 +187,13 @@ public record TelegramView(OkHttpTelegramClient client, Update update, ProductSe
         if (form.path().equals("/")) {
             commands = List.of(
                     new BasketCmd(null),
-                    new IndexCmd(null)
+                    new ShopCmd(null)
             );
         } else {
             commands = List.of(
                     new BasketCmd(null),
                     new CatalogCmd(null),
-                    new IndexCmd(null)
+                    new ShopCmd(null)
             );
         }
 
@@ -179,36 +208,11 @@ public record TelegramView(OkHttpTelegramClient client, Update update, ProductSe
 
         String messageText = "Выберете нужный товар";
 
-        var keyBoard = InlineKeyboardMarkup.builder()
-                .keyboard(keyboardRowList)
-                .build();
-        Integer messageId = update.getCallbackQuery().getMessage().getMessageId();
-        AnswerCallbackQuery close = AnswerCallbackQuery.builder()
-                .callbackQueryId(update.getCallbackQuery().getId())
-                .build();
-        EditMessageText message = EditMessageText.builder()
-                .chatId(chatId)
-                .messageId(messageId)
-                .text(messageText)
-                .build();
-        EditMessageReplyMarkup replyMarkup = EditMessageReplyMarkup.builder()
-                .chatId(chatId)
-                .messageId(messageId)
-                .replyMarkup(keyBoard)
-                .build();
-        closeQueryAndRewriteMessage(close, message, replyMarkup);
+        rewriteMessage(form.user(), messageText, keyboardRowList);
     }
 
     @Override
     public void drawProductAboutForm(ProductAboutForm form) {
-        String chatId;
-        switch (TelegramUtils.extractTelegramUserId(update)) {
-            case ResultOk<Long, Error> ok -> chatId = ok.unwrap().toString();
-            case ResultError<Long, Error> err -> {
-                draw(err.err());
-                return;
-            }
-        }
         Product product = form.product();
         List<InlineKeyboardRow> keyboardRowList = new ArrayList<>();
         keyboardRowList.add(new InlineKeyboardRow(
@@ -220,10 +224,11 @@ public record TelegramView(OkHttpTelegramClient client, Update update, ProductSe
         ));
         keyboardRowList.add(new InlineKeyboardRow(
                 getButton(new BasketCmd(null)),
-                getButton(new InstructionCmd(null))
+                getButton(new DoOrderCmd(null))
         ));
         keyboardRowList.add(new InlineKeyboardRow(
-                getButton(new CatalogCmd(null))
+                getButton(new CatalogCmd(null)),
+                getButton(new InstructionCmd(null))
         ));
         keyboardRowList.add(new InlineKeyboardRow(
                 getButton(new IndexCmd(null))
@@ -231,41 +236,20 @@ public record TelegramView(OkHttpTelegramClient client, Update update, ProductSe
 
         String messageText = product.getName() + "\n" + "Цена: " + (double) product.getCost() / 100 + " руб" + "\n" + "В корзине: " + form.quantity();
 
-        var keyBoard = InlineKeyboardMarkup.builder()
-                .keyboard(keyboardRowList)
-                .build();
-        Integer messageId = update.getCallbackQuery().getMessage().getMessageId();
-        AnswerCallbackQuery close = AnswerCallbackQuery.builder()
-                .callbackQueryId(update.getCallbackQuery().getId())
-                .build();
-        EditMessageText message = EditMessageText.builder()
-                .chatId(chatId)
-                .messageId(messageId)
-                .text(messageText)
-                .build();
-        EditMessageReplyMarkup replyMarkup = EditMessageReplyMarkup.builder()
-                .chatId(chatId)
-                .messageId(messageId)
-                .replyMarkup(keyBoard)
-                .build();
-        closeQueryAndRewriteMessage(close, message, replyMarkup);
+        rewriteMessage(form.user(), messageText, keyboardRowList);
     }
 
     @Override
     public void drawOrderForm(OrderForm form) {
-        String chatId;
-        switch (TelegramUtils.extractTelegramUserId(update)) {
-            case ResultOk<Long, Error> ok -> chatId = ok.unwrap().toString();
-            case ResultError<Long, Error> err -> {
-                draw(err.err());
-                return;
-            }
-        }
         List<InlineKeyboardRow> keyboardRowList = new ArrayList<>();
         InlineKeyboardRow keyboardRow = new InlineKeyboardRow(
                 getButton(new IndexCmd(null))
         );
+        InlineKeyboardRow keyboardRow1 = new InlineKeyboardRow(
+                getButton("Сделать еще один заказ", new CatalogCmd(null))
+        );
         keyboardRowList.add(keyboardRow);
+        keyboardRowList.add(keyboardRow1);
 
 
         List<ProductRowDto> products = form.rows().stream()
@@ -276,39 +260,16 @@ public record TelegramView(OkHttpTelegramClient client, Update update, ProductSe
                 .map(Optional::get)
                 .toList();
 
-        String productTable = getProductTable(products);
-        String messageText = productTable + "\n" + "Сумма заказа: " + (double) form.totalCost() / 100 + "\n\nСпасибо за заказ.\nМы свяжемся с вами позже.";
+        String productTable = TelegramUtils.getProductTable(products);
+        String messageText = productTable + "\n" +
+                "Сумма заказа: " + (double) form.totalCost() / 100 + " руб"
+                + "\n\nСпасибо за заказ.\nВ ближайшее рабочее время наш менеджер свяжется с вами для подтверждения заказа.";
 
-        var keyBoard = InlineKeyboardMarkup.builder()
-                .keyboard(keyboardRowList)
-                .build();
-        Integer messageId = update.getCallbackQuery().getMessage().getMessageId();
-        AnswerCallbackQuery close = AnswerCallbackQuery.builder()
-                .callbackQueryId(update.getCallbackQuery().getId())
-                .build();
-        EditMessageText message = EditMessageText.builder()
-                .chatId(chatId)
-                .messageId(messageId)
-                .text(messageText)
-                .build();
-        EditMessageReplyMarkup replyMarkup = EditMessageReplyMarkup.builder()
-                .chatId(chatId)
-                .messageId(messageId)
-                .replyMarkup(keyBoard)
-                .build();
-        closeQueryAndRewriteMessage(close, message, replyMarkup);
+        sendMessage(form.user(), messageText, keyboardRowList);
     }
 
     @Override
     public void drawBasketForm(BasketForm form) {
-        String chatId;
-        switch (TelegramUtils.extractTelegramUserId(update)) {
-            case ResultOk<Long, Error> ok -> chatId = ok.unwrap().toString();
-            case ResultError<Long, Error> err -> {
-                draw(err.err());
-                return;
-            }
-        }
 
         List<ProductRowDto> products = form.rows().stream()
                 .map(basketRow -> productMapper.mapTo(basketRow, productService::getById))
@@ -338,141 +299,323 @@ public record TelegramView(OkHttpTelegramClient client, Update update, ProductSe
         keyboardRowList.add(keyboardRow);
 
 
-        String productTable = getProductTable(products);
-        String messageText = "Корзина" + "\n\n" + productTable + "\n" + "Сумма: " + (double) form.totalCost() / 100;
+        String productTable = TelegramUtils.getProductTable(products);
+        String messageText = "Корзина" + "\n\n" + productTable + "\n" + "Сумма: " + (double) form.totalCost() / 100 + " руб";
 
-        var keyBoard = InlineKeyboardMarkup.builder()
-                .keyboard(keyboardRowList)
-                .build();
-        Integer messageId = update.getCallbackQuery().getMessage().getMessageId();
-        AnswerCallbackQuery close = AnswerCallbackQuery.builder()
-                .callbackQueryId(update.getCallbackQuery().getId())
-                .build();
-        EditMessageText message = EditMessageText.builder()
-                .chatId(chatId)
-                .messageId(messageId)
-                .text(messageText)
-                .build();
-        EditMessageReplyMarkup replyMarkup = EditMessageReplyMarkup.builder()
-                .chatId(chatId)
-                .messageId(messageId)
-                .replyMarkup(keyBoard)
-                .build();
-        closeQueryAndRewriteMessage(close, message, replyMarkup);
+
+        rewriteMessage(form.user(), messageText, keyboardRowList);
     }
 
     @Override
     public void drawForWholesalerForm(ForWholesalerForm form) {
-        String chatId;
-        switch (TelegramUtils.extractTelegramUserId(update)) {
-            case ResultOk<Long, Error> ok -> chatId = ok.unwrap().toString();
-            case ResultError<Long, Error> err -> {
-                draw(err.err());
-                return;
-            }
-        }
         InlineKeyboardRow keyboardRow = new InlineKeyboardRow(
-                getButton(new IndexCmd(null))
+                getButton("Назад", new ContactCmd(null))
         );
 
-        String messageText = "Оптовикам";
+        String messageText = """
+                Наша компания является региональным представителем ТМ AQUALEON на территории Ростовской области. Поэтому мы можем предоставить выгодные цены для оптовых покупателей.
 
-        var keyBoard = InlineKeyboardMarkup.builder()
-                .keyboardRow(keyboardRow)
-                .build();
-        Integer messageId = update.getCallbackQuery().getMessage().getMessageId();
-        AnswerCallbackQuery close = AnswerCallbackQuery.builder()
-                .callbackQueryId(update.getCallbackQuery().getId())
-                .build();
-        EditMessageText message = EditMessageText.builder()
-                .chatId(chatId)
-                .messageId(messageId)
-                .text(messageText)
-                .build();
-        EditMessageReplyMarkup replyMarkup = EditMessageReplyMarkup.builder()
-                .chatId(chatId)
-                .messageId(messageId)
-                .replyMarkup(keyBoard)
-                .build();
-        closeQueryAndRewriteMessage(close, message, replyMarkup);
+                Мы открыты для партнерства с магазинами и профессионалами в сфере обслуживания бассейнов.
+
+                Проконсультируем Вас по вопросам продажи и использования химии, поможем разобраться в ассортименте.
+                 
+                Напишите нашему <a href="tg://user?id=876199982">менеджеру</a> и мы предоставим вам оптовый прайс.
+                """;
+
+        rewriteMessage(form.user(), messageText, keyboardRow);
     }
 
     @Override
     public void drawPayAndDeliveryFormForm(PayAndDeliveryForm form) {
-        String chatId;
-        switch (TelegramUtils.extractTelegramUserId(update)) {
-            case ResultOk<Long, Error> ok -> chatId = ok.unwrap().toString();
-            case ResultError<Long, Error> err -> {
-                draw(err.err());
-                return;
-            }
-        }
         InlineKeyboardRow keyboardRow = new InlineKeyboardRow(
-                getButton(new IndexCmd(null))
+                getButton(new ShopCmd(null))
         );
 
-        String messageText = "Оплата и доставка";
+        String messageText = """
+                <u>Самовывоз</u>: Выдача заказа производится по адресу: г. Ростов-на-Дону, ул. Доватора, 142А, рынок «Молот», павильон 22. Оплатить заказ можно наличными или банковской картой в магазине.
+                               
+                <u>Доставка</u>: Мы отправляем заказы сервисом «Яндекс-маркет-доставка». Получить заказ вы сможете в любом пункте выдачи «Яндекс-маркет», который вы укажете при оформлении заказа.
+                Доставка для вас бесплатная при заказе на сумму свыше 2000 руб.
+                Оплатить заказ вы сможете по ссылке, которую вам вышлет наш менеджер при согласовании заказа.
+                """;
 
-        var keyBoard = InlineKeyboardMarkup.builder()
-                .keyboardRow(keyboardRow)
-                .build();
-        Integer messageId = update.getCallbackQuery().getMessage().getMessageId();
-        AnswerCallbackQuery close = AnswerCallbackQuery.builder()
-                .callbackQueryId(update.getCallbackQuery().getId())
-                .build();
-        EditMessageText message = EditMessageText.builder()
-                .chatId(chatId)
-                .messageId(messageId)
-                .text(messageText)
-                .build();
-        EditMessageReplyMarkup replyMarkup = EditMessageReplyMarkup.builder()
-                .chatId(chatId)
-                .messageId(messageId)
-                .replyMarkup(keyBoard)
-                .build();
-        closeQueryAndRewriteMessage(close, message, replyMarkup);
+        rewriteMessage(form.user(), messageText, keyboardRow);
     }
 
     @Override
     public void drawProductInstructionForm(ProductInstructionForm form) {
-        String chatId;
-        switch (TelegramUtils.extractTelegramUserId(update)) {
-            case ResultOk<Long, Error> ok -> chatId = ok.unwrap().toString();
-            case ResultError<Long, Error> err -> {
-                draw(err.err());
-                return;
-            }
-        }
         InlineKeyboardRow keyboardRow = new InlineKeyboardRow(
                 getButton("Назад", new ProductAboutCmd(null, form.product().getId()))
         );
 
         String messageText = "Описание товара\n\n" + form.product().getDescription();
 
-        var keyBoard = InlineKeyboardMarkup.builder()
-                .keyboardRow(keyboardRow)
-                .build();
-        Integer messageId = update.getCallbackQuery().getMessage().getMessageId();
-        AnswerCallbackQuery close = AnswerCallbackQuery.builder()
-                .callbackQueryId(update.getCallbackQuery().getId())
-                .build();
-        EditMessageText message = EditMessageText.builder()
-                .chatId(chatId)
-                .messageId(messageId)
-                .text(messageText)
-                .build();
-        EditMessageReplyMarkup replyMarkup = EditMessageReplyMarkup.builder()
-                .chatId(chatId)
-                .messageId(messageId)
-                .replyMarkup(keyBoard)
-                .build();
-        closeQueryAndRewriteMessage(close, message, replyMarkup);
+        rewriteMessage(form.user(), messageText, keyboardRow);
+    }
+
+    @Override
+    public void drawErrorForm(ErrorForm form) {
+        InlineKeyboardRow keyboardRow = new InlineKeyboardRow(
+//                getButton("Вернуться в корзину", new BasketCmd(null)),
+                getButton(new StartCmd(null))
+        );
+
+        String messageText = "Во время работы возникла ошибка.\nМы приносим извинения и просим вас сделать заказ сначала.";
+
+        rewriteMessage(form.user(), messageText, keyboardRow);
+    }
+
+    @Override
+    public void drawDistributionModeForm(DistributionModeForm form) {
+        InlineKeyboardRow keyboardRow = new InlineKeyboardRow(
+                getButton(new DeliveryCmd(null)),
+                getButton(new SelfPickupCmd(null))
+        );
+
+        String messageText = "Пожалуйста выберите способ доставки\n";
+
+        rewriteMessage(form.user(), messageText, keyboardRow);
+    }
+
+    @Override
+    public void drawOrderAdditionalInfoAddressForm(OrderAdditionalInfoAddressForm form) {
+        String messageText = "Пожалуйста введите свой номер телефона и адрес доставки одним сообщением.\n" +
+                "Например: +79281184838 г. Ростов-на-Дону ул. Большая Садовая 438б";
+
+        sendMessage(form.user(), messageText);
+    }
+
+    @Override
+    public void drawOrderAdditionalInfoPhoneForm(OrderAdditionalInfoPhoneForm form) {
+        String messageText = "Пожалуйста введите свой номер телефона и отправьте сообщение.\n\n" +
+                "Например: +79281184838";
+
+        sendMessage(form.user(), messageText);
+    }
+
+    @Deprecated
+    @Override
+    public void OrderAdditionalInfoPhoneInvalidForm(OrderAdditionalInfoPhoneInvalidForm form) {
+        String messageText = "Пожалуйста введите свой номер телефона.\nНомер должен начинаться с \"+7\"\n" +
+                "Например: +79281184838\n\n" +
+                "Ошибка в номере телефона:\n" +
+                "Вы ввели: %s\n".formatted(form.invalidPhoneNumber()) +
+                "Номер телефона обязательно должен начинаться с \"+7\", содержать 11 цифр от 0 до 9, между цифрами допускаются только знаки пробелов и тире \"-\" ";
+        sendMessage(form.user(), messageText);
+    }
+
+    @Override
+    public void drawPoolTypeForm(PoolTypeForm form) {
+        String messageText = "Выберите тип вашего бассейна";
+
+        InlineKeyboardRow inlineKeyboardRow = new InlineKeyboardRow(
+                getButton(new CircleCmd(null)),
+                getButton(new RectangleCmd(null))
+        );
+
+        var keyboard = List.of(inlineKeyboardRow);
+
+        sendMessage(form.user(), messageText, keyboard);
+    }
+
+    @Override
+    public void drawPoolSizeInfoForm(PoolSizeInfoForm form) {
+        String messageText = "Пожалуйста введите свой обьем бассейна и отправьте сообщение.\n\n";
+
+        sendMessage(form.user(), messageText);
+    }
+
+    @Override
+    public void drawGuideForm(GuideForm form) {
+        Optional<String> filenameOpt = switch (form.guideType()) {
+            case BEGINNING_OF_SEASON -> messageSource.getMessage("guideNameBeginningOfSeason", LOCALE_RU);
+            case STEP_BY_STEP -> messageSource.getMessage("guideNameStepByStep", LOCALE_RU);
+            case GREEN_POOL -> messageSource.getMessage("guideGreenPool", LOCALE_RU);
+        };
+        String filename = filenameOpt.orElseGet(() -> "Инструкция_для_обслуживания_бассейна").concat(".pdf");
+        InputFile file = new InputFile(form.guide(), filename);
+
+        sendDocument(form.user(), file);
+
+        this.drawGuideWithoutFileForm(new GuideWithoutFileForm(form.user()));
+
+        try {
+            Files.deleteIfExists(form.guide().toPath());
+        } catch (Exception e) {
+            log.error("Can't delete tmp file. This can be FATAL for server", e);
+        }
+
+    }
+
+    @Override
+    public void drawGuideWithoutFileForm(GuideWithoutFileForm form) {
+        var keyboard = List.of(
+                new InlineKeyboardRow(
+                        getButton(new GuideTypeCmd(null))
+                ),
+                new InlineKeyboardRow(
+                        getButton(new ContactCmd(null))
+                ),
+                new InlineKeyboardRow(
+                        getButton("Изменить параметры бассейна", new IndexCmd(null))
+                )
+        );
+
+        messageSource.getMessage("guide", LOCALE_RU)
+                .ifPresentOrElse(
+                        messageText -> {
+                            sendMessage(form.user(), messageText, keyboard);
+                        },
+                        () -> {
+                            log.error("Can't get message from message source");
+                            this.drawErrorForm(new ErrorForm(form.user()));
+                        }
+                );
     }
 
     @Override
     public void draw(Error error) {
-        // todo implement this
         log.error("=== error inside the app: {}", error.toString());
+    }
+
+    @Override
+    public void drawPoolDepthForm(PoolDepthForm form) {
+//        InlineKeyboardRow keyboardRow = new InlineKeyboardRow(
+//                getButton("Начать заново", new StartCmd(null))
+//        );
+
+        messageSource.getMessage("poolDepth", LOCALE_RU)
+                .ifPresentOrElse(
+                        messageText -> {
+                            sendMessage(form.user(), messageText);
+                        },
+                        () -> {
+                            log.error("Can't get message from message source");
+                            this.drawErrorForm(new ErrorForm(form.user()));
+                        }
+                );
+    }
+
+    @Override
+    public void drawPoolDiameterForm(PoolDiameterForm form) {
+//        InlineKeyboardRow keyboardRow = new InlineKeyboardRow(
+//                getButton("Начать заново", new StartCmd(null))
+//        );
+        messageSource.getMessage("poolDiameter", LOCALE_RU)
+                .ifPresentOrElse(
+                        messageText -> {
+                            sendMessage(form.user(), messageText);
+                        },
+                        () -> {
+                            log.error("Can't get message from message source");
+                            this.drawErrorForm(new ErrorForm(form.user()));
+                        }
+                );
+    }
+
+    @Override
+    public void drawInvalidInputForLongForm(InvalidInputForLongForm form) {
+//        InlineKeyboardRow keyboardRow = new InlineKeyboardRow(
+//                getButton("Начать заново", new StartCmd(null))
+//        );
+        messageSource.getMessage("invalidInputForLong", LOCALE_RU)
+                .ifPresentOrElse(
+                        messageText -> {
+                            sendMessage(form.user(), messageText);
+                        },
+                        () -> {
+                            log.error("Can't get message from message source");
+                            this.drawErrorForm(new ErrorForm(form.user()));
+                        }
+                );
+    }
+
+    @Override
+    public void drawPoolWidthForm(PoolWidthForm form) {
+//        InlineKeyboardRow keyboardRow = new InlineKeyboardRow(
+//                getButton("Начать заново", new StartCmd(null))
+//        );
+        messageSource.getMessage("poolWidth", LOCALE_RU)
+                .ifPresentOrElse(
+                        messageText -> {
+                            sendMessage(form.user(), messageText);
+                        },
+                        () -> {
+                            log.error("Can't get message from message source");
+                            this.drawErrorForm(new ErrorForm(form.user()));
+                        }
+                );
+    }
+
+    @Override
+    public void drawPoolLenghtForm(PoolLenghtForm form) {
+//        InlineKeyboardRow keyboardRow = new InlineKeyboardRow(
+//                getButton("Начать заново", new StartCmd(null))
+//        );
+        messageSource.getMessage("poolLength", LOCALE_RU)
+                .ifPresentOrElse(
+                        messageText -> {
+                            sendMessage(form.user(), messageText);
+                        },
+                        () -> {
+                            log.error("Can't get message from message source");
+                            this.drawErrorForm(new ErrorForm(form.user()));
+                        }
+                );
+    }
+
+    @Override
+    public void drawGuideTypeForm(GuideTypeForm form) {
+        List<InlineKeyboardRow> keyboardRowList = new ArrayList<>(GuideType.values().length);
+        for (GuideType type : GuideType.values()) {
+            keyboardRowList.add(
+                    new InlineKeyboardRow(
+                            getButton(new GuideCmd(null, type))
+                    )
+            );
+        }
+        keyboardRowList.add(
+                new InlineKeyboardRow(
+                        getButton("Изменить параметры бассейна", new StartCmd(null))
+                )
+        );
+
+        String poolValue = "%.2f".formatted(form.poolValue());
+
+        messageSource.getMessage("guideType", LOCALE_RU, poolValue)
+                .ifPresentOrElse(
+                        messageText -> {
+                            sendMessage(form.user(), messageText, keyboardRowList);
+                        },
+                        () -> {
+                            log.error("Can't get message from message source");
+                            this.drawErrorForm(new ErrorForm(form.user()));
+                        }
+                );
+    }
+
+    @Override
+    public void drawFilterTypeForm(FilterTypeForm form) {
+        List<InlineKeyboardRow> keyboardRowList = new ArrayList<>(FilterType.values().length);
+        for (FilterType type : FilterType.values()) {
+            keyboardRowList.add(
+                    new InlineKeyboardRow(
+                            getButton(new FilterTypeCmd(null, type))
+                    )
+            );
+        }
+
+
+        messageSource.getMessage("filterType", LOCALE_RU)
+                .ifPresentOrElse(
+                        messageText -> {
+                            sendMessage(form.user(), messageText, keyboardRowList);
+                        },
+                        () -> {
+                            log.error("Can't get message from message source");
+                            this.drawErrorForm(new ErrorForm(form.user()));
+                        }
+                );
     }
 
     private InlineKeyboardButton getButton(String buttonText, Command command) {
@@ -488,7 +631,7 @@ public record TelegramView(OkHttpTelegramClient client, Update update, ProductSe
             case ForWholesalerCmd cmd -> "Оптовикам";
             case PayAndDeliveryCmd cmd -> "Оплата и доставка";
             case AddToBasketCmd cmd -> "Добавить в корзину";
-            case BasketCmd cmd -> "Посмотреть корзину";
+            case BasketCmd cmd -> "\uD83D\uDED2Посмотреть корзину";
             case CatalogCmd cmd -> "Каталог товаров";
             case DoOrderCmd cmd -> "Оформить заказ";
             case FolderCmd cmd -> PathUtil.getFolderName(cmd.path());
@@ -499,7 +642,29 @@ public record TelegramView(OkHttpTelegramClient client, Update update, ProductSe
             case QuantityPlusCmd cmd -> "Добавить в корзину";
             case ClearBasketCmd cmd -> "Очистить корзину";
             case DoNothing cmd -> "¯\\_(ツ)_/¯";
-            case StartCmd cmd -> "Restart session. This command should not appear in user interface.";
+            case DeliveryCmd cdm -> "Доставка";
+            case SelfPickupCmd cmd -> "Самовывоз";
+            case OrderAdditionalInfoAddressCmd cmd -> "This command should not appear in user interface.";
+            case OrderAdditionalInfoPhoneCmd cmd -> "This command should not appear in user interface.";
+            case StartCmd cmd -> "Перезапустить бота";
+            case UserInputCmd cmd -> "This command should not appear in user interface.";
+            case ContactCmd cmd -> "Контакты";
+            case ShopCmd cmd -> "Магазин";
+            case CircleCmd circleCmd -> "Круглый";
+            case RectangleCmd rectangleCmd -> "Прямоугольный";
+            case PoolTypeCmd poolTypeCmd -> "Инструкция";
+            case GuideCmd gtp -> switch (gtp.guideType()) {
+                case STEP_BY_STEP -> "Уход за бассейном. Пошаговая инструкция.";
+                case BEGINNING_OF_SEASON -> "Запуск бассейна в начале сезона";
+                case GREEN_POOL -> "Вода зеленая";
+            };
+            case FilterTypeCmd flt -> switch (flt.filterType()) {
+                case SAND -> "Песочный фильтр насос";
+                case CARTRIDGE -> "Картриджный фильтр насос";
+                case NO_FILTER -> "Фильтр отсутствует";
+            };
+            case GuideTypeCmd cmd -> "Решить другую проблему";
+            case BackCmd cmd -> "Назад";
         };
         return InlineKeyboardButton.builder()
                 .text(text)
@@ -507,116 +672,197 @@ public record TelegramView(OkHttpTelegramClient client, Update update, ProductSe
                 .build();
     }
 
-    private void sendMessage(SendMessage message) {
+    private void sendMessage(User user, String messageText, List<InlineKeyboardRow> keyboardRowList) {
+        Long telegramUserId;
+        Integer messageId;
+        switch (telegramInfoService.getByUser(user)) {
+            case ResultOk<TelegramInfo, Error> ok -> {
+                telegramUserId = ok.result().getTelegramId();
+                messageId = ok.result().getLastMessageId();
+            }
+            case ResultError<TelegramInfo, Error> err -> {
+                draw(err.err());
+                return;
+            }
+        }
+        var keyBoard = InlineKeyboardMarkup.builder()
+                .keyboard(keyboardRowList)
+                .build();
+
+        SendMessage message = SendMessage.builder()
+                .chatId(telegramUserId)
+                .text(messageText)
+                .parseMode("HTML")
+                .replyMarkup(keyBoard)
+                .build();
+        if (!(messageId == null)) {
+            DeleteMessage deleteMessage = DeleteMessage.builder()
+                    .chatId(telegramUserId)
+                    .messageId(messageId)
+                    .build();
+            try {
+                client.execute(deleteMessage);
+            } catch (TelegramApiException e) {
+                log.warn("Can not delete last message for telegramUserId: {}", telegramUserId);
+            }
+        }
         try {
+
             log.trace("=== try to send message ===");
             Message res = client.execute(message);
+            telegramInfoService.update(telegramUserId, null, null, null, res.getMessageId());
             log.trace("=== send message: {} ===", res);
         } catch (TelegramApiException e) {
             log.error("Telegram error during sending message: ", e);
         }
     }
 
-    private void rewriteMessage(EditMessageText messageText, EditMessageReplyMarkup messageReplyMarkup) {
+    // todo i has two send message methods. simplify it
+    private void sendMessage(User user, String messageText) {
+        Long telegramUserId;
+        Integer messageId;
+        switch (telegramInfoService.getByUser(user)) {
+            case ResultOk<TelegramInfo, Error> ok -> {
+                telegramUserId = ok.result().getTelegramId();
+                messageId = ok.result().getLastMessageId();
+            }
+            case ResultError<TelegramInfo, Error> err -> {
+                draw(err.err());
+                return;
+            }
+        }
+
+        SendMessage message = SendMessage.builder()
+                .chatId(telegramUserId)
+                .text(messageText)
+                .parseMode("HTML")
+                .build();
+
+        try {
+            if (!(messageId == null)) {
+                DeleteMessage deleteMessage = DeleteMessage.builder()
+                        .chatId(telegramUserId)
+                        .messageId(messageId)
+                        .build();
+                try {
+                    client.execute(deleteMessage);
+                } catch (TelegramApiException e) {
+                    log.warn("Can not delete last message for telegramUserId: {}", telegramUserId);
+                }
+            }
+            log.trace("=== try to send message ===");
+            Message res = client.execute(message);
+            telegramInfoService.update(telegramUserId, null, null, null, res.getMessageId());
+            log.trace("=== send message: {} ===", res);
+        } catch (TelegramApiException e) {
+            log.error("Telegram error during sending message: ", e);
+        }
+    }
+
+    private void rewriteMessage(User user, String messageText, InlineKeyboardRow keyboardRow) {
+        var keyBoard = InlineKeyboardMarkup.builder()
+                .keyboardRow(keyboardRow)
+                .build();
+        rewriteMessage(user, messageText, keyBoard);
+    }
+
+    private void rewriteMessage(User user, String messageText, List<InlineKeyboardRow> keyboardRowList) {
+        var keyBoard = InlineKeyboardMarkup.builder()
+                .keyboard(keyboardRowList)
+                .build();
+        rewriteMessage(user, messageText, keyBoard);
+    }
+
+    private void rewriteMessage(User user, String messageText, InlineKeyboardMarkup keyboard) {
+        Long telegramUserId;
+        Integer messageId;
+        switch (telegramInfoService.getByUser(user)) {
+            case ResultOk<TelegramInfo, Error> ok -> {
+                telegramUserId = ok.result().getTelegramId();
+                messageId = ok.result().getLastMessageId();
+            }
+            case ResultError<TelegramInfo, Error> err -> {
+                draw(err.err());
+                return;
+            }
+        }
+
+        EditMessageText message = EditMessageText.builder()
+                .chatId(telegramUserId)
+                .messageId(messageId)
+                .text(messageText)
+                .parseMode("HTML")
+                .build();
+        EditMessageReplyMarkup replyMarkup = EditMessageReplyMarkup.builder()
+                .chatId(telegramUserId)
+                .messageId(messageId)
+                .replyMarkup(keyboard)
+                .build();
         try {
             log.trace("Try to rewrite telegram message");
-            client.execute(messageText);
-            client.execute(messageReplyMarkup);
+            client.execute(message);
+            client.execute(replyMarkup);
         } catch (TelegramApiException e) {
             log.error("Telegram error during rewriting message: ", e);
         }
     }
 
-    private void closeQuery(AnswerCallbackQuery answerCallbackQuery) {
+    private void sendDocument(User user, InputFile file) {
+        Long telegramUserId;
+        Integer messageId;
+        switch (telegramInfoService.getByUser(user)) {
+            case ResultOk<TelegramInfo, Error> ok -> {
+                telegramUserId = ok.result().getTelegramId();
+                messageId = ok.result().getLastMessageId();
+            }
+            case ResultError<TelegramInfo, Error> err -> {
+                draw(err.err());
+                return;
+            }
+        }
+
+        SendDocument message = SendDocument.builder()
+                .document(file)
+                .chatId(telegramUserId)
+                .build();
+
         try {
-            log.trace("Try to close telegram query");
-            client.execute(answerCallbackQuery);
+            if (!(messageId == null)) {
+                DeleteMessage deleteMessage = DeleteMessage.builder()
+                        .chatId(telegramUserId)
+                        .messageId(messageId)
+                        .build();
+                try {
+                    client.execute(deleteMessage);
+                } catch (TelegramApiException e) {
+                    log.warn("Can not delete last message for telegramUserId: {}", telegramUserId);
+                }
+            }
+            log.trace("=== try to send message ===");
+            Message res = client.execute(message);
+            telegramInfoService.update(telegramUserId, null, null, null, null);
+            log.trace("=== send message: {} ===", res);
         } catch (TelegramApiException e) {
-            log.error("Telegram error during closing query: ", e);
+            log.error("Telegram error during sending message: ", e);
         }
     }
 
-    private void closeQueryAndRewriteMessage(AnswerCallbackQuery answerCallbackQuery,
-                                             EditMessageText messageText,
-                                             EditMessageReplyMarkup messageReplyMarkup) {
-        closeQuery(answerCallbackQuery);
-        rewriteMessage(messageText, messageReplyMarkup);
+//    private void closeQuery(AnswerCallbackQuery answerCallbackQuery) {
+//        try {
+//            log.trace("Try to close telegram query");
+//            client.execute(answerCallbackQuery);
+//        } catch (TelegramApiException e) {
+//            log.error("Telegram error during closing query: ", e);
+//        }
+//    }
+//
+//    private void closeQueryAndRewriteMessage(AnswerCallbackQuery answerCallbackQuery,
+//                                             EditMessageText messageText,
+//                                             EditMessageReplyMarkup messageReplyMarkup) {
+//        closeQuery(answerCallbackQuery);
+//        rewriteMessage(messageText, messageReplyMarkup);
+//
+//    }
 
-    }
 
-    private String getProductTableHeader() {
-        return PRODUCT_ROW_TABLE_TEMPLATE
-                .formatted(NAME_OF_PRODUCT, QUANTITY_OF_PRODUCT, TOTAL_SUM_OF_PRODUCT);
-    }
-
-    private String getProductTable(List<ProductRowDto> products) {
-        long maxProductNameLength = products.stream()
-                .map(ProductRowDto::product)
-                .map(Product::getName)
-                .mapToInt(String::length)
-                .map(i -> i + 5)
-                .max()
-                .orElseGet(() -> 0);
-
-        long maxQuantityLength = products.stream()
-                .map(this::quantityToString)
-                .mapToInt(String::length)
-                .map(i -> i + 5)
-                .max()
-                .orElseGet(() -> 0);
-
-        long maxTotalSumLength = products.stream()
-                .map(this::totalSumToString)
-                .mapToInt(String::length)
-                .map(i -> i + 5)
-                .max()
-                .orElseGet(() -> 0);
-
-        List<String> productRowStringList = products.stream()
-                .map(productRowDto ->
-                        getProductTableRow(productRowDto, maxProductNameLength, maxQuantityLength, maxTotalSumLength))
-                .map(rowStr -> rowStr.concat("\n"))
-                .toList();
-
-        String productTableHeader = getProductTableHeader() + "\n";
-        String productTable = Stream.concat(Stream.of(productTableHeader, "\n"), productRowStringList.stream())
-                .reduce("", String::concat);
-
-        return productTable;
-    }
-
-    private String getProductTableRow(ProductRowDto productRowDto, long maxName, long maxQuantity, long maxTotalSum) {
-        String quantityStr = quantityToString(productRowDto);
-        String totalSumStr = totalSumToString(productRowDto);
-        return getProductRow(
-                productRowDto.product().getName(),
-                quantityStr,
-                totalSumStr,
-                maxName,
-                maxQuantity,
-                maxTotalSum
-        );
-    }
-
-    private String getProductRow(String productName, String quantity, String totalSum, long maxName, long maxQuantity, long maxTotalSum) {
-        String nameNormalized = normalizeByPadding(productName, maxName);
-        String quantityNormalized = normalizeByPadding(quantity, maxQuantity);
-        String totalSumNormalized = normalizeByPadding(totalSum, maxTotalSum);
-        return PRODUCT_ROW_TABLE_TEMPLATE.formatted(nameNormalized, quantityNormalized, totalSumNormalized);
-    }
-
-    private String normalizeByPadding(String value, long maxLineLength) {
-        String template = new StringBuilder("%-").append(maxLineLength).append("s").toString();
-        return template.formatted(value);
-    }
-
-    private String quantityToString(ProductRowDto productRowDto) {
-        double costInRub = (double) productRowDto.product().getCost() / 100;
-        return QUANTITY_TEMPLATE.formatted(productRowDto.quantity(), costInRub);
-    }
-
-    private String totalSumToString(ProductRowDto productRowDto) {
-        double totalSumInRub = (double) productRowDto.product().getCost() * productRowDto.quantity() / 100;
-        return TOTAL_SUM_TEMPLATE.formatted(totalSumInRub);
-    }
 }

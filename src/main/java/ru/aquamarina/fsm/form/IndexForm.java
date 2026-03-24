@@ -1,14 +1,9 @@
 package ru.aquamarina.fsm.form;
 
 import ru.aquamarina.api.bot.View;
-import ru.aquamarina.model.command.AboutCmd;
-import ru.aquamarina.model.command.CatalogCmd;
-import ru.aquamarina.model.command.Command;
+import ru.aquamarina.model.entity.User;
 
-import java.util.Collection;
-import java.util.List;
-
-public record IndexForm() implements Form {
+public record IndexForm(User user, boolean isRestartRequired) implements Form {
 
     @Override
     public void draw(View view) {

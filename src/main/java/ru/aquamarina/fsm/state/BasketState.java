@@ -4,18 +4,15 @@ import ru.aquamarina.fsm.FsmContextHolder;
 import ru.aquamarina.fsm.form.BasketForm;
 import ru.aquamarina.fsm.form.Form;
 import ru.aquamarina.model.command.*;
-import ru.aquamarina.model.entity.Basket;
 import ru.aquamarina.model.entity.BasketRow;
 import ru.aquamarina.model.entity.Product;
 import ru.aquamarina.model.entity.User;
 import ru.aquamarina.model.error.CanNotDoOrder;
 import ru.aquamarina.model.error.Error;
 import ru.aquamarina.model.error.NotSupportedCommand;
-import ru.aquamarina.service.BasketService;
 import ru.aquamarina.util.Result;
 
 import java.util.List;
-import java.util.Objects;
 
 public class BasketState implements FsmState {
 
@@ -23,7 +20,6 @@ public class BasketState implements FsmState {
 
     private final User user;
     // todo make serialization to store the basket or basket id
-//    private final Basket basket;
 
     public BasketState(User user) {
         this.user = user;
@@ -32,18 +28,10 @@ public class BasketState implements FsmState {
     @Override
     public Result<FsmState, Error> doWork(FsmContextHolder context, Command command) {
         return switch (command) {
-            case DoOrderCmd ord -> context.getBasketService()
-                    .getByUserId(command.getUser().getId())
-                    .map(basket -> context.getOrderService().create(basket))
-                    .map(order -> {
-                        context.getTelegramService().notifySeller(order);
-                        return order;
-                    })
-                    .map(order -> Result.<FsmState, Error>ok(new OrderState(user, order)))
-                    .orElseGet(() -> Result.error(new CanNotDoOrder()));
-            case IndexCmd index -> Result.ok(new IndexState(user));
+            case DoOrderCmd ord -> Result.ok(new DistributionModeState(user));
+            case ShopCmd index -> Result.ok(new ShopState(user));
             case CatalogCmd ctg -> Result.ok(new CatalogState(user, "/"));
-            case StartCmd start -> Result.ok(new IndexState(user));
+            case StartCmd start -> Result.ok(new IndexState(user, true));
             case ClearBasketCmd clr -> context.getBasketService().getByUser(user)
                     .map(basket -> {
                         context.getBasketService().clearBasket(basket);
@@ -93,7 +81,7 @@ public class BasketState implements FsmState {
                             .stream();
                 })
                 .reduce(0L, Long::sum);
-        return new BasketForm(rows, totalCost);
+        return new BasketForm(user, rows, totalCost);
     }
 
     @Override

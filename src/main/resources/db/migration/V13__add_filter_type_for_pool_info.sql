@@ -1,0 +1,1 @@
+ALTER TABLE pool_info ADD COLUMN filter_type text NOT NULL DEFAULT 'NO_FILTER';

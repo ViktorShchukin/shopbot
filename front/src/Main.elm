@@ -48,6 +48,11 @@ itemCode_str =
     "Артикул"
 
 
+shortName_str : String
+shortName_str =
+    "краткое название"
+
+
 
 -- main
 
@@ -80,7 +85,7 @@ type alias Model =
 init : () -> ( Model, Cmd Msg )
 init _ =
     ( { products = []
-      , productToAdd = Product "" "" 0 "" "" 0
+      , productToAdd = Product "" "" 0 "" "" 0 ""
       , productToUpdate = []
       }
     , getAllProduct GotProducts
@@ -103,12 +108,14 @@ type Msg
     | GotProductDescriptionToAdd String
     | GotProductPathToAdd String
     | GotProductItemCodeToAdd String
+    | GotProductShortNameToAdd String
       --
     | GotProductNameToUpdate Product String
     | GotProductCostToUpdate Product String
     | GotProductDescriptionToUpdate Product String
     | GotProductPathToUpdate Product String
     | GotProductItemCodeToUpdate Product String
+    | GotProductShortNmaeToUpdate Product String
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -184,6 +191,13 @@ update msg model =
                 Nothing ->
                     ( model, Cmd.none )
 
+        GotProductShortNameToAdd str ->
+            if String.length (String.trim str) < 21 then
+                ( { model | productToAdd = updateProductShortName model.productToAdd (String.trim str) }, Cmd.none )
+
+            else
+                ( model, Cmd.none )
+
         GotProductNameToUpdate prod str ->
             ( gotProductNameToUpdate model prod str, Cmd.none )
 
@@ -214,6 +228,13 @@ update msg model =
 
                 Nothing ->
                     ( model, Cmd.none )
+
+        GotProductShortNmaeToUpdate prod str ->
+            if String.length (String.trim str) < 21 then
+                ( gotProductShortNameToUpdate model prod (String.trim str), Cmd.none )
+
+            else
+                ( model, Cmd.none )
 
 
 processGotProducts : Model -> Result Http.Error (List Product) -> Model
@@ -388,6 +409,32 @@ gotProductItemCodeToUpdate model prod code =
     { model | productToUpdate = productList }
 
 
+gotProductShortNameToUpdate : Model -> Product -> String -> Model
+gotProductShortNameToUpdate model prod str =
+    let
+        productList =
+            case findProductById model.productToUpdate prod.id of
+                Just product ->
+                    let
+                        updated =
+                            updateProductShortName product str
+                    in
+                    List.map
+                        (\prod1 ->
+                            if prod1.id == updated.id then
+                                updated
+
+                            else
+                                prod1
+                        )
+                        model.productToUpdate
+
+                Nothing ->
+                    List.append model.productToUpdate [ updateProductShortName prod str ]
+    in
+    { model | productToUpdate = productList }
+
+
 findProductById : List Product -> String -> Maybe Product
 findProductById productList id =
     List.filter (\prod -> prod.id == id) productList |> List.head
@@ -423,6 +470,11 @@ updateProductItemCode product code =
     { product | itemCode = code }
 
 
+updateProductShortName : Product -> String -> Product
+updateProductShortName product shortName =
+    { product | shortName = shortName }
+
+
 
 -- view
 
@@ -451,6 +503,7 @@ drawProductTableHeader =
         , Html.th [] [ text description_str ]
         , Html.th [] [ text path_str ]
         , Html.th [] [ text itemCode_str ]
+        , Html.th [] [ text shortName_str ]
         ]
 
 
@@ -489,6 +542,21 @@ drawProductRow model product =
                 ]
                 []
             ]
+        , Html.td []
+            [ text <| product.shortName
+            , Html.input
+                [ Html.Events.onInput <| GotProductShortNmaeToUpdate product
+                , Html.Attributes.placeholder shortName_str
+                , Html.Attributes.value <|
+                    case findProductById model.productToUpdate product.id of
+                        Nothing ->
+                            ""
+
+                        Just prod ->
+                            prod.shortName
+                ]
+                []
+            ]
         , Html.td [] [ Html.button [ Html.Events.onClick <| UpdateProduct product ] [ text update_str ] ]
         ]
 
@@ -508,6 +576,12 @@ drawAddProductForm model =
         , Html.input
             [ Html.Events.onInput GotProductItemCodeToAdd
             , Html.Attributes.placeholder itemCode_str
+            ]
+            []
+        , Html.input
+            [ Html.Events.onInput GotProductShortNameToAdd
+            , Html.Attributes.placeholder shortName_str
+            , Html.Attributes.value model.productToAdd.shortName
             ]
             []
         , Html.button [ Html.Events.onClick AddProduct ] [ text add_str ]

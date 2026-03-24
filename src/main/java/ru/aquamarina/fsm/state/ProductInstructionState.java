@@ -43,18 +43,18 @@ public class ProductInstructionState implements FsmState {
                                 .orElseGet(() -> 0L);
                         return Result.ok(new ProductAboutState(user, prod, quantity));
                     });
-            case StartCmd start -> Result.ok(new IndexState(user));
+            case StartCmd start -> Result.ok(new IndexState(user, true));
             default -> Result.error(new NotSupportedCommand());
         };
     }
 
     @Override
     public Form getForm(FsmContextHolder context) {
-        return new ProductInstructionForm(product);
+        return new ProductInstructionForm(user, product);
     }
 
     @Override
     public String toString() {
-        return NAME + "?" + product.getName();
+        return NAME + "?" + product.getId().toString();
     }
 }
