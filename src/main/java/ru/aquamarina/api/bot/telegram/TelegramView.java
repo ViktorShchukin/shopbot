@@ -430,6 +430,7 @@ public class TelegramView implements View {
         Optional<String> filenameOpt = switch (form.guideType()) {
             case BEGINNING_OF_SEASON -> messageSource.getMessage("guideNameBeginningOfSeason", LOCALE_RU);
             case STEP_BY_STEP -> messageSource.getMessage("guideNameStepByStep", LOCALE_RU);
+            case GREEN_POOL -> messageSource.getMessage("guideGreenPool", LOCALE_RU);
         };
         String filename = filenameOpt.orElseGet(() -> "Инструкция_для_обслуживания_бассейна").concat(".pdf");
         InputFile file = new InputFile(form.guide(), filename);
@@ -655,6 +656,7 @@ public class TelegramView implements View {
             case GuideCmd gtp -> switch (gtp.guideType()) {
                 case STEP_BY_STEP -> "Уход за бассейном. Пошаговая инструкция.";
                 case BEGINNING_OF_SEASON -> "Запуск бассейна в начале сезона";
+                case GREEN_POOL -> "Вода зеленая";
             };
             case FilterTypeCmd flt -> switch (flt.filterType()) {
                 case SAND -> "Песочный фильтр насос";

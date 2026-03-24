@@ -37,16 +37,16 @@ public class PdfService {
         return poolInfoService.getPoolInfoByUserId(user.getId())
                 .mapValue(guideType::getCalculator)
                 .mapValue(IPoolGuideCalculator::evaluate)
-                .map(this::generateHtml)
+                .map(dto -> generateHtml(dto, guideType))
                 .map(this::generatePdf);
     }
 
-    private Result<String, Error> generateHtml(PoolGuideDto guideDto) {
+    private Result<String, Error> generateHtml(PoolGuideDto guideDto, GuideType guideType) {
         Map<String, Object> context = new HashMap<>();
         context.put("poolGuideDto", guideDto);
 
         try (Writer writer = new StringWriter()) {
-            PebbleTemplate template = pebbleEngine.getTemplate("static/templates/guide.html");
+            PebbleTemplate template = pebbleEngine.getTemplate(guideType.getTemplate());
             template.evaluate(writer, context);
             String html = writer.toString();
 
