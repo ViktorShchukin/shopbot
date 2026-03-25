@@ -6,6 +6,7 @@ import org.mapstruct.MappingTarget;
 import ru.aquamarina.config.AppMapperConfig;
 import ru.aquamarina.guide.FilterType;
 import ru.aquamarina.guide.PoolType;
+import ru.aquamarina.guide.dto.PoolInfoDto;
 import ru.aquamarina.model.entity.PoolInfo;
 
 @Mapper(config = AppMapperConfig.class)
@@ -23,4 +24,6 @@ public interface PoolInfoTool {
             Double poolDiameter,
             Double poolVolume
     );
+
+    PoolInfoDto map(PoolInfo poolInfo);
 }

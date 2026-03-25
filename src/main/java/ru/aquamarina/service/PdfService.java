@@ -6,9 +6,11 @@ import io.pebbletemplates.pebble.template.PebbleTemplate;
 import jakarta.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.aquamarina.guide.IPoolGuideCalculator;
 import ru.aquamarina.guide.GuideType;
 import ru.aquamarina.guide.dto.PoolGuideDto;
+import ru.aquamarina.guide.dto.PoolInfoDto;
+import ru.aquamarina.mapper.PoolInfoTool;
+import ru.aquamarina.model.entity.PoolInfo;
 import ru.aquamarina.model.entity.User;
 import ru.aquamarina.model.error.Error;
 import ru.aquamarina.model.error.ExceptionWrapperError;
@@ -25,19 +27,25 @@ public class PdfService {
 
     private final PebbleEngine pebbleEngine;
     private final PoolInfoService poolInfoService;
+    private final PoolInfoTool poolInfoTool;
 
     public PdfService(
             PebbleEngine pebbleEngine,
-            PoolInfoService poolInfoService) {
+            PoolInfoService poolInfoService, PoolInfoTool poolInfoTool) {
         this.pebbleEngine = pebbleEngine;
         this.poolInfoService = poolInfoService;
+        this.poolInfoTool = poolInfoTool;
     }
 
     public Result<File, Error> getPdf(User user, GuideType guideType) {
         return poolInfoService.getPoolInfoByUserId(user.getId())
-                .mapValue(guideType::getCalculator)
-                .mapValue(IPoolGuideCalculator::evaluate)
-                .map(dto -> generateHtml(dto, guideType))
+                .mapValue(poolInfoTool::map)
+                .map(poolInfo -> getPdf(poolInfo, guideType));
+    }
+
+    public Result<File, Error> getPdf(PoolInfoDto poolInfo, GuideType guideType) {
+        var dto = guideType.getCalculator(poolInfo).evaluate();
+        return generateHtml(dto, guideType)
                 .map(this::generatePdf);
     }
 

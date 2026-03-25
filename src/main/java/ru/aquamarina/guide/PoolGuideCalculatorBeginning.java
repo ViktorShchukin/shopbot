@@ -1,7 +1,7 @@
 package ru.aquamarina.guide;
 
 import ru.aquamarina.guide.dto.PoolGuideDto;
-import ru.aquamarina.model.entity.PoolInfo;
+import ru.aquamarina.guide.dto.PoolInfoDto;
 import ru.aquamarina.util.MathUtil;
 
 public class PoolGuideCalculatorBeginning implements IPoolGuideCalculator {
@@ -14,14 +14,14 @@ public class PoolGuideCalculatorBeginning implements IPoolGuideCalculator {
      * in m^3
      */
     private final Double poolVolume;
-    private final PoolInfo poolInfo;
+    private final PoolInfoDto poolInfo;
 
-    public PoolGuideCalculatorBeginning(Double poolVolume, PoolInfo poolInfo) {
+    public PoolGuideCalculatorBeginning(Double poolVolume, PoolInfoDto poolInfo) {
         this.poolVolume = poolVolume;
         this.poolInfo = poolInfo;
     }
 
-    public static PoolGuideCalculatorBeginning of(PoolInfo poolInfo) {
+    public static PoolGuideCalculatorBeginning of(PoolInfoDto poolInfo) {
         Double res = switch (poolInfo.getPoolType()) {
             case CIRCLE -> IPoolGuideCalculator.evaluateCircleVolume(poolInfo);
             case RECTANGLE -> IPoolGuideCalculator.evaluateRectangleVolume(poolInfo);

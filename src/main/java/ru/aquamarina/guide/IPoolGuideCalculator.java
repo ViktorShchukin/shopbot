@@ -1,6 +1,7 @@
 package ru.aquamarina.guide;
 
 import ru.aquamarina.guide.dto.PoolGuideDto;
+import ru.aquamarina.guide.dto.PoolInfoDto;
 import ru.aquamarina.model.entity.PoolInfo;
 
 public interface IPoolGuideCalculator {
@@ -20,11 +21,11 @@ public interface IPoolGuideCalculator {
     Double COAGULAT_PILL_PER_CUBIC_METER = 0.25;
     Long COAGULAT_LIQUID_ROUND_PRECISION = 10L;
 
-    static Double evaluateCircleVolume(PoolInfo poolInfo) {
+    static Double evaluateCircleVolume(PoolInfoDto poolInfo) {
         return poolInfo.getPoolDepth() * Math.PI * poolInfo.getPoolDiameter() * poolInfo.getPoolDiameter() / 4;
     }
 
-    static Double evaluateRectangleVolume(PoolInfo poolInfo) {
+    static Double evaluateRectangleVolume(PoolInfoDto poolInfo) {
         return (double) (poolInfo.getPoolDepth() * poolInfo.getPoolLength() * poolInfo.getPoolWidth());
     }
 
