@@ -14,6 +14,8 @@ import java.util.UUID;
 @Mapper(config = AppMapperConfig.class)
 public interface TelegramInfoUtil {
 
+    @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
     TelegramInfo create(long telegramId,
                         @NotNull UUID userId,
                         String firstName,
@@ -22,6 +24,8 @@ public interface TelegramInfoUtil {
                         Boolean updated,
                         Integer lastMessageId);
 
+    @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "telegramId", ignore = true)
     @Mapping(target = "userId", ignore = true)
     @Mapping(target = "updated", expression = "java(Boolean.TRUE)")

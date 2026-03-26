@@ -1,9 +1,8 @@
 package ru.aquamarina.model.entity;
 
-import io.micronaut.data.annotation.Id;
-import io.micronaut.data.annotation.MappedEntity;
-import io.micronaut.data.annotation.MappedProperty;
+import io.micronaut.data.annotation.*;
 
+import java.time.Instant;
 import java.util.UUID;
 
 @MappedEntity(value = "user_telegram_info")
@@ -30,6 +29,30 @@ public class TelegramInfo {
 
     @MappedProperty("last_message_id")
     private Integer lastMessageId;
+
+    @DateCreated
+    @MappedProperty("created_at")
+    private Instant createdAt;
+
+    @DateUpdated
+    @MappedProperty("updated_at")
+    private Instant updatedAt;
+
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Instant getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
+    }
 
     public Long getTelegramId() {
         return telegramId;
