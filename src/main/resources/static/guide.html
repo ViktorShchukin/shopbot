@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="shopbot.css">
+    <script src="guide.js" defer></script>
+</head>
+<body>
+
+<nav class="sh-hor">
+    <img src="https://static.tildacdn.com/tild3836-3364-4165-b533-616435386635/Group_47404.svg" alt="Aquamarina logo">
+    <a class="sh-custom-a" href="https://aquamarina-shop.ru/">
+        <-- Назад в магазин
+    </a>
+</nav>
+
+<form id="poolForm">
+    <label>Тип бассейна:</label>
+    <select id="poolType">
+        <option value="RECTANGLE">Прямоугольный</option>
+        <option value="CIRCLE">Круглый</option>
+    </select>
+    <br/><br/>
+
+    <label>Тип фильтра:</label>
+    <select id="filterType">
+        <option value="SAND">Песочный</option>
+        <option value="CARTRIDGE">Картриджный</option>
+        <option value="NO_FILTER">Нет</option>
+    </select>
+    <br/><br/>
+
+    <label>Глубина:</label>
+    <input type="number" id="poolDepth"/>
+    <br/><br/>
+
+    <label>Длина:</label>
+    <input type="number" id="poolLength"/>
+    <br/><br/>
+
+    <label>Ширина:</label>
+    <input type="number" id="poolWidth"/>
+    <br/><br/>
+
+    <label>Диаметер:</label>
+    <input type="number" id="poolDiameter"/>
+    <br/><br/>
+
+    <button type="submit">Получить инструкцию</button>
+</form>
+</body>
+</html>

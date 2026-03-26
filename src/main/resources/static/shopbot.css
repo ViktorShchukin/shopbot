@@ -1,0 +1,21 @@
+nav {
+    padding: 10px;
+    background: #f5f5f5;
+    border-bottom: 1px solid #ccc;
+}
+
+.sh-hor {
+    display: flex; /* item placed horizontally */
+    gap: 10px;
+    align-items: center;
+}
+
+.sh-custom-a {
+    color: inherit;           /* цвет как у обычного текста */
+    text-decoration: none;    /* убрать подчёркивание */
+    cursor: pointer;          /* оставить "руку" при наведении */
+}
+
+form {
+ margin-top: 10px;
+}
