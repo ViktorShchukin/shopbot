@@ -1,13 +1,17 @@
+function santiToMetr(number) {
+    return number / 100;
+}
+
 document.getElementById("poolForm").addEventListener("submit", async (e) => {
       e.preventDefault();
 
       const data = {
         poolType: document.getElementById("poolType").value,
         filterType: document.getElementById("filterType").value,
-        poolDepth: Number(document.getElementById("poolDepth").value),
-        poolLength: Number(document.getElementById("poolLength").value),
-        poolWidth: Number(document.getElementById("poolWidth").value),
-        poolDiameter: Number(document.getElementById("poolDiameter").value),
+        poolDepth: santiToMetr(Number(document.getElementById("poolDepth").value)),
+        poolLength: santiToMetr(Number(document.getElementById("poolLength").value)),
+        poolWidth: santiToMetr(Number(document.getElementById("poolWidth").value)),
+        poolDiameter: santiToMetr(Number(document.getElementById("poolDiameter").value)),
         poolVolume: 0,
       };
 
