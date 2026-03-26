@@ -1,4 +1,4 @@
-    document.getElementById("poolForm").addEventListener("submit", async (e) => {
+document.getElementById("poolForm").addEventListener("submit", async (e) => {
       e.preventDefault();
 
       const data = {
@@ -43,4 +43,10 @@
         console.error(error);
         alert("Error: " + error.message);
       }
-    });
+});
+
+const poolType = document.getElementById("poolType");
+poolType.addEventListener("change", () => {
+    document.getElementById("sh-rect").classList.toggle("hidden")
+    document.getElementById("sh-cir").classList.toggle("hidden")
+});
