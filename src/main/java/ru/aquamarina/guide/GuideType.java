@@ -1,7 +1,6 @@
 package ru.aquamarina.guide;
 
 import ru.aquamarina.guide.dto.PoolInfoDto;
-import ru.aquamarina.model.entity.PoolInfo;
 
 public enum GuideType {
     GREEN_POOL {
@@ -24,7 +23,7 @@ public enum GuideType {
 
         @Override
         public String getTemplate() {
-            return "static/templates/guide.html";
+            return "static/templates/first-launch.html";
         }
     },
 
@@ -37,7 +36,7 @@ public enum GuideType {
 
         @Override
         public String getTemplate() {
-            return "static/templates/guide.html";
+            return "static/templates/step-by-step.html";
         }
     };
 

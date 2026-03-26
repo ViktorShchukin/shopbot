@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Инструкция</title>
+    <style>
+        body {
+            font-family: "DejaVu Sans";
+        }
+        .main-list {
+            counter-reset: item;
+            list-style: none;
+             padding-left: 0;
+        }
+
+        .main-list > li {
+            counter-increment: item;
+        }
+
+        .main-list > li > h2::before {
+            content: counter(item) ". ";
+        }
+        .red-text {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+{% include "static/templates/list-of-chemicals.html" %}
+<p>
+    Обьем вашего бассейна: {{ poolGuideDto.poolVolume | numberformat("#.##") }} м3
+</p>
+<ol class="main-list">
+    <li>
+        {% include "static/templates/pool-pre-treatment.html" %}
+    </li>
+    <li>
+        {% include "static/templates/ph.html" %}
+    </li>
+    <li>
+        {% include "static/templates/green-pool-fast-treatment.html" %}
+    </li>
+    <li>
+        {% include "static/templates/slow-treatment.html" %}
+    </li>
+    <li>
+        {% include "static/templates/coagulat.html" %}
+    </li>
+</ol>
+</body>
+</html>
