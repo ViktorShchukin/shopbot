@@ -16,7 +16,7 @@ document.getElementById("poolForm").addEventListener("submit", async (e) => {
       };
 
       try {
-        const response = await fetch("http://localhost:8282/guide/pdf", {
+        const response = await fetch("guide/pdf", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
