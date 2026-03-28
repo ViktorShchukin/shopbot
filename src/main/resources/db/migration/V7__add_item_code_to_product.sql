@@ -1,4 +1,4 @@
-alter table product add column item_code BIGINT not null default 0;
+alter table shopbot.product add column item_code BIGINT not null default 0;
 
 with tmp as (
 		select ptmp.id,
