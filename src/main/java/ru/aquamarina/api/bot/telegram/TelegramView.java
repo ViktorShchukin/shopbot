@@ -787,6 +787,11 @@ public class TelegramView implements View {
             }
         }
 
+        if (messageId == null) {
+            sendMessage(user, messageText, keyboard.getKeyboard());
+            return;
+        }
+
         EditMessageText message = EditMessageText.builder()
                 .chatId(telegramUserId)
                 .messageId(messageId)
@@ -803,9 +808,6 @@ public class TelegramView implements View {
             client.execute(message);
             client.execute(replyMarkup);
         } catch (TelegramApiException e) {
-            if (messageId == null) {
-                sendMessage(user, messageText, keyboard.getKeyboard());
-            }
             log.error("Telegram error during rewriting message: ", e);
         }
     }

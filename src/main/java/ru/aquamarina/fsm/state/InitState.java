@@ -18,7 +18,7 @@ public class InitState implements FsmState {
     }
     @Override
     public Result<FsmState, Error> doWork(FsmContextHolder context, Command command) {
-        return Result.ok(new IndexState(user));
+        return Result.ok(new IndexState(user, true));
     }
 
     /**
