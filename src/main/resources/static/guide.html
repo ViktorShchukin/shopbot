@@ -5,54 +5,66 @@
     <title>Title</title>
     <link rel="stylesheet" href="shopbot.css">
     <script src="guide.js" defer></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
 </head>
 <body>
-
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+        crossorigin="anonymous"></script>
 <nav class="sh-hor">
-    <img src="https://static.tildacdn.com/tild3836-3364-4165-b533-616435386635/Group_47404.svg" alt="Aquamarina logo">
-    <a class="sh-custom-a" href="https://aquamarina-shop.ru/">
-        <-- Назад в магазин
+    <a href="https://aquamarina-shop.ru/">
+        <img src="https://static.tildacdn.com/tild3836-3364-4165-b533-616435386635/Group_47404.svg"
+             alt="Aquamarina logo">
+    </a>
+    <a href="https://aquamarina-shop.ru/" class="catalog-btn sh-custom-a">
+        <span class="icon">
+            <i></i><i></i><i></i><i></i>
+        </span>
+        Каталог
     </a>
 </nav>
 
 <form id="poolForm">
     <label>Тип бассейна:</label>
-    <select id="poolType">
+    <select id="poolType" class="form-select">
         <option value="RECTANGLE">Прямоугольный</option>
         <option value="CIRCLE">Круглый</option>
     </select>
-    <br/><br/>
 
     <label>Тип фильтра:</label>
-    <select id="filterType">
+    <select id="filterType" class="form-select">
         <option value="SAND">Песочный</option>
         <option value="CARTRIDGE">Картриджный</option>
         <option value="NO_FILTER">Нет</option>
     </select>
-    <br/><br/>
 
 
     <div id="sh-rect">
-        <label>Длина:</label>
-        <input type="number" id="poolLength" placeholder="в сантиметрах"/>
-        <br/><br/>
+        <div class="mb-3">
+            <label class="form-label">Длина:</label>
+            <input class="form-control" type="number" id="poolLength" placeholder="в сантиметрах"/>
+        </div>
 
-        <label>Ширина:</label>
-        <input type="number" id="poolWidth" placeholder="в сантиметрах"/>
-        <br/><br/>
+        <div class="mb-3">
+            <label class="form-label">Ширина:</label>
+            <input class="form-control" type="number" id="poolWidth" placeholder="в сантиметрах"/>
+        </div>
     </div>
 
     <div id="sh-cir" class="hidden">
-        <label>Диаметер:</label>
-        <input type="number" id="poolDiameter" placeholder="в сантиметрах"/>
-        <br/><br/>
+        <div class="mb-3">
+            <label class="form-label">Диаметер:</label>
+            <input class="form-control" type="number" id="poolDiameter" placeholder="в сантиметрах"/>
+        </div>
     </div>
 
-    <label>Глубина:</label>
-    <input type="number" id="poolDepth" placeholder="в сантиметрах"/>
-    <br/><br/>
+    <div class="mb-3">
+        <label class="form-label">Глубина:</label>
+        <input class="form-control" type="number" id="poolDepth" placeholder="в сантиметрах"/>
+    </div>
 
-    <button type="submit">Получить инструкцию</button>
+    <button type="submit" class="btn btn-primary">Получить инструкцию</button>
 </form>
 </body>
 </html>

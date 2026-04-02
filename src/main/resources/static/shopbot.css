@@ -23,3 +23,39 @@ form {
 .hidden {
     display: none;
 }
+
+/* -------------------------------*/
+
+.catalog-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+
+  background: #ff4d2d;
+  color: #ffffff;
+
+  padding: 10px 18px;
+  border-radius: 10px;
+
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+
+  cursor: pointer;
+}
+
+/* иконка (4 квадратика) */
+.catalog-btn .icon {
+  display: grid;
+  grid-template-columns: repeat(2, 6px);
+  grid-template-rows: repeat(2, 6px);
+  gap: 3px;
+}
+
+.catalog-btn .icon i {
+  display: block;
+  width: 6px;
+  height: 6px;
+  background: white;
+  border-radius: 2px;
+}
