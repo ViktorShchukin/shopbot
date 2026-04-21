@@ -3,79 +3,26 @@
 hide empty description
 
 state entrypoint <<start>>
-
-state About
-state Contact
-state Shop
-state Guide
-state Basket
-state Catalog
-state Index
-state Init
-state Order
-state ProductAbout
-state ForWholesaler
-state PayAndDelivery
-state Instruction
-state DistributionMode
-state OrderAdditionalInfo
     
 entrypoint --> Init : /start
 Init --> Index
 
+Index --> PoolLength : rectagle
+Index --> PoolDiameter : circle
 
-Index --> Contact : contact
-Index --> Shop : shop
+PoolLength --> PoolWidth : userInput
+PoolWidth --> PoolDepth : userInput
+PoolDiameter --> PoolDepth : userInput
+PoolDepth --> FilterType : userInput
 
-Index --> PoolType : poolType
-PoolType --> PoolSizeInfo : rectangle
-PoolType --> PoolSizeInfo : circle
-PoolSizeInfo --> Guide : userInput?{input}
-Guide --> Index
+FilterType --> GuideType : cartridge sand no_filter
 
-Contact --> About : about
-Contact --> ForWholesaler : forWholesaler
-Contact --> Index : index
+GuideType --> Guide : green_pool beginning_of_season step_by_step
 
-ForWholesaler --> Contact : contact
-About --> Contact : contact
+Guide --> Contact : contact
+Guide --> GuideType : guideType
+Guide --> Index : index
 
-Shop --> Catalog : catalog
-Shop --> PayAndDelivery : payAndDelivery
-Shop --> Basket : basket
-Shop --> Index : index
-
-PayAndDelivery --> Shop : shop
-
-Catalog --> Shop : shop
-Catalog --> ProductAbout : productAbout?{productName}
-Catalog --> Catalog : nextPage
-Catalog --> Catalog : previousPage
-'' get into the specific folder 
-Catalog --> Catalog : folder?{folderPath}
-'' go to the root of the catalog
-Catalog --> Catalog : catalog
-Catalog --> Basket : basket
-
-ProductAbout --> ProductAbout : quantityMinus
-ProductAbout --> ProductAbout : quantityPlus
-ProductAbout --> ProductAbout : addToBasket
-ProductAbout --> Basket : basket
-'' ProductAbout --> Shop : shop
-ProductAbout --> Catalog : catalog
-ProductAbout --> Instruction : instruction
-
-Instruction --> ProductAbout : productAbout
-
-Basket --> Catalog : catalog
-Basket --> Basket : clearBasket
-Basket --> DistributionMode : doOrder
-
-DistributionMode --> OrderAdditionalInfo : delivery
-DistributionMode --> OrderAdditionalInfo : selfPickup
-
-OrderAdditionalInfo --> Order : userInput?{input}
-
-Order --> Index : index
+Contact --> Guide : back
 ```
 
