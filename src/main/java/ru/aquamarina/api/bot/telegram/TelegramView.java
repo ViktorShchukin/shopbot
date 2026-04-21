@@ -487,7 +487,7 @@ public class TelegramView implements View {
         messageSource.getMessage("poolDepth", LOCALE_RU)
                 .ifPresentOrElse(
                         messageText -> {
-                            sendMessage(form.user(), messageText);
+                            sendMessageNoDelete(form.user(), messageText);
                         },
                         () -> {
                             log.error("Can't get message from message source");
@@ -538,7 +538,7 @@ public class TelegramView implements View {
         messageSource.getMessage("poolWidth", LOCALE_RU)
                 .ifPresentOrElse(
                         messageText -> {
-                            sendMessage(form.user(), messageText);
+                            sendMessageNoDelete(form.user(), messageText);
                         },
                         () -> {
                             log.error("Can't get message from message source");
@@ -609,7 +609,7 @@ public class TelegramView implements View {
         messageSource.getMessage("filterType", LOCALE_RU)
                 .ifPresentOrElse(
                         messageText -> {
-                            sendMessage(form.user(), messageText, keyboardRowList);
+                            sendMessageNoDelete(form.user(), messageText, keyboardRowList);
                         },
                         () -> {
                             log.error("Can't get message from message source");
@@ -750,6 +750,70 @@ public class TelegramView implements View {
                     log.warn("Can not delete last message for telegramUserId: {}", telegramUserId);
                 }
             }
+            log.trace("=== try to send message ===");
+            Message res = client.execute(message);
+            telegramInfoService.update(telegramUserId, null, null, null, res.getMessageId());
+            log.trace("=== send message: {} ===", res);
+        } catch (TelegramApiException e) {
+            log.error("Telegram error during sending message: ", e);
+        }
+    }
+
+    private void sendMessageNoDelete(User user, String messageText){
+        Long telegramUserId;
+        Integer messageId;
+        switch (telegramInfoService.getByUser(user)) {
+            case ResultOk<TelegramInfo, Error> ok -> {
+                telegramUserId = ok.result().getTelegramId();
+                messageId = ok.result().getLastMessageId();
+            }
+            case ResultError<TelegramInfo, Error> err -> {
+                draw(err.err());
+                return;
+            }
+        }
+
+        SendMessage message = SendMessage.builder()
+                .chatId(telegramUserId)
+                .text(messageText)
+                .parseMode("HTML")
+                .build();
+
+        try {
+            log.trace("=== try to send message ===");
+            Message res = client.execute(message);
+            telegramInfoService.update(telegramUserId, null, null, null, res.getMessageId());
+            log.trace("=== send message: {} ===", res);
+        } catch (TelegramApiException e) {
+            log.error("Telegram error during sending message: ", e);
+        }
+    }
+
+    private void sendMessageNoDelete(User user, String messageText, List<InlineKeyboardRow> keyboardRowList){
+        Long telegramUserId;
+        Integer messageId;
+        switch (telegramInfoService.getByUser(user)) {
+            case ResultOk<TelegramInfo, Error> ok -> {
+                telegramUserId = ok.result().getTelegramId();
+                messageId = ok.result().getLastMessageId();
+            }
+            case ResultError<TelegramInfo, Error> err -> {
+                draw(err.err());
+                return;
+            }
+        }
+        var keyBoard = InlineKeyboardMarkup.builder()
+                .keyboard(keyboardRowList)
+                .build();
+
+        SendMessage message = SendMessage.builder()
+                .chatId(telegramUserId)
+                .text(messageText)
+                .parseMode("HTML")
+                .replyMarkup(keyBoard)
+                .build();
+        try {
+
             log.trace("=== try to send message ===");
             Message res = client.execute(message);
             telegramInfoService.update(telegramUserId, null, null, null, res.getMessageId());
