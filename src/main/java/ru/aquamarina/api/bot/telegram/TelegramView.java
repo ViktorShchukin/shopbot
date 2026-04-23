@@ -437,7 +437,19 @@ public class TelegramView implements View {
 
         sendDocument(form.user(), file);
 
+        messageSource.getMessage("guideFile", LOCALE_RU)
+                .ifPresentOrElse(
+                        messageText -> {
+                            sendMessage(form.user(), messageText);
+                        },
+                        () -> {
+                            log.error("Can't get message from message source");
+                            this.drawErrorForm(new ErrorForm(form.user()));
+                        }
+                );
+
         this.drawGuideWithoutFileForm(new GuideWithoutFileForm(form.user()));
+
 
         try {
             Files.deleteIfExists(form.guide().toPath());
@@ -464,7 +476,7 @@ public class TelegramView implements View {
         messageSource.getMessage("guide", LOCALE_RU)
                 .ifPresentOrElse(
                         messageText -> {
-                            sendMessage(form.user(), messageText, keyboard);
+                            sendMessageNoDelete(form.user(), messageText, keyboard);
                         },
                         () -> {
                             log.error("Can't get message from message source");
