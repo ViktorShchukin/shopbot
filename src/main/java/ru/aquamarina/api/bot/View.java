@@ -61,4 +61,6 @@ public interface View {
     void drawFilterTypeForm(FilterTypeForm form);
 
     void drawGuideWithoutFileForm(GuideWithoutFileForm form);
+
+    void drawListOfChemicalsForm(ListOfChemicalsForm form);
 }

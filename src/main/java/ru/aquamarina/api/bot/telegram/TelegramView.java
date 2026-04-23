@@ -1,6 +1,8 @@
 package ru.aquamarina.api.bot.telegram;
 
 import io.micronaut.context.MessageSource;
+import io.pebbletemplates.pebble.PebbleEngine;
+import io.pebbletemplates.pebble.template.PebbleTemplate;
 import jakarta.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,6 +36,8 @@ import ru.aquamarina.util.PathUtil;
 import ru.aquamarina.util.ResultError;
 import ru.aquamarina.util.ResultOk;
 
+import java.io.StringWriter;
+import java.io.Writer;
 import java.nio.file.Files;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -50,19 +54,21 @@ public class TelegramView implements View {
     private final ProductMapper productMapper;
     private final TelegramInfoService telegramInfoService;
     private final MessageSource messageSource;
+    private final PebbleEngine pebbleEngine;
 
     public TelegramView(
             OkHttpTelegramClient client,
             ProductService productService,
             ProductMapper productMapper,
             TelegramInfoService telegramInfoService,
-            MessageSource messageSource
-    ) {
+            MessageSource messageSource,
+            PebbleEngine pebbleEngine) {
         this.client = client;
         this.productService = productService;
         this.productMapper = productMapper;
         this.telegramInfoService = telegramInfoService;
         this.messageSource = messageSource;
+        this.pebbleEngine = pebbleEngine;
     }
 
     @Override
@@ -463,6 +469,9 @@ public class TelegramView implements View {
     public void drawGuideWithoutFileForm(GuideWithoutFileForm form) {
         var keyboard = List.of(
                 new InlineKeyboardRow(
+                        getButton(new ListOfChemicalsCmd(null))
+                ),
+                new InlineKeyboardRow(
                         getButton(new GuideTypeCmd(null))
                 ),
                 new InlineKeyboardRow(
@@ -630,6 +639,25 @@ public class TelegramView implements View {
                 );
     }
 
+    @Override
+    public void drawListOfChemicalsForm(ListOfChemicalsForm form) {
+        Map<String, Object> context = new HashMap<>();
+        context.put("poolGuideDto", form.poolGuideDto());
+
+        try (Writer writer = new StringWriter()) {
+            PebbleTemplate template = pebbleEngine.getTemplate("static/templates/list-of-chemicals-tg.html");
+            template.evaluate(writer, context);
+            String html = writer.toString();
+
+            sendMessage(form.user(), html);
+            drawGuideWithoutFileForm(new GuideWithoutFileForm(form.user()));
+        } catch (Exception e) {
+            log.error("error during html generation", e);
+            drawErrorForm(new ErrorForm(form.user()));
+        }
+
+    }
+
     private InlineKeyboardButton getButton(String buttonText, Command command) {
         return InlineKeyboardButton.builder()
                 .text(buttonText)
@@ -677,6 +705,7 @@ public class TelegramView implements View {
             };
             case GuideTypeCmd cmd -> "Решить другую проблему";
             case BackCmd cmd -> "Назад";
+            case ListOfChemicalsCmd cmd -> "Получить список";
         };
         return InlineKeyboardButton.builder()
                 .text(text)
@@ -771,7 +800,7 @@ public class TelegramView implements View {
         }
     }
 
-    private void sendMessageNoDelete(User user, String messageText){
+    private void sendMessageNoDelete(User user, String messageText) {
         Long telegramUserId;
         Integer messageId;
         switch (telegramInfoService.getByUser(user)) {
@@ -801,7 +830,7 @@ public class TelegramView implements View {
         }
     }
 
-    private void sendMessageNoDelete(User user, String messageText, List<InlineKeyboardRow> keyboardRowList){
+    private void sendMessageNoDelete(User user, String messageText, List<InlineKeyboardRow> keyboardRowList) {
         Long telegramUserId;
         Integer messageId;
         switch (telegramInfoService.getByUser(user)) {

@@ -1,0 +1,23 @@
+Список необходимых средств для чистой воды бассейна:
+
+Все препараты в списке- это кликабельные ссылки на товары на Ozon.
+Можно сразу перейти и заказать все необходимое.
+<a href="https://ozon.ru/product/algitsid-dlya-basseyna-1l-prolongirovannyy-sredstvo-protiv-vodorosley-i-zeleni-1l-1kg-aqualeon-1591639988/?hs=1&amp;utm_source=bot&amp;utm_medium=msg&amp;utm_campaign=vendor_org_683373">Альгицид</a>
+<a href="https://ozon.ru/product/udarnyy-hlor-dlya-basseyna-v-granulah-1-kg-aqualeon-sredstvo-dlya-shokovogo-hlorirovaniya-vody-1074963474/?hs=1&amp;utm_source=bot&amp;utm_medium=msg&amp;utm_campaign=vendor_org_683373">Быстрый хлор в гранулах</a>
+{% if poolGuideDto.poolVolume > 16 %}
+<a href="https://ozon.ru/product/tabletki-dlya-basseyna-3v1-po-200gr-aqualeon-1kg-5-tabletok-po-200-gr-medlennyy-hlor-dlya-basseyna-1117806740/?hs=1&amp;utm_source=bot&amp;utm_medium=msg&amp;utm_campaign=vendor_org_683373">Медленный хлор в таблетках 200гр</a>.
+{% else %}
+<a href="https://ozon.ru/product/medlennyy-hlor-kompleksnogo-deystviya-3v1-akvaleon-0-9-kg-hlornye-tabletki-45-tabletok-po-20-1631912960/?hs=1&amp;utm_source=bot&amp;utm_medium=msg&amp;utm_campaign=vendor_org_683373">Медленный хлор в таблетках 20гр</a>
+{% endif %}
+<a href="https://ozon.ru/product/ph-minus-dlya-basseyna-v-granulah-1-kg-himiya-dlya-basseyna-dlya-ponizheniya-urovnya-ph-aqualeon-1074960973/?hs=1&amp;utm_source=bot&amp;utm_medium=msg&amp;utm_campaign=vendor_org_683373">Рн-минус</a> или <a href="https://ozon.ru/product/sredstvo-dlya-povysheniya-ph-basseyna-ph-plyus-1-kg-aqualeon-himiya-dlya-basseyna-1589042876/?hs=1&amp;utm_source=bot&amp;utm_medium=msg&amp;utm_campaign=vendor_org_683373">РН плюс</a>
+{% if poolGuideDto.filterType.name == "SAND" %}
+<a href="https://ozon.ru/product/koagulyant-flokulyant-dlya-basseyna-0-9kg-aqualeon-v-tabletkah-po-25-gr-v-vedre-7-meshochkov-1588948252/?hs=1&amp;utm_source=bot&amp;utm_medium=msg&amp;utm_campaign=vendor_org_683373">Коагулянт в таблетках</a>
+{% else %}
+<a href="https://ozon.ru/product/koagulyant-zhidkiy-aqualeon-1l-1-1kg-sredstvo-ot-mutnosti-v-basseyne-1050253045/?hs=1&amp;utm_source=bot&amp;utm_medium=msg&amp;utm_campaign=vendor_org_683373">Коагулянт жидкий</a>
+{% endif %}
+<a href="https://aquamarina-shop.ru/testery">Тестер таблеточный для бассейна для измерения уровня хлора и PH</a>
+{% if poolGuideDto.poolVolume > 10 %}
+<a href="https://aquamarina-shop.ru/dozatory/tproduct/389777068092-dozator-plavayuschii-dlya-basseina-intex">Поплавок-дозатор</a>
+{% else %}
+<a href="https://aquamarina-shop.ru/dozatory/tproduct/158131211232-dozator-plavayuschii-dlya-basseina-intex">Поплавок-дозатор</a>
+{% endif %}
