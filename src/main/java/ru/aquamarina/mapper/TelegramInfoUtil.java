@@ -16,6 +16,7 @@ public interface TelegramInfoUtil {
 
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "source", expression = "java(null)")
     TelegramInfo create(long telegramId,
                         @NotNull UUID userId,
                         String firstName,
@@ -33,5 +34,6 @@ public interface TelegramInfoUtil {
                         String firstName,
                         String lastName,
                         String userName,
-                        Integer lastMessageId);
+                        Integer lastMessageId,
+                        String source);
 }

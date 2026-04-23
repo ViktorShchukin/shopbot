@@ -38,6 +38,17 @@ public class TelegramInfo {
     @MappedProperty("updated_at")
     private Instant updatedAt;
 
+    @MappedProperty("source")
+    private String source;
+
+    public String getSource() {
+        return source;
+    }
+
+    public void setSource(String source) {
+        this.source = source;
+    }
+
     public Instant getCreatedAt() {
         return createdAt;
     }

@@ -99,4 +99,11 @@ public class TelegramInfoService {
     }
 
 
+    public void updateSource(User user, String source) {
+        try {
+            telegramInfoServiceWithExc.updateSource(user, source);
+        } catch (DataAccessException e) {
+            log.error("error during source update user: {}, source: {}", user, source);
+        }
+    }
 }

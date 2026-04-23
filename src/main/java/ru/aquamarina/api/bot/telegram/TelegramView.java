@@ -357,7 +357,7 @@ public class TelegramView implements View {
     public void drawErrorForm(ErrorForm form) {
         InlineKeyboardRow keyboardRow = new InlineKeyboardRow(
 //                getButton("Вернуться в корзину", new BasketCmd(null)),
-                getButton(new StartCmd(null))
+                getButton(new StartCmd(null, null))
         );
 
         String messageText = "Во время работы возникла ошибка.\nМы приносим извинения и просим вас сделать заказ сначала.";
@@ -576,7 +576,7 @@ public class TelegramView implements View {
         }
         keyboardRowList.add(
                 new InlineKeyboardRow(
-                        getButton("Изменить параметры бассейна", new StartCmd(null))
+                        getButton("Изменить параметры бассейна", new StartCmd(null, null))
                 )
         );
 

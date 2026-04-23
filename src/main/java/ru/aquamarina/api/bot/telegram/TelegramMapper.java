@@ -31,7 +31,7 @@ public interface TelegramMapper {
             command = update.getCallbackQuery().getData();
         }
         return switch (command) {
-            case StartCmd.NAME -> Result.ok(new StartCmd(user));
+            case String srt when srt.contains(StartCmd.NAME) -> Result.ok(new StartCmd(user, getSource(srt)));
             case AboutCmd.NAME -> Result.ok(new AboutCmd(user));
             case ForWholesalerCmd.NAME -> Result.ok(new ForWholesalerCmd(user));
             case PayAndDeliveryCmd.NAME -> Result.ok(new PayAndDeliveryCmd(user));
@@ -61,7 +61,7 @@ public interface TelegramMapper {
             case String str when str.contains(GuideCmd.NAME) ->
                     Result.ok(new GuideCmd(user, GuideType.valueOf(str.split("\\?")[1])));
             case String str when str.contains(FilterTypeCmd.NAME) ->
-                Result.ok(new FilterTypeCmd(user, FilterType.valueOf(str.split("\\?")[1])));
+                    Result.ok(new FilterTypeCmd(user, FilterType.valueOf(str.split("\\?")[1])));
             case BackCmd.NAME -> Result.ok(new BackCmd(user));
             // deprecated commands
 //            case String str when str.contains(OrderAdditionalInfoPhoneCmd.NAME) ->
@@ -71,5 +71,13 @@ public interface TelegramMapper {
             case null -> Result.error(new UnknownCommand(user));
             default -> Result.ok(new UserInputCmd(user, command));
         };
+    }
+
+    private static String getSource(String str) {
+        try {
+            return str.split(" ")[1];
+        } catch (ArrayIndexOutOfBoundsException e) {
+            return null;
+        }
     }
 }

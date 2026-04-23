@@ -76,7 +76,7 @@ public class TelegramInfoServiceWithExc {
                                               Integer lastMessageId) {
         return telegramInfoRepository
                 .findById(telegramId)
-                .map(info -> telegramInfoUtil.update(info, firstName, lastName, userName, lastMessageId))
+                .map(info -> telegramInfoUtil.update(info, firstName, lastName, userName, lastMessageId, info.getSource()))
                 .map(telegramInfoRepository::update)
                 .map(Result::<TelegramInfo, Error>ok)
                 .orElseGet(() -> Result.error(new NotFound("this telegram info not found")));
@@ -124,4 +124,12 @@ public class TelegramInfoServiceWithExc {
         return telegramInfoRepository.getByUserRole(userRole);
     }
 
+    public void updateSource(User user, String source) {
+        telegramInfoRepository.findByUserId(user.getId())
+                .map(info -> {
+                    info.setSource(source);
+                    return info;
+                })
+                .map(telegramInfoRepository::update);
+    }
 }

@@ -1,0 +1,1 @@
+ALTER TABLE user_telegram_info ADD COLUMN source TEXT;
