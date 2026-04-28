@@ -454,7 +454,31 @@ public class TelegramView implements View {
                         }
                 );
 
-        this.drawGuideWithoutFileForm(new GuideWithoutFileForm(form.user()));
+        var keyboard = List.of(
+                new InlineKeyboardRow(
+                        getButton(new ListOfChemicalsCmd(null))
+                ),
+                new InlineKeyboardRow(
+                        getButton(new GuideTypeCmd(null))
+                ),
+                new InlineKeyboardRow(
+                        getButton(new ContactCmd(null))
+                ),
+                new InlineKeyboardRow(
+                        getButton("Изменить параметры бассейна", new IndexCmd(null))
+                )
+        );
+
+        messageSource.getMessage("guide", LOCALE_RU)
+                .ifPresentOrElse(
+                        messageText -> {
+                            sendMessageNoDelete(form.user(), messageText, keyboard);
+                        },
+                        () -> {
+                            log.error("Can't get message from message source");
+                            this.drawErrorForm(new ErrorForm(form.user()));
+                        }
+                );
 
 
         try {
@@ -485,7 +509,7 @@ public class TelegramView implements View {
         messageSource.getMessage("guide", LOCALE_RU)
                 .ifPresentOrElse(
                         messageText -> {
-                            sendMessageNoDelete(form.user(), messageText, keyboard);
+                            sendMessage(form.user(), messageText, keyboard);
                         },
                         () -> {
                             log.error("Can't get message from message source");
