@@ -31,9 +31,11 @@
     Обьем вашего бассейна: {{ poolGuideDto.poolVolume | numberformat("#.##") }} м3
 </p>
 <ol class="main-list">
+    {% if poolGuideDto.poolVolume > 5 %}
     <li>
         {% include "static/templates/ph.html" %}
     </li>
+    {% endif %}
     <li>
         {% include "static/templates/green-pool-fast-treatment.html" %}
     </li>

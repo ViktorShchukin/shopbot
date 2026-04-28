@@ -23,12 +23,14 @@
             Медленный хлор в таблетках 20гр</a>
         {% endif %}
     </li>
+    {% if poolGuideDto.poolVolume > 5 %}
     <li>
         <a href="https://ozon.ru/product/ph-minus-dlya-basseyna-v-granulah-1-kg-himiya-dlya-basseyna-dlya-ponizheniya-urovnya-ph-aqualeon-1074960973/?hs=1&amp;utm_source=bot&amp;utm_medium=pdf&amp;utm_campaign=vendor_org_683373">
             Рн-минус</a> или
         <a href="https://ozon.ru/product/sredstvo-dlya-povysheniya-ph-basseyna-ph-plyus-1-kg-aqualeon-himiya-dlya-basseyna-1589042876/?hs=1&amp;utm_source=bot&amp;utm_medium=pdf&amp;utm_campaign=vendor_org_683373">
             РН плюс</a>
     </li>
+    {% endif %}
     <li>
         {% if poolGuideDto.filterType.name == "SAND" %}
         <a href="https://ozon.ru/product/koagulyant-flokulyant-dlya-basseyna-0-9kg-aqualeon-v-tabletkah-po-25-gr-v-vedre-7-meshochkov-1588948252/?hs=1&amp;utm_source=bot&amp;utm_medium=pdf&amp;utm_campaign=vendor_org_683373">

@@ -34,9 +34,11 @@
     <li>
         {% include "static/templates/pool-pre-treatment.html" %}
     </li>
+    {% if poolGuideDto.poolVolume > 5 %}
     <li>
         {% include "static/templates/ph.html" %}
     </li>
+    {% endif %}
     <li>
         {% include "static/templates/green-pool-fast-treatment.html" %}
     </li>
