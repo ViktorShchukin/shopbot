@@ -641,6 +641,18 @@ public class TelegramView implements View {
 
     @Override
     public void drawListOfChemicalsForm(ListOfChemicalsForm form) {
+        var keyboard = List.of(
+                new InlineKeyboardRow(
+                        getButton(new GuideTypeCmd(null))
+                ),
+                new InlineKeyboardRow(
+                        getButton(new ContactCmd(null))
+                ),
+                new InlineKeyboardRow(
+                        getButton("Изменить параметры бассейна", new IndexCmd(null))
+                )
+        );
+
         Map<String, Object> context = new HashMap<>();
         context.put("poolGuideDto", form.poolGuideDto());
 
@@ -649,8 +661,8 @@ public class TelegramView implements View {
             template.evaluate(writer, context);
             String html = writer.toString();
 
-            sendMessage(form.user(), html);
-            drawGuideWithoutFileForm(new GuideWithoutFileForm(form.user()));
+            sendMessage(form.user(), html, keyboard);
+//            drawGuideWithoutFileForm(new GuideWithoutFileForm(form.user()));
         } catch (Exception e) {
             log.error("error during html generation", e);
             drawErrorForm(new ErrorForm(form.user()));
