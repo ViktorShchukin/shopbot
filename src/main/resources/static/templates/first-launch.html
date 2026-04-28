@@ -45,9 +45,11 @@
     <li>
         {% include "static/templates/slow-treatment.html" %}
     </li>
+    {% if poolGuideDto.filterType.name != "NO_FILTER" %}
     <li>
         {% include "static/templates/coagulat.html" %}
     </li>
+    {% endif %}
 </ol>
 </body>
 </html>
