@@ -1,0 +1,156 @@
+body {
+     font-family: "DejaVu Sans", sans-serif;
+     color: #111111;
+
+     margin-top: 20px;
+     margin-right: 55px;
+     margin-bottom: 40px;
+     margin-left: 55px;
+
+     line-height: 1.35;
+     font-size: 18px;
+ }
+
+ /* ===== HEADINGS ===== */
+
+ h2 {
+     color: #002b7f;
+
+     font-size: 30px;
+     font-weight: 800;
+
+     text-transform: uppercase;
+
+     margin-top: 42px;
+     margin-bottom: 28px;
+ }
+
+ h4 {
+     color: #002b7f;
+
+     font-size: 24px;
+     font-weight: 700;
+
+     margin-top: 32px;
+     margin-bottom: 12px;
+ }
+
+ /* ===== LIST ===== */
+
+ .main-list {
+     list-style: none;
+     counter-reset: pool-counter;
+
+     padding-left: 0;
+     margin-left: 0;
+ }
+
+ .main-list > li {
+     counter-increment: pool-counter;
+
+     position: relative;
+
+     padding-left: 72px;
+
+     margin-bottom: 34px;
+ }
+
+ /* blue circles with numbers */
+
+ .main-list > li::before {
+     content: counter(pool-counter);
+
+     position: absolute;
+     left: 0;
+     top: 0;
+
+     width: 42px;
+     height: 42px;
+
+     line-height: 42px;
+     text-align: center;
+
+     border-radius: 50%;
+
+     background-color: #002b7f;
+     color: white;
+
+     font-size: 24px;
+     font-weight: bold;
+ }
+
+ /* ===== DESCRIPTION LIST ===== */
+
+ dl {
+     margin: 0;
+ }
+
+ dt {
+     color: #111111;
+
+     font-size: 20px;
+<!--     font-weight: 700;-->
+
+     margin-bottom: 10px;
+ }
+
+ dd {
+     margin-left: 0;
+
+     color: #222222;
+
+     font-size: 16px;
+     line-height: 1.45;
+ }
+
+ /* ===== PARAGRAPHS ===== */
+
+ .m-8 {
+     margin-top: 8px;
+     margin-bottom: 8px;
+ }
+
+ /* ===== EMPHASIS ===== */
+
+ strong {
+     font-weight: 800;
+ }
+
+ i {
+     color: #4b4b4b;
+ }
+
+ /* ===== HORIZONTAL LINE ===== */
+
+ hr {
+     border: 0;
+     border-top: 1px solid #9ca9c4;
+
+     margin-top: 45px;
+     margin-bottom: 45px;
+ }
+
+ /* ===== SPECIAL BLOCK ===== */
+
+ .red-text {
+     color: #c62828;
+     font-weight: 700;
+ }
+
+ /* ===== FINAL SECRET BLOCK ===== */
+
+ h4 + p {
+     border: 2px solid #002b7f;
+
+     border-radius: 10px;
+
+     padding-top: 18px;
+     padding-right: 22px;
+     padding-bottom: 18px;
+     padding-left: 22px;
+
+     color: #002b7f;
+
+     font-size: 22px;
+     line-height: 1.4;
+ }

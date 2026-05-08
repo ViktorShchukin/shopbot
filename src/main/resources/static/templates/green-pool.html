@@ -3,31 +3,14 @@
 <head>
     <meta charset="UTF-8"/>
     <title>Инструкция</title>
+    <link rel="stylesheet" href="template.css"/>
     <style>
-        body {
-            font-family: "DejaVu Sans";
-        }
-        .main-list {
-            counter-reset: item;
-            list-style: none;
-             padding-left: 0;
-        }
-
-        .main-list > li {
-            counter-increment: item;
-        }
-
-        .main-list > li > h2::before {
-            content: counter(item) ". ";
-        }
-        .red-text {
-            color: red;
-        }
+        {% include "static/templates/template.css" %}
     </style>
 </head>
 <body>
 {% include "static/templates/list-of-chemicals.html" %}
-<p>
+<p class="m-8">
     Обьем вашего бассейна: {{ poolGuideDto.poolVolume | numberformat("#.##") }} м3
 </p>
 <ol class="main-list">
@@ -48,5 +31,20 @@
     </li>
     {% endif %}
 </ol>
+<h4>Главный секрет:</h4>
+<p class="m-8">
+    Бассейн проще поддерживать в чистоте, чем «лечить» запущенную зеленую воду.
+    Делайте ударную обработку регулярно, один раз в неделю.
+    В поплавке или скиммере должна всегда лежать
+    медленная таблетка. И тогда вы забудете о том что такое
+    слив воды посреди июля.
+</p>
+<h4>Обратите внимание!</h4>
+<p class="m-8">
+    Если в бассейне недостаточный уровень хлора (давно не делали ударную и текущую
+    обработку), и вода в
+    бассейне стала мутной, то это означает, что вода начала портится и скоро станет зеленой.
+    Нужно сделать ударную обработку, а затем очистить воду от взвешенных частиц коагулянтом.
+</p>
 </body>
 </html>

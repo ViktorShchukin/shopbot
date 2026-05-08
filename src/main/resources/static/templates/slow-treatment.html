@@ -1,25 +1,31 @@
-<h2>Текущая обработка.</h2>
-<p>
-    Используйте Медленный стабилизированный хлор в таблетках. Начните применять его
-    спустя сутки после ударной обработки.
-</p>
+<dl>
+    <dt>
+        Текущая обработка.
+    </dt>
+    <dd>
+        <p class="m-8">
+            Используйте Медленный стабилизированный хлор в таблетках. Начните применять его
+            спустя сутки после ударной обработки.
+        </p>
 
-{% if poolGuideDto.poolVolume > 15 %}
-<p>
-    <a href="https://ozon.ru/product/tabletki-dlya-basseyna-3v1-po-200gr-aqualeon-1kg-5-tabletok-po-200-gr-medlennyy-hlor-dlya-basseyna-1117806740/?hs=1&amp;utm_source=bot&amp;utm_medium=pdf&amp;utm_campaign=vendor_org_683373">
-        Медленный стабилизированный хлор в таблетках по 200 гр</a>
-    ,
-    {{ poolGuideDto.slowChlorineBigPill }} шт таблеток положите в поплавок-дозатор.
-</p>
-{% else %}
-<p>
-    <a href="https://ozon.ru/product/medlennyy-hlor-kompleksnogo-deystviya-3v1-akvaleon-0-9-kg-hlornye-tabletki-45-tabletok-po-20-1631912960/?hs=1&amp;utm_source=bot&amp;utm_medium=pdf&amp;utm_campaign=vendor_org_683373">
-        Медленный стабилизированный хлор в таблетках по 20 гр</a>
-    {{ poolGuideDto.slowChlorineSmallPill }} шт таблеток положите в поплавок-дозатор.
-</p>
-{% endif %}
+        {% if poolGuideDto.poolVolume > 15 %}
+        <p class="m-8">
+            <a href="https://ozon.ru/product/tabletki-dlya-basseyna-3v1-po-200gr-aqualeon-1kg-5-tabletok-po-200-gr-medlennyy-hlor-dlya-basseyna-1117806740/?hs=1&amp;utm_source=bot&amp;utm_medium=pdf&amp;utm_campaign=vendor_org_683373">
+                Медленный стабилизированный хлор в таблетках по 200 гр</a>
+            ,
+            {{ poolGuideDto.slowChlorineBigPill }} шт таблеток положите в поплавок-дозатор.
+        </p>
+        {% else %}
+        <p class="m-8">
+            <a href="https://ozon.ru/product/medlennyy-hlor-kompleksnogo-deystviya-3v1-akvaleon-0-9-kg-hlornye-tabletki-45-tabletok-po-20-1631912960/?hs=1&amp;utm_source=bot&amp;utm_medium=pdf&amp;utm_campaign=vendor_org_683373">
+                Медленный стабилизированный хлор в таблетках по 20 гр</a>
+            {{ poolGuideDto.slowChlorineSmallPill }} шт таблеток положите в поплавок-дозатор.
+        </p>
+        {% endif %}
 
-<p>
-    Добавляйте таблетки в поплавок по мере их растворения. Поплавок с таблетками должен постоянно находится в
-    воде бассейна. На время купания в воде маленьких детей следует доставать поплавок из бассейна.
-</p>
+        <p class="m-8">
+            Добавляйте таблетки в поплавок по мере их растворения. Поплавок с таблетками должен постоянно находится в
+            воде бассейна. На время купания в воде маленьких детей следует доставать поплавок из бассейна.
+        </p>
+    </dd>
+</dl>

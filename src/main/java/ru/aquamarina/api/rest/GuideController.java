@@ -28,7 +28,7 @@ public class GuideController {
     public HttpResponse<SystemFile> getPdf(
             @Body PoolInfoDto poolInfo
     ) {
-        Result<File, Error> res = pdfService.getPdf(poolInfo, GuideType.BEGINNING_OF_SEASON);
+        Result<File, Error> res = pdfService.getPdf(poolInfo, GuideType.STEP_BY_STEP);
 
         return switch (res) {
             case ResultOk<File, Error> ok -> HttpResponse.ok(new SystemFile(ok.result()));

@@ -434,7 +434,7 @@ public class TelegramView implements View {
     @Override
     public void drawGuideForm(GuideForm form) {
         Optional<String> filenameOpt = switch (form.guideType()) {
-            case BEGINNING_OF_SEASON -> messageSource.getMessage("guideNameBeginningOfSeason", LOCALE_RU);
+//            case BEGINNING_OF_SEASON -> messageSource.getMessage("guideNameBeginningOfSeason", LOCALE_RU);
             case STEP_BY_STEP -> messageSource.getMessage("guideNameStepByStep", LOCALE_RU);
             case GREEN_POOL -> messageSource.getMessage("guideGreenPool", LOCALE_RU);
         };
@@ -731,7 +731,7 @@ public class TelegramView implements View {
             case PoolTypeCmd poolTypeCmd -> "Инструкция";
             case GuideCmd gtp -> switch (gtp.guideType()) {
                 case STEP_BY_STEP -> "Уход за бассейном. Пошаговая инструкция.";
-                case BEGINNING_OF_SEASON -> "Запуск бассейна в начале сезона";
+//                case BEGINNING_OF_SEASON -> "Запуск бассейна в начале сезона";
                 case GREEN_POOL -> "Вода зеленая";
             };
             case FilterTypeCmd flt -> switch (flt.filterType()) {

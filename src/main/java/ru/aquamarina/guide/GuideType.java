@@ -15,17 +15,17 @@ public enum GuideType {
         }
     },
     //Запуск бассейна в начале сезона
-    BEGINNING_OF_SEASON {
-        @Override
-        public IPoolGuideCalculator getCalculator(PoolInfoDto poolInfo) {
-            return PoolGuideCalculatorBeginning.of(poolInfo);
-        }
-
-        @Override
-        public String getTemplate() {
-            return "static/templates/first-launch.html";
-        }
-    },
+//    BEGINNING_OF_SEASON {
+//        @Override
+//        public IPoolGuideCalculator getCalculator(PoolInfoDto poolInfo) {
+//            return PoolGuideCalculatorBeginning.of(poolInfo);
+//        }
+//
+//        @Override
+//        public String getTemplate() {
+//            return "static/templates/first-launch.html";
+//        }
+//    },
 
     //Уход за бассейном. Пошаговая инструкция.
     STEP_BY_STEP {
