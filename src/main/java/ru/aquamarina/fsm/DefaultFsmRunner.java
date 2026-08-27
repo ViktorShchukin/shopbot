@@ -12,6 +12,7 @@ import ru.aquamarina.model.entity.User;
 import ru.aquamarina.model.error.Error;
 import ru.aquamarina.model.error.UnknownState;
 import ru.aquamarina.service.OrderService;
+import ru.aquamarina.service.UserAuditService;
 import ru.aquamarina.service.UserService;
 import ru.aquamarina.util.CommandUtil;
 import ru.aquamarina.util.Result;
@@ -24,20 +25,27 @@ public class DefaultFsmRunner implements FsmRunner {
     private final UserService userService;
     private final OrderService orderService;
     private final FsmContextHolder fsmContextHolder;
+    private final UserAuditService userAuditService;
 
-    public DefaultFsmRunner(UserService userService, OrderService orderService, FsmContextHolder fsmContextHolder) {
+    public DefaultFsmRunner(UserService userService, OrderService orderService, FsmContextHolder fsmContextHolder, UserAuditService userAuditService) {
         this.userService = userService;
         this.orderService = orderService;
         this.fsmContextHolder = fsmContextHolder;
+        this.userAuditService = userAuditService;
     }
 
     @Override
     public Result<Form, Error> execute(Command command) {
+        userAuditService.receiveCommand(command.getUser(), command);
         return restoreState(command.getUser())
                 .map(state -> state.doWork(fsmContextHolder, command))
                 .or(err -> {
                     log.error("error in the state machine: {}", err);
                     return Result.<FsmState, Error>ok(new ErrorState(command.getUser(), err));
+                })
+                .mapValue(state -> {
+                    userAuditService.updateState(command.getUser(), state);
+                    return state;
                 })
                 .map(state -> userService.updateState(command.getUser(), state))
                 .mapValue(state -> state.getForm(fsmContextHolder));
@@ -71,9 +79,9 @@ public class DefaultFsmRunner implements FsmRunner {
             case ShopState.NAME -> Result.ok(new ShopState(user));
             case PoolSizeInfoState.NAME -> Result.ok(new PoolSizeInfoState(user));
             case PoolTypeState.NAME -> Result.ok(new PoolTypeState(user));
-            case GuideState.NAME ->  Result.ok(new GuideState(user, GuideType.STEP_BY_STEP, true));
+            case GuideState.NAME -> Result.ok(new GuideState(user, GuideType.STEP_BY_STEP, true));
             case PoolDepthState.NAME -> Result.ok(new PoolDepthState(user));
-            case PoolDiameterState.NAME ->  Result.ok(new PoolDiameterState(user));
+            case PoolDiameterState.NAME -> Result.ok(new PoolDiameterState(user));
             case PoolWidthState.NAME -> Result.ok(new PoolWidthState(user));
             case PoolLengthState.NAME -> Result.ok(new PoolLengthState(user));
             case GuideTypeState.NAME -> Result.ok(new GuideTypeState(user));
@@ -91,7 +99,7 @@ public class DefaultFsmRunner implements FsmRunner {
 //                            .mapValue(order -> new OrderAdditionalInfoPhoneState(user, order));
             case String str when str.contains(OrderAdditionalInfoState.NAME) -> {
                 DistributionMode mode = DistributionMode.valueOf(str.split("\\?")[2]);
-                yield  CommandUtil.parseCmdWithUuidArg(str)
+                yield CommandUtil.parseCmdWithUuidArg(str)
                         .map(id -> fsmContextHolder.getOrderService().findById(id))
                         .mapValue(order -> new OrderAdditionalInfoState(user, order, mode));
             }

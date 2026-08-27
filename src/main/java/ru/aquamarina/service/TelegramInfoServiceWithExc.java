@@ -30,11 +30,13 @@ public class TelegramInfoServiceWithExc {
     private final TelegramInfoRepository telegramInfoRepository;
     private final UserServiceWithExc userService;
     private final TelegramInfoUtil telegramInfoUtil;
+    private final UserAuditService userAuditService;
 
-    public TelegramInfoServiceWithExc(TelegramInfoRepository userTelegramInfoRepository, UserServiceWithExc userService, TelegramInfoUtil telegramInfoUtil) {
+    public TelegramInfoServiceWithExc(TelegramInfoRepository userTelegramInfoRepository, UserServiceWithExc userService, TelegramInfoUtil telegramInfoUtil, UserAuditService userAuditService) {
         this.telegramInfoRepository = userTelegramInfoRepository;
         this.userService = userService;
         this.telegramInfoUtil = telegramInfoUtil;
+        this.userAuditService = userAuditService;
     }
 
     @Transactional
@@ -98,6 +100,7 @@ public class TelegramInfoServiceWithExc {
             }
             case ResultError<User, Error> error -> {
                 var user = userService.create(null, UserRole.CUSTOMER);
+                user.mapValue(usr -> userAuditService.createUser(usr, usr.getUserRole().toString()));
                 user.map(usr -> create(telegramId, usr.getId(), null, null, null, false, null));
                 // todo not save. Think how to do user.create and telegramInfo.create as transactional operation
                 return user;
